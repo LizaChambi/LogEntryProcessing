@@ -17,9 +17,18 @@ LogEntryTest >> setUp [
 ]
 
 { #category : #tests }
+LogEntryTest >> testByteStringLogToLogEntry [
+	"comment stating purpose of message"
+	self assert: (logEntry byteStringLogToLogEntry: 'self
+	timestamp: 0
+	selector: #doAddPackageNamed:in:prereqs:
+	arguments: #(''SmtSupportVASTTypingAp'' nil #() ).') = (logEntry timestamp: 0 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #()) ).
+]
+
+{ #category : #tests }
 LogEntryTest >> testByteStringOutput [
 	"comment stating purpose of message"
-	self assert: ((logEntry withTimestamp: '123' withSelector: 'doAdd' withArguments: '(return same-as)') atByteStringOutput) = 'self
+	self assert: ((logEntry timestamp: '123' selector: 'doAdd' arguments: '(return same-as)') atByteStringOutput) = 'self
 	timestamp: 123
 	selector: doAdd
 	arguments: (return same-as).

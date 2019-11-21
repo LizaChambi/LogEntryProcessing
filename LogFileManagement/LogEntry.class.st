@@ -19,11 +19,18 @@ LogEntry >> atByteStringOutput [
 '.
 ]
 
-{ #category : #'as yet unclassified' }
-LogEntry >> withTimestamp: aTimestamp withSelector: aSelector withArguments: argument [
+{ #category : #tests }
+LogEntry >> byteStringLogToLogEntry: aByteString [
+	"comment stating purpose of message"
+
+	(OpalCompiler new) source: aByteString; context: nil; receiver: LogEntry new; evaluate.
+]
+
+{ #category : #initialization }
+LogEntry >> timestamp: aTimestamp selector: aSelector arguments: aCollection [
 	"comment stating purpose of message"
 	timestamp:= aTimestamp.
 	selector := aSelector.
-	arguments:= argument.
+	arguments:= aCollection.
 	
 ]
