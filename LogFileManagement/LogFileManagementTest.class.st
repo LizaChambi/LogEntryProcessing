@@ -30,6 +30,33 @@ LogFileManagementTest >> setUp [
 ]
 
 { #category : #tests }
+LogFileManagementTest >> testAsArrayLogEntry [
+	"comment stating purpose of message"
+	| collection |
+	
+	collection := OrderedCollection new.
+	collection add: ((LogEntry new) timestamp: 0 selector: #doAssignType:to: arguments: #('Block[void,?]' 'ByteArray>>do:$1') );
+	add: ((LogEntry new) timestamp: 0 selector: #doAddCorrelationRule:to: arguments: #('argument1.argument1 same-as #Integer' 'ByteArray>>do:') );
+	add: ((LogEntry new) timestamp: 0 selector: #doAssignType:to: arguments: #('void' 'ByteArray>>do:') ).
+	
+	logFileManagement asArrayLogEntry: 'self
+	timestamp: 0
+	selector: #doAssignType:to:
+	arguments: #(''Block[void,?]'' ''ByteArray>>do:$1'' ).
+self
+	timestamp: 0
+	selector: #doAddCorrelationRule:to:
+	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).
+self
+	timestamp: 0
+	selector: #doAssignType:to:
+	arguments: #(''void'' ''ByteArray>>do:'' ).' .
+	self assert: (logFileManagement logEntries first) equals: (collection first).
+	
+"	self assert: (logFileManagement logEntries) equals: (collection )."
+]
+
+{ #category : #tests }
 LogFileManagementTest >> testAsArrayString [
 	"comment stating purpose of message"
 	|entryManagement|
@@ -38,8 +65,40 @@ LogFileManagementTest >> testAsArrayString [
 ]
 
 { #category : #tests }
+LogFileManagementTest >> testOneEntryWithCR [
+	"comment stating purpose of message"
+
+	| result |
+	result := logFileManagement
+		asArrayLogEntry:
+			'self
+	timestamp: 0
+	selector: #doAddCorrelationRule:to:
+	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).
+	.'.
+	self assert: result notEmpty.
+	self assert: ((result at: 1) timestamp = 0).
+]
+
+{ #category : #tests }
+LogFileManagementTest >> testOneEntryWithoutCR [
+	"comment stating purpose of message"
+
+	| result |
+	result := logFileManagement
+		asArrayLogEntry:
+			'self
+	timestamp: 0
+	selector: #doAddCorrelationRule:to:
+	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).'.
+	self assert: result notEmpty.
+	self assert: ((result at: 1) timestamp = 0).
+	self assert: ((result at: 1) arguments first = 'argument1.argument1 same-as #Integer' ).
+]
+
+{ #category : #tests }
 LogFileManagementTest >> testReadFile [
 	"comment stating purpose of message"
-	self assert: (logFileManagement readFile:'Reedme') = 'texto
+	self assert: (logFileManagement readFile:'Readme') = 'Texto.
 '.
 ]

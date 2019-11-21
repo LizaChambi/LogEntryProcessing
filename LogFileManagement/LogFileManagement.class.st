@@ -10,8 +10,18 @@ Class {
 { #category : #converting }
 LogFileManagement >> asArrayLogEntry: stringFile [
 	"Create an array of LogEntry based on a string of a log entry"
-	| entry |
-	^ stringFile stream  new. "Falta implementar. Parseo de lectura de ByteString a LogEntry, en un array"
+	| fileRead chunk |
+	chunk := ''.
+	fileRead := stringFile readStream.
+	[ fileRead atEnd ] whileFalse: [ 	chunk := chunk, (fileRead upTo: $.), '.' .
+												( (fileRead peek) = Character cr | fileRead atEnd ) ifTrue:
+												[  
+													logEntries add: ((LogEntry new) byteStringLogToLogEntry: chunk).
+													chunk:= ''.
+												].
+											].
+										
+	^ logEntries
 ]
 
 { #category : #'as yet unclassified' }
@@ -24,8 +34,14 @@ LogFileManagement >> filesToReadLogFilesFromFolder: inputDirectory [
 { #category : #initialization }
 LogFileManagement >> initialize [
 	"comment stating purpose of message"
+	logEntries := OrderedCollection new.
+]
 
-	logEntries := OrderedCollection new
+{ #category : #accessing }
+LogFileManagement >> logEntries [
+	"comment stating purpose of message"
+
+	^ logEntries.
 ]
 
 { #category : #'as yet unclassified' }

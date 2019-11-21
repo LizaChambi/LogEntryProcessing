@@ -6,8 +6,18 @@ Class {
 		'selector',
 		'timestamp'
 	],
+	#classInstVars : [
+		'arguments'
+	],
 	#category : #LogFileManagement
 }
+
+{ #category : #accessing }
+LogEntry >> arguments [
+	"comment stating purpose of message"
+
+	^ arguments
+]
 
 { #category : #conversion }
 LogEntry >> atByteStringOutput [
@@ -19,11 +29,24 @@ LogEntry >> atByteStringOutput [
 '.
 ]
 
-{ #category : #'as yet unclassified' }
-LogEntry >> withTimestamp: aTimestamp withSelector: aSelector withArguments: argument [
+{ #category : #tests }
+LogEntry >> byteStringLogToLogEntry: aByteString [
+	"comment stating purpose of message"
+
+	(OpalCompiler new) source: aByteString; context: nil; receiver: (self); evaluate.
+]
+
+{ #category : #accessing }
+LogEntry >> timestamp [
+	"comment stating purpose of message"
+	^ timestamp. 
+]
+
+{ #category : #initialization }
+LogEntry >> timestamp: aTimestamp selector: aSelector arguments: aCollection [
 	"comment stating purpose of message"
 	timestamp:= aTimestamp.
 	selector := aSelector.
-	arguments:= argument.
+	arguments:= aCollection.
 	
 ]
