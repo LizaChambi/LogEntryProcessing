@@ -23,7 +23,7 @@ LogEntry >> atByteStringOutput [
 LogEntry >> byteStringLogToLogEntry: aByteString [
 	"comment stating purpose of message"
 
-	(OpalCompiler new) source: aByteString; context: nil; receiver: LogEntry new; evaluate.
+	(OpalCompiler new) source: aByteString; context: nil; receiver: (self); evaluate.
 ]
 
 { #category : #initialization }
