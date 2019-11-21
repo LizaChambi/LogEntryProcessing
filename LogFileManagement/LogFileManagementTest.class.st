@@ -40,6 +40,6 @@ LogFileManagementTest >> testAsArrayString [
 { #category : #tests }
 LogFileManagementTest >> testReadFile [
 	"comment stating purpose of message"
-	self assert: (logFileManagement readFile:'Reedme') = 'texto
+	self assert: (logFileManagement readFile:'Readme') = 'Texto.
 '.
 ]
