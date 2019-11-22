@@ -26,6 +26,12 @@ LogEntry >> byteStringLogToLogEntry: aByteString [
 	(OpalCompiler new) source: aByteString; context: nil; receiver: (self); evaluate.
 ]
 
+{ #category : #accessing }
+LogEntry >> timestamp [
+	"comment stating purpose of message"
+	^ timestamp. 
+]
+
 { #category : #initialization }
 LogEntry >> timestamp: aTimestamp selector: aSelector arguments: aCollection [
 	"comment stating purpose of message"
