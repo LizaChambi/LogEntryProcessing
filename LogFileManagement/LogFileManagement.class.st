@@ -13,15 +13,15 @@ LogFileManagement >> asArrayLogEntry: stringFile [
 	| fileRead chunk |
 	chunk := ''.
 	fileRead := stringFile readStream.
-	[ fileRead atEnd ] whileFalse: [ 	chunk := chunk, (fileRead upTo: $.) .
+	[ fileRead atEnd ] whileFalse: [ 	chunk := chunk, (fileRead upTo: $.), '.' .
 												( (fileRead peek) = Character cr | fileRead atEnd ) ifTrue:
 												[  
 													logEntries add: ((LogEntry new) byteStringLogToLogEntry: chunk).
 													chunk:= ''.
 												].
-												fileRead next.
 											].
-^ logEntries.
+										
+	^ logEntries
 ]
 
 { #category : #'as yet unclassified' }
@@ -34,8 +34,14 @@ LogFileManagement >> filesToReadLogFilesFromFolder: inputDirectory [
 { #category : #initialization }
 LogFileManagement >> initialize [
 	"comment stating purpose of message"
-
 	logEntries := OrderedCollection new.
+]
+
+{ #category : #accessing }
+LogFileManagement >> logEntries [
+	"comment stating purpose of message"
+
+	^ logEntries.
 ]
 
 { #category : #'as yet unclassified' }

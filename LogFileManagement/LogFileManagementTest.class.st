@@ -35,11 +35,11 @@ LogFileManagementTest >> testAsArrayLogEntry [
 	| collection |
 	
 	collection := OrderedCollection new.
-	collection add: ((LogEntry new) timestamp: 0 selector: #doAssignType:to: arguments: #('Block[void,?]' 'ByteArray>>do:$1' ) );
-	add: ((LogEntry new) timestamp: 0 selector: #doAddCorrelationRule:to: arguments: #('argument1.argument1 same-as #Integer' 'ByteArray>>do:' ) );
-	add: ((LogEntry new) timestamp: 0 selector: #doAssignType:to: arguments: #('void' 'ByteArray>>do:' ) ).
+	collection add: ((LogEntry new) timestamp: 0 selector: #doAssignType:to: arguments: #('Block[void,?]' 'ByteArray>>do:$1') );
+	add: ((LogEntry new) timestamp: 0 selector: #doAddCorrelationRule:to: arguments: #('argument1.argument1 same-as #Integer' 'ByteArray>>do:') );
+	add: ((LogEntry new) timestamp: 0 selector: #doAssignType:to: arguments: #('void' 'ByteArray>>do:') ).
 	
-	self assert: (logFileManagement asArrayLogEntry: 'self
+	logFileManagement asArrayLogEntry: 'self
 	timestamp: 0
 	selector: #doAssignType:to:
 	arguments: #(''Block[void,?]'' ''ByteArray>>do:$1'' ).
@@ -50,7 +50,9 @@ self
 self
 	timestamp: 0
 	selector: #doAssignType:to:
-	arguments: #(''void'' ''ByteArray>>do:'' ).' ) = (collection).
+	arguments: #(''void'' ''ByteArray>>do:'' ).' .
+	
+	self assert: (logFileManagement logEntries) equals: (collection ).
 ]
 
 { #category : #tests }
