@@ -12,6 +12,20 @@ Class {
 	#category : #LogFileManagement
 }
 
+{ #category : #comparing }
+LogEntry >> <= aLogEntry [
+	"comment stating purpose of message"
+
+	^ timestamp asInteger < aLogEntry timestamp asInteger 
+]
+
+{ #category : #comparing }
+LogEntry >> = aLogEntry [
+	"comment stating purpose of message"
+
+	^ (timestamp = aLogEntry timestamp) and: ((arguments = aLogEntry arguments ) and: (selector = aLogEntry selector)).
+]
+
 { #category : #accessing }
 LogEntry >> arguments [
 	"comment stating purpose of message"
@@ -24,7 +38,7 @@ LogEntry >> atByteStringOutput [
 	"comment stating purpose of message"
 	^ 'self
 	timestamp: ', timestamp asString ,'
-	selector: ', selector asString,'
+	selector: ', '#', selector asString,'
 	arguments: ', arguments asString,'.
 '.
 ]
@@ -37,16 +51,23 @@ LogEntry >> byteStringLogToLogEntry: aByteString [
 ]
 
 { #category : #accessing }
+LogEntry >> selector [
+	"comment stating purpose of message"
+
+	^ selector
+]
+
+{ #category : #accessing }
 LogEntry >> timestamp [
 	"comment stating purpose of message"
 	^ timestamp. 
 ]
 
 { #category : #initialization }
-LogEntry >> timestamp: aTimestamp selector: aSelector arguments: aCollection [
+LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection [
 	"comment stating purpose of message"
 	timestamp:= aTimestamp.
-	selector := aSelector.
+	selector := aString.
 	arguments:= aCollection.
 	
 ]

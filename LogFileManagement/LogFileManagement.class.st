@@ -4,24 +4,39 @@ Class {
 	#instVars : [
 		'logEntries'
 	],
+	#classInstVars : [
+		'filesToRead',
+		'logEntries',
+		'sortedEntries',
+		'aLogEntry'
+	],
 	#category : #LogFileManagement
 }
 
+{ #category : #adding }
+LogFileManagement >> addLog: aLogEntry [
+	"comment stating purpose of message"
+	(aLogEntry timestamp isNil) ifFalse: 
+	[
+		 logEntries add: aLogEntry.
+	].
+]
+
 { #category : #converting }
-LogFileManagement >> asArrayLogEntry: stringFile [
+LogFileManagement >> entriesStringCollectionsToLogEntry: stringFile [
 	"Create an array of LogEntry based on a string of a log entry"
 	| fileRead chunk |
 	chunk := ''.
 	fileRead := stringFile readStream.
 	[ fileRead atEnd ] whileFalse: [ 	chunk := chunk, (fileRead upTo: $.), '.' .
-												( (fileRead peek) = Character cr | fileRead atEnd ) ifTrue:
+												( 
+												(fileRead peek) = Character cr | fileRead atEnd ) ifTrue:
 												[  
-													logEntries add: ((LogEntry new) byteStringLogToLogEntry: chunk).
+													self addLog: ((LogEntry new) byteStringLogToLogEntry: chunk).
 													chunk:= ''.
 												].
 											].
-										
-	^ logEntries
+	^ logEntries.
 ]
 
 { #category : #'as yet unclassified' }
@@ -55,7 +70,7 @@ LogFileManagement >> logEntriesToPrint [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManagement >> mergeLogFilesAsArray: logFiles [
+LogFileManagement >> mergeLogFilesAsCollection: logFiles [
 	"comment stating purpose of message"
 	^ logFiles do: [:file | self readLogFile: file ].
 ]
@@ -63,12 +78,10 @@ LogFileManagement >> mergeLogFilesAsArray: logFiles [
 { #category : #'read/write usage' }
 LogFileManagement >> mergeOrderedLogFileIn: inputDirectory withName: fileNameOutput [
 	"comment stating purpose of message"
-	|filesToRead |
+	|filesToRead|
 	filesToRead := self filesToReadLogFilesFromFolder: inputDirectory.
-	logEntries := self mergeLogFilesAsArray: filesToRead.
-	self sortLogEntriesByTimestamp: logEntries.
-	self writingOutputFilesWithName: fileNameOutput.
-	
+	filesToRead do: [ :file | self readLogFile: file ].
+	self writingOutputFiles: (self sortLogEntriesByTimestamp) withName: fileNameOutput.
 ]
 
 { #category : #'as yet unclassified' }
@@ -76,7 +89,7 @@ LogFileManagement >> mergeOrderedLogFilesIn: inputDirectory withName: fileNameOu
 	"comment stating purpose of message"
 	|filesToRead logEntriesFilter|
 	filesToRead := self filesToReadLogFilesFromFolder: inputDirectory.
-	logEntries := self mergeLogFilesAsArray: filesToRead.
+	logEntries := self mergeLogFilesAsCollection: filesToRead.
 	logEntriesFilter := logEntries select: aBlock.
 	self sortLogEntriesByTimestamp: logEntriesFilter.
 	self writingOutputFilesWithName: fileNameOutput.
@@ -88,27 +101,30 @@ LogFileManagement >> mergeOrderedLogFilesIn: inputDirectory withName: fileNameOu
 { #category : #'as yet unclassified' }
 LogFileManagement >> readFile: nameFile [
 	"comment stating purpose of message"
-	^ nameFile asFileReference readStream upToEnd.
+	^ nameFile asFileReference readStream upToEnd replaceAll: Character lf with: Character cr.
 ]
 
 { #category : #reading }
-LogFileManagement >> readLogFile: nameFile [
+LogFileManagement >> readLogFile: fileReference [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| stringFile |
-	stringFile := self readFile: nameFile. "read file ByteString"
-	logEntries addAll: (self asArrayLogEntry: stringFile ). "Add parser stringFiles to array LogEntry"
+	stringFile := self readFile: fileReference. "read file ByteString"
+	self entriesStringCollectionsToLogEntry: stringFile. "StringFiles to array LogEntry"
 ]
 
 { #category : #sorting }
-LogFileManagement >> sortLogEntriesByTimestamp: logFiles [
-	"Sort the log entries by time stamp"
-	^ logFiles "Falta implementar el método de ordenamiento. -Divide and conquer-"
+LogFileManagement >> sortLogEntriesByTimestamp [
+	"Sort the log entries by timestamp"
+	|sortedEntries|
+	sortedEntries := SortedCollection sortBlock: [:log1 :log2 | log1 timestamp <= log2 timestamp ].
+	sortedEntries addAll: logEntries.
+	^ sortedEntries.
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManagement >> writingOutputFilesWithName: fileNameOutput [
+LogFileManagement >> writingOutputFiles: aCollectionLogEntries withName: fileNameOutput [ 
 	"Write a file with the log entries with the given name"
 	| text |	
-	text := self logEntriesToPrint.
+	text := String streamContents: [:t | aCollectionLogEntries  do: [:log | t nextPutAll: log atByteStringOutput]].
 	fileNameOutput asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: text ].
 ]
