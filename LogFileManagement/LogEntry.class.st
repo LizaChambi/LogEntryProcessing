@@ -6,8 +6,18 @@ Class {
 		'selector',
 		'timestamp'
 	],
+	#classInstVars : [
+		'arguments'
+	],
 	#category : #LogFileManagement
 }
+
+{ #category : #accessing }
+LogEntry >> arguments [
+	"comment stating purpose of message"
+
+	^ arguments
+]
 
 { #category : #conversion }
 LogEntry >> atByteStringOutput [

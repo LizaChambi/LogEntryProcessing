@@ -51,8 +51,9 @@ self
 	timestamp: 0
 	selector: #doAssignType:to:
 	arguments: #(''void'' ''ByteArray>>do:'' ).' .
+	self assert: (logFileManagement logEntries first) equals: (collection first).
 	
-	self assert: (logFileManagement logEntries) equals: (collection ).
+"	self assert: (logFileManagement logEntries) equals: (collection )."
 ]
 
 { #category : #tests }
@@ -92,6 +93,7 @@ LogFileManagementTest >> testOneEntryWithoutCR [
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).'.
 	self assert: result notEmpty.
 	self assert: ((result at: 1) timestamp = 0).
+	self assert: ((result at: 1) arguments first = 'argument1.argument1 same-as #Integer' ).
 ]
 
 { #category : #tests }
