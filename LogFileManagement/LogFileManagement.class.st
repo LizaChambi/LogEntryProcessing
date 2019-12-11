@@ -16,31 +16,19 @@ Class {
 { #category : #adding }
 LogFileManagement >> addLog: aLogEntry [
 	"comment stating purpose of message"
-	(aLogEntry timestamp isNil) ifFalse: 
-	[
-		 logEntries add: aLogEntry.
-	].
+	(self isValidLog: aLogEntry)
+		ifTrue: [ logEntries add: aLogEntry ] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
 ]
 
 { #category : #converting }
-LogFileManagement >> entriesStringCollectionsToLogEntry: stringFile [
+LogFileManagement >> convertFileReadedToLogsEntries: logStream [
 	"Create an array of LogEntry based on a string of a log entry"
-	| fileRead chunk |
-	chunk := ''.
-	fileRead := stringFile readStream.
-	[ fileRead atEnd ] whileFalse: [ 	chunk := chunk, (fileRead upTo: $.), '.' .
-												( 
-												(fileRead peek) = Character cr | fileRead atEnd ) ifTrue:
-												[  
-													self addLog: ((LogEntry new) byteStringLogToLogEntry: chunk).
-													chunk:= ''.
-												].
-											].
+	[ logStream atEnd ] whileFalse: [ self addLog: ((LogEntry new) convertChunkToLogEntry: logStream next) ].
 	^ logEntries.
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManagement >> filesToReadLogFilesFromFolder: inputDirectory [
+LogFileManagement >> filesToReadFromFolder: inputDirectory [
 	"comment stating purpose of message"
 	^ ((inputDirectory asFileReference) children) select: [ :each | each basename endsWith: '.changes' ].
 
@@ -52,21 +40,15 @@ LogFileManagement >> initialize [
 	logEntries := OrderedCollection new.
 ]
 
+{ #category : #adding }
+LogFileManagement >> isValidLog: aLogEntry [
+	^ (aLogEntry timestamp = nil) not and: [ (aLogEntry arguments = nil) not and: [ (aLogEntry selector = nil) not ] ].  
+]
+
 { #category : #accessing }
 LogFileManagement >> logEntries [
 	"comment stating purpose of message"
-
 	^ logEntries.
-]
-
-{ #category : #'as yet unclassified' }
-LogFileManagement >> logEntriesToPrint [
-	"comment stating purpose of message"
-	| stringsLogEntries textToPrint|
-	stringsLogEntries := logEntries collect: [ :algo | algo atByteStringOutput ].
-	textToPrint := ''.
-	stringsLogEntries do: [:each | textToPrint := textToPrint , each ].
-	^ textToPrint.
 ]
 
 { #category : #'as yet unclassified' }
@@ -79,16 +61,16 @@ LogFileManagement >> mergeLogFilesAsCollection: logFiles [
 LogFileManagement >> mergeOrderedLogFileIn: inputDirectory withName: fileNameOutput [
 	"comment stating purpose of message"
 	|filesToRead|
-	filesToRead := self filesToReadLogFilesFromFolder: inputDirectory.
-	filesToRead do: [ :file | self readLogFile: file ].
-	self writingOutputFiles: (self sortLogEntriesByTimestamp) withName: fileNameOutput.
+	filesToRead := self filesToReadFromFolder: inputDirectory.
+	filesToRead do: [ :file | self readLogsEntries: file ].
+	self writeFiles: (self sortLogEntriesByTimestamp) withName: fileNameOutput.
 ]
 
 { #category : #'as yet unclassified' }
 LogFileManagement >> mergeOrderedLogFilesIn: inputDirectory withName: fileNameOutput matchingACriteria: aBlock [
 	"comment stating purpose of message"
 	|filesToRead logEntriesFilter|
-	filesToRead := self filesToReadLogFilesFromFolder: inputDirectory.
+	filesToRead := self filesToReadFromFolder: inputDirectory.
 	logEntries := self mergeLogFilesAsCollection: filesToRead.
 	logEntriesFilter := logEntries select: aBlock.
 	self sortLogEntriesByTimestamp: logEntriesFilter.
@@ -98,18 +80,12 @@ LogFileManagement >> mergeOrderedLogFilesIn: inputDirectory withName: fileNameOu
 	
 ]
 
-{ #category : #'as yet unclassified' }
-LogFileManagement >> readFile: nameFile [
-	"comment stating purpose of message"
-	^ nameFile asFileReference readStream upToEnd replaceAll: Character lf with: Character cr.
-]
-
 { #category : #reading }
-LogFileManagement >> readLogFile: fileReference [
+LogFileManagement >> readLogsEntries: fileReference [
 	"Read a log file and add them as LogEntry files to the log entries"
-	| stringFile |
-	stringFile := self readFile: fileReference. "read file ByteString"
-	self entriesStringCollectionsToLogEntry: stringFile. "StringFiles to array LogEntry"
+	| logStream |
+	logStream := ReadLogStream onStream: fileReference asFileReference readStream.
+	self convertFileReadedToLogsEntries: logStream.
 ]
 
 { #category : #sorting }
@@ -122,9 +98,9 @@ LogFileManagement >> sortLogEntriesByTimestamp [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManagement >> writingOutputFiles: aCollectionLogEntries withName: fileNameOutput [ 
+LogFileManagement >> writeFiles: aCollectionLogEntries withName: fileNameOutput [ 
 	"Write a file with the log entries with the given name"
 	| text |	
-	text := String streamContents: [:t | aCollectionLogEntries  do: [:log | t nextPutAll: log atByteStringOutput]].
+	text := String streamContents: [:t | aCollectionLogEntries  do: [:log | t nextPutAll: log asStringOutput]].
 	fileNameOutput asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: text ].
 ]

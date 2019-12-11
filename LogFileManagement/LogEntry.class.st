@@ -12,6 +12,11 @@ Class {
 	#category : #LogFileManagement
 }
 
+{ #category : #'as yet unclassified' }
+LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection [ 
+	^ self new timestamp: anInteger selector: aString arguments: aCollection.
+]
+
 { #category : #comparing }
 LogEntry >> <= aLogEntry [
 	"comment stating purpose of message"
@@ -34,7 +39,7 @@ LogEntry >> arguments [
 ]
 
 { #category : #conversion }
-LogEntry >> atByteStringOutput [
+LogEntry >> asStringOutput [
 	"comment stating purpose of message"
 	^ 'self
 	timestamp: ', timestamp asString ,'
@@ -44,16 +49,14 @@ LogEntry >> atByteStringOutput [
 ]
 
 { #category : #tests }
-LogEntry >> byteStringLogToLogEntry: aByteString [
+LogEntry >> convertChunkToLogEntry: aByteString [
 	"comment stating purpose of message"
-
 	(OpalCompiler new) source: aByteString; context: nil; receiver: (self); evaluate.
 ]
 
 { #category : #accessing }
 LogEntry >> selector [
 	"comment stating purpose of message"
-
 	^ selector
 ]
 
@@ -69,5 +72,6 @@ LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection [
 	timestamp:= aTimestamp.
 	selector := aString.
 	arguments:= aCollection.
+
 	
 ]

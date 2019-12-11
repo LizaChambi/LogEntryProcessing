@@ -13,14 +13,24 @@ Class {
 
 { #category : #'as yet unclassified' }
 LogFileManagementTest >> logEntrySource [
-^ 'self
+^ ReadLogStream onStream: 'self
 	timestamp: 0
-	selector: #doAddPackageNamed:in:prereqs:
-	arguments: #(''SmtSupportVASTTypingApp'' nil #() ).
+	selector: #doAssignType:to:
+	arguments: #(''Block[void,?]'' ''ByteArray>>do:$1'' ).
 self
 	timestamp: 0
-	selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames:
-	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'' #() #() #() ).'
+	selector: #doAddCorrelationRule:to:
+	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).
+self
+	timestamp: 0
+	selector: #doAssignType:to:
+	arguments: #(''void'' ''ByteArray>>do:'' ).' readStream.
+]
+
+{ #category : #tests }
+LogFileManagementTest >> readFile: aPath [
+	"comment stating purpose of message"
+	^ aPath asFileReference readStream upToEnd replaceAll: Character lf with: Character cr.
 ]
 
 { #category : #running }
@@ -37,47 +47,34 @@ LogFileManagementTest >> tearDown [
 ]
 
 { #category : #tests }
-LogFileManagementTest >> testAsArrayLogEntry [
+LogFileManagementTest >> testAddLog [
 	"comment stating purpose of message"
-	| collection |
-	
-	collection := OrderedCollection new.
-	collection add: ((LogEntry new) timestamp: 0 selector: #doAssignType:to: arguments: #('Block[void,?]' 'ByteArray>>do:$1') );
-	add: ((LogEntry new) timestamp: 0 selector: #doAddCorrelationRule:to: arguments: #('argument1.argument1 same-as #Integer' 'ByteArray>>do:') );
-	add: ((LogEntry new) timestamp: 0 selector: #doAssignType:to: arguments: #('void' 'ByteArray>>do:') ).
-	
-	logFileManagement entriesStringCollectionsToLogEntry: 'self
-	timestamp: 0
-	selector: #doAssignType:to:
-	arguments: #(''Block[void,?]'' ''ByteArray>>do:$1'' ).
-self
-	timestamp: 0
-	selector: #doAddCorrelationRule:to:
-	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).
-self
-	timestamp: 0
-	selector: #doAssignType:to:
-	arguments: #(''void'' ''ByteArray>>do:'' ).' .
-	self assert: (logFileManagement logEntries first) equals: (collection first).
-	
-	"self assert: (logFileManagement logEntries) equals: (collection )."
+	logFileManagement addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') ).
+	self assert: (logFileManagement logEntries notEmpty).
 ]
 
 { #category : #tests }
-LogFileManagementTest >> testAsArrayString [
+LogFileManagementTest >> testConvertFileReadedToLogEntries [
 	"comment stating purpose of message"
 	|entryManagement|
 	entryManagement := LogFileManagement new.
-	self assert: (entryManagement entriesStringCollectionsToLogEntry: self logEntrySource ) notEmpty
+	self assert: ((entryManagement convertFileReadedToLogsEntries: self logEntrySource) size) equals: 3.
 ]
 
 { #category : #tests }
-LogFileManagementTest >> testMergeOrderedALogFileFromPathWithAName [
+LogFileManagementTest >> testExceptionAddLog [
+	"comment stating purpose of message"
+	logFileManagement addLog: (LogEntry timestamp: 123456 selector: nil arguments:nil ).
+	self assert: (logFileManagement logEntries isEmpty).
+]
+
+{ #category : #tests }
+LogFileManagementTest >> testMergeOrderedALogFileFromPathName [
 	"comment stating purpose of message"
 	
 	logFileManagement mergeOrderedLogFileIn: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources' withName: 'sortedLogFiles'.
 
-	self assert: (logFileManagement readFile: 'sortedLogFiles') equals: 'self
+	self assert: (self readFile: 'sortedLogFiles') equals: 'self
 	timestamp: 0
 	selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames:
 	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'' #() #() #()).
@@ -97,15 +94,15 @@ LogFileManagementTest >> testOneEntryWithCR [
 	"comment stating purpose of message"
 
 	| result |
-	result := logFileManagement
-		entriesStringCollectionsToLogEntry:
-			'self
+	result := logFileManagement convertFileReadedToLogsEntries: (ReadLogStream onStream: 'self
 	timestamp: 0
 	selector: #doAddCorrelationRule:to:
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).
-	.'.
+' readStream ).
 	self assert: result notEmpty.
-	self assert: ((result at: 1) timestamp = 0).
+	self assert: ((result at: 1) timestamp) equals: (0).
+	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
+	self assert: ((result at: 1) arguments) equals: (#('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
 ]
 
 { #category : #tests }
@@ -113,25 +110,14 @@ LogFileManagementTest >> testOneEntryWithoutCR [
 	"comment stating purpose of message"
 
 	| result |
-	result := logFileManagement
-		entriesStringCollectionsToLogEntry:
-			'self
+	result := logFileManagement convertFileReadedToLogsEntries: (ReadLogStream onStream: 'self
 	timestamp: 0
 	selector: #doAddCorrelationRule:to:
-	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).'.
+	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).' readStream ).
 	self assert: result notEmpty.
-	self assert: ((result at: 1) timestamp = 0).
-	self assert: ((result at: 1) arguments first = 'argument1.argument1 same-as #Integer' ).
-]
-
-{ #category : #tests }
-LogFileManagementTest >> testReadFile [
-	"comment stating purpose of message"
-	self assert: (logFileManagement readFile:'Readme') equals: 'self
-	timestamp: 33
-	selector: #doAddPackageNamed:in:prereqs:
-	arguments: #(''SmtSupportVASTTypingApp'' nil #() ).
-'.
+	self assert: ((result at: 1) timestamp) equals: (0).
+	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
+	self assert: ((result at: 1) arguments) equals: (#('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
 ]
 
 { #category : #tests }
@@ -147,14 +133,14 @@ LogFileManagementTest >> testSortLogEntriesByTimestamp [
 ]
 
 { #category : #tests }
-LogFileManagementTest >> testWritingOutputFilesWithName [
+LogFileManagementTest >> testWriteFilesWithName [
 	"comment stating purpose of message"
 	logFileManagement addLog: ((LogEntry new) timestamp: 33 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #() ));
 	addLog: ((LogEntry new) timestamp: 0 selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames: arguments: #('DateTime' #SmtSupportVASTTypingApp 'Array' #() #() #() )).
 	
-	logFileManagement writingOutputFiles: (logFileManagement logEntries) withName: 'OututFile.txt'.
+	logFileManagement writeFiles: (logFileManagement logEntries) withName: 'OututFile.txt'.
 	
-	self assert: ((logFileManagement readFile:'OututFile.txt') sameAs: ('self
+	self assert: (self readFile: 'OututFile.txt') equals: ('self
 	timestamp: 33
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(''SmtSupportVASTTypingApp'' nil #()).
@@ -162,5 +148,24 @@ self
 	timestamp: 0
 	selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames:
 	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'' #() #() #()).
-') ).
+').
+]
+
+{ #category : #tests }
+LogFileManagementTest >> testWritingOutputFilesWithName [
+	"comment stating purpose of message"
+	logFileManagement addLog: ((LogEntry new) timestamp: 33 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #() ));
+	addLog: ((LogEntry new) timestamp: 0 selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames: arguments: #('DateTime' #SmtSupportVASTTypingApp 'Array' #() #() #() )).
+	
+	logFileManagement writeFiles: (logFileManagement logEntries) withName: 'OututFile.txt'.
+	
+	self assert: (self readFile:'OututFile.txt') equals: ('self
+	timestamp: 33
+	selector: #doAddPackageNamed:in:prereqs:
+	arguments: #(''SmtSupportVASTTypingApp'' nil #()).
+self
+	timestamp: 0
+	selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames:
+	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'' #() #() #()).
+').
 ]
