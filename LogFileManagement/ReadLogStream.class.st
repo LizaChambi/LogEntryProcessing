@@ -27,7 +27,7 @@ ReadLogStream >> next [
 	[ finalized ] whileFalse: 
 	[ 
 		chunk := chunk, (stream upTo: $.), '.'.
-		( (stream peek = Character lf) or: [ (stream peek = Character cr) or: [ (stream atEnd) ] ]) ifTrue: [	finalized := true. ^ chunk. ]
+		( (stream peek = Character lf) or: [ (stream peek = Character cr) or: [ (stream atEnd) ] ]) ifTrue: [ stream next. finalized := true. ^ chunk. ]
 	].
 ]
 

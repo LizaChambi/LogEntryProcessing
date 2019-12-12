@@ -12,13 +12,25 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-LogFileManagementTest >> logEntrySource [
+LogFileManagementTest >> logStreamSource2 [
 ^ ReadLogStream onStream: 'self
 	timestamp: 0
 	selector: #doAssignType:to:
 	arguments: #(''Block[void,?]'' ''ByteArray>>do:$1'' ).
 self
+	timestamp: 3721902053120
+	selector: #doAddCorrelationRule:to:
+	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).' readStream.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManagementTest >> logStreamSource3 [
+^ ReadLogStream onStream: 'self
 	timestamp: 0
+	selector: #doAssignType:to:
+	arguments: #(''Block[void,?]'' ''ByteArray>>do:$1'' ).
+self
+	timestamp: 3721902053120
 	selector: #doAddCorrelationRule:to:
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).
 self
@@ -54,25 +66,16 @@ LogFileManagementTest >> testAddLog [
 ]
 
 { #category : #tests }
-LogFileManagementTest >> testConvertFileReadedToLogEntries [
+LogFileManagementTest >> testExceptionAddLogNil [
 	"comment stating purpose of message"
-	|entryManagement|
-	entryManagement := LogFileManagement new.
-	self assert: ((entryManagement convertFileReadedToLogsEntries: self logEntrySource) size) equals: 3.
-]
-
-{ #category : #tests }
-LogFileManagementTest >> testExceptionAddLog [
-	"comment stating purpose of message"
-	logFileManagement addLog: (LogEntry timestamp: 123456 selector: nil arguments:nil ).
+	logFileManagement addLog: (LogEntry timestamp: nil selector: nil arguments:nil ).
 	self assert: (logFileManagement logEntries isEmpty).
 ]
 
 { #category : #tests }
-LogFileManagementTest >> testMergeOrderedALogFileFromPathName [
+LogFileManagementTest >> testMergeOrderedALogFileFromPath [
 	"comment stating purpose of message"
-	
-	logFileManagement mergeOrderedLogFileIn: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources' withName: 'sortedLogFiles'.
+	logFileManagement mergeOrderedLogFilesFrom: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources' withName: 'sortedLogFiles'.
 
 	self assert: (self readFile: 'sortedLogFiles') equals: 'self
 	timestamp: 0
@@ -90,11 +93,29 @@ self
 ]
 
 { #category : #tests }
+LogFileManagementTest >> testMergeOrderedALogFileFromPathWithCriteria [
+	"comment stating purpose of message"
+logFileManagement mergeOrderedLogFilesFrom: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources' 
+withName: 'sortedLogFiles' 
+matchingACriteria: [:log | log timestamp < 10 ].
+
+	self assert: (self readFile: 'sortedLogFiles') equals: 'self
+	timestamp: 0
+	selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames:
+	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'' #() #() #()).
+self
+	timestamp: 8
+	selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames:
+	arguments: #(''SmtEntireFileReadStream'' #SmtSupportVASTTypingApp ''CfsReadFileStream'' #() #() #()).
+'.
+]
+
+{ #category : #tests }
 LogFileManagementTest >> testOneEntryWithCR [
 	"comment stating purpose of message"
 
 	| result |
-	result := logFileManagement convertFileReadedToLogsEntries: (ReadLogStream onStream: 'self
+	result := logFileManagement readLogsEntries: (ReadLogStream onStream: 'self
 	timestamp: 0
 	selector: #doAddCorrelationRule:to:
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).
@@ -110,7 +131,7 @@ LogFileManagementTest >> testOneEntryWithoutCR [
 	"comment stating purpose of message"
 
 	| result |
-	result := logFileManagement convertFileReadedToLogsEntries: (ReadLogStream onStream: 'self
+	result := logFileManagement readLogsEntries: (ReadLogStream onStream: 'self
 	timestamp: 0
 	selector: #doAddCorrelationRule:to:
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' ).' readStream ).
@@ -118,6 +139,30 @@ LogFileManagementTest >> testOneEntryWithoutCR [
 	self assert: ((result at: 1) timestamp) equals: (0).
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
 	self assert: ((result at: 1) arguments) equals: (#('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
+]
+
+{ #category : #tests }
+LogFileManagementTest >> testReadLogEntries [
+	"comment stating purpose of message"
+	|entryManagement|
+	entryManagement := LogFileManagement new.
+	self assert: ((entryManagement readLogsEntries: self logStreamSource3) size) equals: 3.
+]
+
+{ #category : #tests }
+LogFileManagementTest >> testReadLogsEntriesWithCriteriaTimestamp0 [
+	"comment stating purpose of message"
+	
+	logFileManagement readLogsEntries: (self logStreamSource2) withCriteria: [:log | log timestamp = 0].
+	self assert: (logFileManagement logEntries size) equals: (1).
+]
+
+{ #category : #tests }
+LogFileManagementTest >> testReadLogsEntriesWithCriteriaTimestamp666 [
+	"comment stating purpose of message"
+	
+	logFileManagement readLogsEntries: (self logStreamSource2) withCriteria: [:log | log timestamp = 666].
+	self assert: (logFileManagement logEntries isEmpty).
 ]
 
 { #category : #tests }

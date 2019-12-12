@@ -6,9 +6,6 @@ Class {
 		'selector',
 		'timestamp'
 	],
-	#classInstVars : [
-		'arguments'
-	],
 	#category : #LogFileManagement
 }
 
@@ -20,7 +17,6 @@ LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection 
 { #category : #comparing }
 LogEntry >> <= aLogEntry [
 	"comment stating purpose of message"
-
 	^ timestamp asInteger < aLogEntry timestamp asInteger 
 ]
 
@@ -34,7 +30,6 @@ LogEntry >> = aLogEntry [
 { #category : #accessing }
 LogEntry >> arguments [
 	"comment stating purpose of message"
-
 	^ arguments
 ]
 
@@ -42,16 +37,32 @@ LogEntry >> arguments [
 LogEntry >> asStringOutput [
 	"comment stating purpose of message"
 	^ 'self
-	timestamp: ', timestamp asString ,'
+	timestamp: ', timestamp asString,'
 	selector: ', '#', selector asString,'
 	arguments: ', arguments asString,'.
 '.
 ]
 
 { #category : #tests }
-LogEntry >> convertChunkToLogEntry: aByteString [
+LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	(OpalCompiler new) source: aByteString; context: nil; receiver: (self); evaluate.
+	[(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] ifError: [ LogEntry timestamp: nil selector: nil arguments: nil ].
+	"* Creo un log invalido <- " 
+	"* Corto la ejecucion"
+	"* Creo un log invalido y genero un registro de logs erroneos con e mismo string que recibí"
+]
+
+{ #category : #accessing }
+LogEntry >> hasCriteria: aBlock [
+	"comment stating purpose of message"
+	"^ (self isValidLog) and: [ ^ aBlock cull: self  ]"
+	^ aBlock cull: self
+]
+
+{ #category : #accessing }
+LogEntry >> isValidLog [
+	^ (self timestamp = nil) not and: [ (self arguments = nil) not and: [ (self selector = nil) not ] ].  
+
 ]
 
 { #category : #accessing }
@@ -71,7 +82,5 @@ LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection [
 	"comment stating purpose of message"
 	timestamp:= aTimestamp.
 	selector := aString.
-	arguments:= aCollection.
-
-	
+	arguments := aCollection.
 ]

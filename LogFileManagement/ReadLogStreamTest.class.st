@@ -36,8 +36,7 @@ arguments: #(#Integer #''MoProgramStarter>>sleep:$1'' ).')
 ReadLogStreamTest >> testNextNext [
 	"comment stating purpose of message"
 	stream next.
-	self assert: (stream next) equals: ('
-self
+	self assert: (stream next) equals: ('self
 timestamp: 3721562979643
 selector: #doAssignType:to:
 arguments: #(#Integer #''MoPsMasterAbstractAdminPage>>imageDateStringFor:#BE55D2C84A296007B7A03C9BC686594E@12'' ).')

@@ -16,15 +16,8 @@ Class {
 { #category : #adding }
 LogFileManagement >> addLog: aLogEntry [
 	"comment stating purpose of message"
-	(self isValidLog: aLogEntry)
+	(aLogEntry isValidLog)
 		ifTrue: [ logEntries add: aLogEntry ] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
-]
-
-{ #category : #converting }
-LogFileManagement >> convertFileReadedToLogsEntries: logStream [
-	"Create an array of LogEntry based on a string of a log entry"
-	[ logStream atEnd ] whileFalse: [ self addLog: ((LogEntry new) convertChunkToLogEntry: logStream next) ].
-	^ logEntries.
 ]
 
 { #category : #'as yet unclassified' }
@@ -42,7 +35,7 @@ LogFileManagement >> initialize [
 
 { #category : #adding }
 LogFileManagement >> isValidLog: aLogEntry [
-	^ (aLogEntry timestamp = nil) not and: [ (aLogEntry arguments = nil) not and: [ (aLogEntry selector = nil) not ] ].  
+	^ (aLogEntry timestamp = nil) not and: [ (aLogEntry arguments = nil) not and: [ (aLogEntry selector = nil) not ] ].
 ]
 
 { #category : #accessing }
@@ -51,41 +44,49 @@ LogFileManagement >> logEntries [
 	^ logEntries.
 ]
 
-{ #category : #'as yet unclassified' }
-LogFileManagement >> mergeLogFilesAsCollection: logFiles [
-	"comment stating purpose of message"
-	^ logFiles do: [:file | self readLogFile: file ].
+{ #category : #reading }
+LogFileManagement >> logStream: fileReference [
+	"Read a log file and add them as LogEntry files to the log entries"
+	^ ReadLogStream onStream: fileReference asFileReference readStream.
 ]
 
 { #category : #'read/write usage' }
-LogFileManagement >> mergeOrderedLogFileIn: inputDirectory withName: fileNameOutput [
+LogFileManagement >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOutput [
 	"comment stating purpose of message"
-	|filesToRead|
+	| filesToRead |
 	filesToRead := self filesToReadFromFolder: inputDirectory.
-	filesToRead do: [ :file | self readLogsEntries: file ].
+	filesToRead do: [ :file | self readLogsEntries: (self logStream: file)].
 	self writeFiles: (self sortLogEntriesByTimestamp) withName: fileNameOutput.
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManagement >> mergeOrderedLogFilesIn: inputDirectory withName: fileNameOutput matchingACriteria: aBlock [
+LogFileManagement >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOutput matchingACriteria: aBlock [
 	"comment stating purpose of message"
-	|filesToRead logEntriesFilter|
+	| filesToRead |
 	filesToRead := self filesToReadFromFolder: inputDirectory.
-	logEntries := self mergeLogFilesAsCollection: filesToRead.
-	logEntriesFilter := logEntries select: aBlock.
-	self sortLogEntriesByTimestamp: logEntriesFilter.
-	self writingOutputFilesWithName: fileNameOutput.
+	filesToRead do: [ :file | self readLogsEntries: (self logStream: file) withCriteria: aBlock].
+	self writeFiles: (self sortLogEntriesByTimestamp) withName: fileNameOutput.
 	
 	
 	
 ]
 
 { #category : #reading }
-LogFileManagement >> readLogsEntries: fileReference [
+LogFileManagement >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
-	| logStream |
-	logStream := ReadLogStream onStream: fileReference asFileReference readStream.
-	self convertFileReadedToLogsEntries: logStream.
+	[ logStream atEnd ] whileFalse: [	self addLog: ((LogEntry new) convertChunkToLogEntry: logStream next) ].
+	^ logEntries.
+]
+
+{ #category : #reading }
+LogFileManagement >> readLogsEntries: logStream  withCriteria: aBlock [
+	"Read a log file and add them as LogEntry files to the log entries"
+	| logCreated |
+	[ logStream atEnd ] whileFalse: [
+		logCreated := (LogEntry new) convertChunkToLogEntry: logStream next.
+		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ]. 
+	].
+	^ logEntries.
 ]
 
 { #category : #sorting }
