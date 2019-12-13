@@ -53,6 +53,36 @@ LogEntry >> convertChunkToLogEntry: aString [
 ]
 
 { #category : #accessing }
+LogEntry >> gtInspectorLogIn: composite [
+	<gtInspectorPresentationOrder: 1>
+	composite text
+		title: 'PropText';
+		display: [:log | log asStringOutput ].
+]
+
+{ #category : #accessing }
+LogEntry >> gtInspectorTreeLogIn: composite [
+	<gtInspectorPresentationOrder: 2>
+	composite fastTree 
+		title: 'PropTree';
+		display: [:each | {each} ];
+		children: [ :each | each properties];
+		maxDepth:1; rootsExpanded.
+]
+
+{ #category : #accessing }
+LogEntry >> gtInspectorTreeTableLogIn: composite [
+	<gtInspectorPresentationOrder: 3>
+	composite fastTreeTable
+		title: 'PropTreeTable';
+		display: [:each | {each} ];
+		children: [ :x | x propertiesAsociation ];
+		column: 'Property' evaluated: [:asoc | (asoc class = LogEntry) ifTrue: [asoc] ifFalse: [asoc key ] ];
+		column: 'Value' evaluated: [:asoc | (asoc class = LogEntry) ifTrue: [''] ifFalse: [ (asoc value) value: (asoc key)] ];
+		maxDepth:1; rootsExpanded.
+]
+
+{ #category : #accessing }
 LogEntry >> hasCriteria: aBlock [
 	"comment stating purpose of message"
 	"^ (self isValidLog) and: [ ^ aBlock cull: self  ]"
@@ -60,8 +90,28 @@ LogEntry >> hasCriteria: aBlock [
 ]
 
 { #category : #accessing }
+LogEntry >> isLogEntry [
+	^ true.
+]
+
+{ #category : #accessing }
 LogEntry >> isValidLog [
 	^ (self timestamp = nil) not and: [ (self arguments = nil) not and: [ (self selector = nil) not ] ].  
+
+]
+
+{ #category : #accessing }
+LogEntry >> properties [
+	^ {'timestamp: ', self timestamp asString . 'selector: ', self selector asString . 'arguments: ', self arguments asString}.
+]
+
+{ #category : #accessing }
+LogEntry >> propertiesAsociation [
+	| props res |
+	props := LogEntry allInstVarNames.
+	res := OrderedCollection new.
+	props do: [:prop | res add: (prop -> [:nameProp | self instVarNamed: nameProp]) ].
+	^ res.
 
 ]
 
