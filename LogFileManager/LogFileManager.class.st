@@ -1,8 +1,9 @@
 Class {
-	#name : #LogFileManagement,
+	#name : #LogFileManager,
 	#superclass : #Object,
 	#instVars : [
-		'logEntries'
+		'logEntries',
+		'report'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -10,86 +11,43 @@ Class {
 		'sortedEntries',
 		'aLogEntry'
 	],
-	#category : #LogFileManagement
+	#category : #LogFileManager
 }
 
-{ #category : #reading }
-LogFileManagement >> accumulator [
-	"self new accumulator openOn: 42"
-	<glmBrowser: 'Accumulator' input: 'aLogFileManagement'>
-	| browser acc |
-	browser := GLMTabulator new.
-	acc := GLMAccumulator new.
-	acc
-		show: [ :a | 
-			a title: [ :x | x asString ].
-			a list
-				display: [ :x | 1 to: x ] ].
-	browser
-		column: [ :c | c row: #one span: 4; row: #two ];
-		column: #three.
-	(browser transmit)
-		to: #one;
-		andShow: [ :a | a list display: [ :x | x logEntries do: [:log | log ] ]].
-	(browser transmit)
-		from: #one;
-		to: #two;
-		andShow: [ :a | a text display: [ :x |  x asStringOutput ] ].
-	"When double-clicking on a number in the list, opens a new tab on the right side"
-	(browser transmit)
-		from: #one port: #strongSelection;
-		to: #three;
-		andShowIfNone: [ :a | a custom: acc ].
-	"When a number is selected in the list and a corresponding tab already exists on the right side, select the tab"
-	(browser transmit)
-		from: #one;
-		to: #three port: #entityToSelect.
-	"When a tab is selected on the right side, select the equivalent line in the first pane"
-	(browser transmit)
-		from: #three port: #activeEntity;
-		to: #one port: #selection.
-	^ browser
-]
-
 { #category : #adding }
-LogFileManagement >> addLog: aLogEntry [
+LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
 		ifTrue: [ logEntries add: aLogEntry ] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManagement >> filesToReadFromFolder: inputDirectory [
+LogFileManager >> filesToReadFromFolder: inputDirectory [
 	"comment stating purpose of message"
 	^ ((inputDirectory asFileReference) children) select: [ :each | each basename endsWith: '.changes' ].
 
 ]
 
 { #category : #initialization }
-LogFileManagement >> initialize [
+LogFileManager >> initialize [
 	"comment stating purpose of message"
-	logEntries := OrderedCollection new.
-]
-
-{ #category : #adding }
-LogFileManagement >> isValidLog: aLogEntry [
-	^ (aLogEntry timestamp = nil) not and: [ (aLogEntry arguments = nil) not and: [ (aLogEntry selector = nil) not ] ].
+	logEntries := OrderedCollection new..
+	report  := OrderedCollection new..
 ]
 
 { #category : #accessing }
-LogFileManagement >> logEntries [
+LogFileManager >> logEntries [
 	"comment stating purpose of message"
 	^ logEntries.
 ]
 
 { #category : #reading }
-LogFileManagement >> logStream: fileReference [
-	"Read a log file and add them as LogEntry files to the log entries"
+LogFileManager >> logStream: fileReference [
 	^ ReadLogStream onStream: fileReference asFileReference readStream.
 ]
 
 { #category : #'read/write usage' }
-LogFileManagement >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOutput [
+LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOutput [
 	"comment stating purpose of message"
 	| filesToRead |
 	filesToRead := self filesToReadFromFolder: inputDirectory.
@@ -98,7 +56,7 @@ LogFileManagement >> mergeOrderedLogFilesFrom: inputDirectory withName: fileName
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManagement >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOutput matchingACriteria: aBlock [
+LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOutput matchingACriteria: aBlock [
 	"comment stating purpose of message"
 	| filesToRead |
 	filesToRead := self filesToReadFromFolder: inputDirectory.
@@ -110,25 +68,42 @@ LogFileManagement >> mergeOrderedLogFilesFrom: inputDirectory withName: fileName
 ]
 
 { #category : #reading }
-LogFileManagement >> readLogsEntries: logStream [
-	"Read a log file and add them as LogEntry files to the log entries"
-	[ logStream atEnd ] whileFalse: [	self addLog: ((LogEntry new) convertChunkToLogEntry: logStream next) ].
-	^ logEntries.
-]
-
-{ #category : #reading }
-LogFileManagement >> readLogsEntries: logStream  withCriteria: aBlock [
+LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| logCreated |
 	[ logStream atEnd ] whileFalse: [
 		logCreated := (LogEntry new) convertChunkToLogEntry: logStream next.
+		self reportLogStageError: logCreated onStream: logStream.
+		self addLog: logCreated ].
+	^ logEntries.
+]
+
+{ #category : #reading }
+LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
+	"Read a log file and add them as LogEntry files to the log entries"
+	| logCreated |
+	[ logStream atEnd ] whileFalse: [
+		logCreated := (LogEntry new) convertChunkToLogEntry: logStream next.
+		self reportLogStageError: logCreated onStream: logStream.
 		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ]. 
 	].
 	^ logEntries.
 ]
 
+{ #category : #accessing }
+LogFileManager >> report [
+	"comment stating purpose of message"
+	^ report.
+]
+
+{ #category : #reading }
+LogFileManager >> reportLogStageError: aLogEntry onStream: aStream [ 
+	"Read a log file and add them as LogEntry files to the log entries"
+	(aLogEntry hasStageErrorOn: aStream) ifTrue: [report add: (ReportStageError nameFile: aStream fileReference basename line: aStream position)].
+]
+
 { #category : #sorting }
-LogFileManagement >> sortLogEntriesByTimestamp [
+LogFileManager >> sortLogEntriesByTimestamp [
 	"Sort the log entries by timestamp"
 	|sortedEntries|
 	sortedEntries := SortedCollection sortBlock: [:log1 :log2 | log1 timestamp <= log2 timestamp ].
@@ -137,7 +112,7 @@ LogFileManagement >> sortLogEntriesByTimestamp [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManagement >> writeFiles: aCollectionLogEntries withName: fileNameOutput [ 
+LogFileManager >> writeFiles: aCollectionLogEntries withName: fileNameOutput [ 
 	"Write a file with the log entries with the given name"
 	| text |	
 	text := String streamContents: [:t | aCollectionLogEntries  do: [:log | t nextPutAll: log asStringOutput]].

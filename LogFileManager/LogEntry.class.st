@@ -4,14 +4,15 @@ Class {
 	#instVars : [
 		'arguments',
 		'selector',
-		'timestamp'
+		'timestamp',
+		'stage'
 	],
-	#category : #LogFileManagement
+	#category : #LogFileManager
 }
 
 { #category : #'as yet unclassified' }
-LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection [ 
-	^ self new timestamp: anInteger selector: aString arguments: aCollection.
+LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage [
+	^ self new  timestamp: anInteger selector: aString arguments: aCollection stage: aStage
 ]
 
 { #category : #comparing }
@@ -38,15 +39,16 @@ LogEntry >> asStringOutput [
 	"comment stating purpose of message"
 	^ 'self
 	timestamp: ', timestamp asString,'
-	selector: ', '#', selector asString,'
-	arguments: ', arguments asString,'.
+	selector: ', '#', selector asString, '
+	arguments: ', arguments asString, '
+	stage: ', stage asString, '.
 '.
 ]
 
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	[(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] ifError: [ LogEntry timestamp: nil selector: nil arguments: nil ].
+	[(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] ifError: [ LogEntry timestamp: nil selector: nil arguments: nil stage:nil].
 	"* Creo un log invalido <- " 
 	"* Corto la ejecucion"
 	"* Creo un log invalido y genero un registro de logs erroneos con e mismo string que recibí"
@@ -85,33 +87,32 @@ LogEntry >> gtInspectorTreeTableLogIn: composite [
 { #category : #accessing }
 LogEntry >> hasCriteria: aBlock [
 	"comment stating purpose of message"
-	"^ (self isValidLog) and: [ ^ aBlock cull: self  ]"
 	^ aBlock cull: self
 ]
 
-{ #category : #accessing }
-LogEntry >> isLogEntry [
-	^ true.
+{ #category : #conversion }
+LogEntry >> hasStageErrorOn: aLogStream [
+	"comment stating purpose of message"
+	^ (aLogStream fileReference basename beginsWith: ('stage', self stage asString)) not.
 ]
 
 { #category : #accessing }
 LogEntry >> isValidLog [
-	^ (self timestamp = nil) not and: [ (self arguments = nil) not and: [ (self selector = nil) not ] ].  
-
+	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [self stage notNil] ]].
 ]
 
 { #category : #accessing }
 LogEntry >> properties [
-	^ {'timestamp: ', self timestamp asString . 'selector: ', self selector asString . 'arguments: ', self arguments asString}.
+	| props |
+	props := self class allInstVarNames.
+	^ props collect: [ :prop | prop , ': ', (self instVarNamed: prop) asString ].
 ]
 
 { #category : #accessing }
 LogEntry >> propertiesAsociation [
-	| props res |
-	props := LogEntry allInstVarNames.
-	res := OrderedCollection new.
-	props do: [:prop | res add: (prop -> [:nameProp | self instVarNamed: nameProp]) ].
-	^ res.
+	| props |
+	props := self class allInstVarNames.
+	^ props collect: [:prop | (prop -> [:nameProp | self instVarNamed: nameProp]) ].
 
 ]
 
@@ -122,15 +123,22 @@ LogEntry >> selector [
 ]
 
 { #category : #accessing }
+LogEntry >> stage [
+	"comment stating purpose of message"
+	^ stage.
+]
+
+{ #category : #accessing }
 LogEntry >> timestamp [
 	"comment stating purpose of message"
 	^ timestamp. 
 ]
 
 { #category : #initialization }
-LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection [
+LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage:aStage [
 	"comment stating purpose of message"
 	timestamp:= aTimestamp.
 	selector := aString.
 	arguments := aCollection.
+	stage := aStage.
 ]

@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'stream'
 	],
-	#category : #LogFileManagement
+	#category : #LogFileManager
 }
 
 { #category : #'as yet unclassified' }
@@ -16,6 +16,12 @@ ReadLogStream class >> onStream: aReadStream [
 ReadLogStream >> atEnd [
 	"comment stating purpose of message"
 	^ stream atEnd.
+]
+
+{ #category : #initalize }
+ReadLogStream >> fileReference [
+	"comment stating purpose of message"
+	^ stream wrappedStream wrappedStream file name asFileReference.
 ]
 
 { #category : #initalize }
@@ -35,4 +41,16 @@ ReadLogStream >> next [
 ReadLogStream >> onStream: aReadStream [
 	"comment stating purpose of message"
 	stream := aReadStream.
+]
+
+{ #category : #initalize }
+ReadLogStream >> position [
+	"comment stating purpose of message"
+	^ stream position.
+]
+
+{ #category : #initalize }
+ReadLogStream >> stream [
+	"comment stating purpose of message"
+	^ stream.
 ]
