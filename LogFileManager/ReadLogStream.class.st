@@ -2,7 +2,8 @@ Class {
 	#name : #ReadLogStream,
 	#superclass : #Object,
 	#instVars : [
-		'stream'
+		'stream',
+		'positionLog'
 	],
 	#category : #LogFileManager
 }
@@ -28,8 +29,9 @@ ReadLogStream >> fileReference [
 ReadLogStream >> next [
 	"comment stating purpose of message"
 	| chunk finalized |
-	chunk := ''. 
+	chunk := ''.
 	finalized := false.
+	positionLog := stream position.
 	[ finalized ] whileFalse: 
 	[ 
 		chunk := chunk, (stream upTo: $.), '.'.
@@ -41,12 +43,13 @@ ReadLogStream >> next [
 ReadLogStream >> onStream: aReadStream [
 	"comment stating purpose of message"
 	stream := aReadStream.
+	positionLog := 0.
 ]
 
 { #category : #initalize }
 ReadLogStream >> position [
 	"comment stating purpose of message"
-	^ stream position.
+	^ positionLog.
 ]
 
 { #category : #initalize }

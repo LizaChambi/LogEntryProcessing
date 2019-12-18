@@ -51,6 +51,17 @@ LogFileManagerTest >> testExceptionAddLogNil [
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testLogsWithStage0 [
+	"comment stating purpose of message"
+	| logStream |
+	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/stage0-entriesExample.changes' asFileReference readStream.
+	logFileManager addLog: log0.
+	logFileManager addLog: log33.
+	logFileManager addLog: log8.
+	self assert: ( (logFileManager logsWithStage:0) size) equals: (2).
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testMergeOrderedALogFileFromPath [
 	"comment stating purpose of message"
 	logFileManager mergeOrderedLogFilesFrom: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources' withName: 'sortedLogFiles'.
@@ -110,7 +121,7 @@ LogFileManagerTest >> testOneEntryWithCR [
 	self assert: ((result at: 1) timestamp) equals: (0).
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
 	self assert: ((result at: 1) arguments) equals: (#('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
-	self assert: ((result at:1) stage) equals: (0).
+	self assert: ((result at:1) stage) equals: (1).
 ]
 
 { #category : #tests }
@@ -130,13 +141,13 @@ LogFileManagerTest >> testReadLogEntries [
 	"comment stating purpose of message"
 	|entryManager|
 	entryManager := LogFileManager new.
-	self assert: ((entryManager readLogsEntries: (ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/entriesExample.changes' asFileReference readStream ) ) size) equals: 3.
+	self assert: ((entryManager readLogsEntries: (ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/stage0-entriesExample.changes' asFileReference readStream ) ) size) equals: 3.
 ]
 
 { #category : #tests }
 LogFileManagerTest >> testReadLogsEntriesWithCriteriaTimestamp0 [
 	"comment stating purpose of message"
-	logFileManager readLogsEntries: (ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/entriesExample.changes' asFileReference readStream ) withCriteria: [:log | log timestamp = 0].
+	logFileManager readLogsEntries: (ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/stage0-entriesExample.changes' asFileReference readStream ) withCriteria: [:log | log timestamp = 0].
 	self assert: (logFileManager logEntries size) equals: (1).
 ]
 
@@ -147,6 +158,8 @@ LogFileManagerTest >> testReportLogState [
 	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
 	logFileManager reportLogStageError: log0 onStream: logStream.
 	self assert: ( logFileManager report size) equals: (1).
+	self assert: ( (logFileManager report at:1) nameFile) equals: ('stage0-testfile.changes').
+	self assert: ( (logFileManager report at:1) line) equals: (0).
 ]
 
 { #category : #tests }

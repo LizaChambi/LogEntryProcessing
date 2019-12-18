@@ -28,6 +28,25 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 
 ]
 
+{ #category : #'as yet unclassified' }
+LogFileManager >> gtInspectorReportStages: composite [
+	<gtInspectorPresentationOrder: 2>
+	composite fastList
+		title: 'Report';
+		display: [:each | (each report isEmpty ) ifTrue: ( #('No reports') ) ifFalse: [each report]].
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> gtInspectorTreeLogFiles: composite [
+	<gtInspectorPresentationOrder: 1>
+	composite fastTreeTable
+		title: 'StagesTree';
+		display: [:each | {each}];
+		children: [ :x | x sortLogsByStage ];
+		column: 'Stages' evaluated: [:logs | (logs class = LogFileManager ) ifTrue: [ logs ] ifFalse: [ 'Stage ', (logs at:1) stage asString] ];
+		maxDepth:1; rootsExpanded.
+]
+
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
@@ -44,6 +63,12 @@ LogFileManager >> logEntries [
 { #category : #reading }
 LogFileManager >> logStream: fileReference [
 	^ ReadLogStream onStream: fileReference asFileReference readStream.
+]
+
+{ #category : #accessing }
+LogFileManager >> logsWithStage: aStage [
+	"comment stating purpose of message"
+	^ (logEntries select: [ :log | log stage = aStage]) sort: [:log1 :log2 | log1 timestamp < log2 timestamp] .
 ]
 
 { #category : #'read/write usage' }
@@ -109,6 +134,18 @@ LogFileManager >> sortLogEntriesByTimestamp [
 	sortedEntries := SortedCollection sortBlock: [:log1 :log2 | log1 timestamp <= log2 timestamp ].
 	sortedEntries addAll: logEntries.
 	^ sortedEntries.
+]
+
+{ #category : #accessing }
+LogFileManager >> sortLogsByStage [
+	"comment stating purpose of message"
+	^ self stages collect: [:num | self logsWithStage: num ].
+]
+
+{ #category : #accessing }
+LogFileManager >> stages [
+	"comment stating purpose of message"
+	^ (logEntries collect: [ :log | log stage]) removeDuplicates sort.
 ]
 
 { #category : #'as yet unclassified' }
