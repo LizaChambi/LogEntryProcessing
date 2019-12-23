@@ -43,7 +43,7 @@ LogEntryTest >> testConvertChunkToLogEntryWithOriginPath [
 	timestamp: 3721902053120
 	selector: #doAddCorrelationRule:to:
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
-	stage: 0.' withOriginPath: '/home/lizachambi/Pharo/stage0-testfile.changes' ) equals: (logEntry timestamp: 0 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #()) stage: 0 originPath: '/home/lizachambi/Pharo/stage0-testfile.changes' asFileReference).
+	stage: 0.' withOriginPath: '/home/lizachambi/Pharo/stage0-testfile.changes' ) equals: (logEntry timestamp: 0 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #()) stage: 0 source: '/home/lizachambi/Pharo/stage0-testfile.changes' asFileReference).
 ]
 
 { #category : #tests }
@@ -88,14 +88,14 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 	"comment stating purpose of message"
 	| logStream logWithStage2 |
 	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
-	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 originPath: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
+	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 source: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
 	self assert: (logWithStage2 hasStageErrorOn: logStream).
 ]
 
 { #category : #tests }
 LogEntryTest >> testStringOutput [
 	"comment stating purpose of message"
-	self assert: ((logEntry timestamp: '123' selector: 'doAdd' arguments: '(return same-as)' stage: '0' originPath: 'path' ) prettyPrint) = 'self
+	self assert: ((logEntry timestamp: '123' selector: 'doAdd' arguments: '(return same-as)' stage: '0' source: 'path' ) prettyPrint) = 'self
 	timestamp: 123
 	selector: #doAdd
 	arguments: (return same-as)

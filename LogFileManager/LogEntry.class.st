@@ -12,6 +12,11 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
+LogEntry class >> chunk: aChunk [
+	^ self new convertChunkToLogEntry: aChunk.
+]
+
+{ #category : #'as yet unclassified' }
 LogEntry class >> readLog: logStream [
 	^ self new convertChunkToLogEntry: logStream next withOriginPath: logStream fileReference.
 ]
@@ -22,8 +27,8 @@ LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection 
 ]
 
 { #category : #'as yet unclassified' }
-LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage originPath: aPath [
-	^ self new  timestamp: anInteger selector: aString arguments: aCollection stage: aStage originPath: aPath
+LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath [
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath
 ]
 
 { #category : #comparing }
@@ -63,7 +68,17 @@ LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 { #category : #accessing }
 LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
-	^ self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage.
+	( aLogEntry isValidLog) ifTrue: [ ^ self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage ] ifFalse: [self error: 'El log ingresado no es válido.'].
+]
+
+{ #category : #conversion }
+LogEntry >> editable [
+	"comment stating purpose of message"
+	^ 'timestamp:', self timestamp asString, (Character cr asString), 
+	'selector: ', self selector asString, (Character cr asString), 
+	'arguments: ', self arguments asString, (Character cr asString),
+	'stage: ', self stage asString, (Character cr asString),
+	'source: ', self source fullPath, (Character cr asString).
 ]
 
 { #category : #accessing }
@@ -78,7 +93,7 @@ LogEntry >> gtInspectorEditLogEntry: composite [
       to: #main;
       andShow: [ :a | a text
         onChangeOfPort: #text act: [ :text  |
-          morph contents: text text. self editWithLog: ((LogEntry new) convertChunkToLogEntry: morph contents) ]; display: [ :log | log prettyPrint ]].
+          morph contents: text text. self editWithLog: (LogEntry chunk: ('self ', morph contents) )]; display: [ :log | log editable ]].
  	^ browser
 ]
 
@@ -197,11 +212,11 @@ LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage
 ]
 
 { #category : #initialization }
-LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage:aStage originPath: aFileReference [
+LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage:aStage source: aPathString [
 	"comment stating purpose of message"
 	timestamp:= aTimestamp.
 	selector := aString.
 	arguments := aCollection.
 	stage := aStage.
-	source := aFileReference .
+	source := aPathString asFileReference.
 ]

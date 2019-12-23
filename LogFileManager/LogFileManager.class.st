@@ -157,7 +157,7 @@ LogFileManager >> saveLogsWithSourceFile: aFile [
 { #category : #reading }
 LogFileManager >> selectWithCriteria: aBlock [
 	"Read a log file and add them as LogEntry files to the log entries"
-	^ logEntries select: [ :log | log hasCriteria: aBlock ].
+	^ logEntries select:[ :log | log hasCriteria: aBlock ].
 ]
 
 { #category : #sorting }
