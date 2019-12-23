@@ -14,11 +14,17 @@ Class {
 	#category : #LogFileManager
 }
 
+{ #category : #'read/write usage' }
+LogFileManager class >> readLogFilesFromFolder: aPath [
+	"comment stating purpose of message"
+	^ self new readLogFilesFromFolder: aPath.
+]
+
 { #category : #adding }
 LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
-		ifTrue: [ logEntries add: aLogEntry. aLogEntry addDependent: self] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
+		ifTrue: [ logEntries add: aLogEntry.] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
 ]
 
 { #category : #'as yet unclassified' }
@@ -32,7 +38,7 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 LogFileManager >> gtInspectorReportStages: composite [
 	<gtInspectorPresentationOrder: 2>
 	composite fastList
-		title: 'Report';
+		title: 'Warning Report';
 		display: [:each | (each report isEmpty ) ifTrue: ( #('No reports') ) ifFalse: [each report]].
 ]
 
@@ -41,20 +47,25 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
 	| browser |
 	browser := composite wrapper title: 'StagesTree'.
-	browser show: [:a | 
-		a fastTreeTable 
+	browser show: [:a | a fastTreeTable 
 			display: [:each | {each}];
 			children: [ :x | x sortLogsByStage ];
 			column: 'Stages' evaluated: [:logs | (logs class = LogFileManager ) ifTrue: [ logs ] ifFalse: [ 'Stage ', (logs at:1) stage asString] ];
-			maxDepth:1; rootsExpanded]; addAction: (GLMGenericAction new action: [ self saveFiles ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
+			maxDepth:1; rootsExpanded]; addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
 	^ browser
+]
+
+{ #category : #reading }
+LogFileManager >> hasTimestampRepeated: aLogEntry [
+	"Read a log file and add them as LogEntry files to the log entries"
+	^ logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
 ]
 
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
-	logEntries := OrderedCollection new..
-	report  := OrderedCollection new..
+	logEntries := OrderedCollection new.
+	report  := OrderedCollection new.
 ]
 
 { #category : #accessing }
@@ -95,13 +106,21 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 	
 ]
 
+{ #category : #'read/write usage' }
+LogFileManager >> readLogFilesFromFolder: inputDirectory [
+	"comment stating purpose of message"
+	| filesToRead |
+	filesToRead := self filesToReadFromFolder: inputDirectory.
+	filesToRead do: [ :file | self readLogsEntries: (self logStream: file)].
+]
+
 { #category : #reading }
 LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| logCreated |
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
-		self reportLogStageError: logCreated onStream: logStream.
+		self reportLogErrors: logCreated onStream: logStream.
 		self addLog: logCreated ].
 	^ logEntries.
 ]
@@ -112,10 +131,24 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	| logCreated |
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
-		self reportLogStageError: logCreated onStream: logStream.
+		self reportLogErrors: logCreated onStream: logStream.
 		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ]. 
 	].
 	^ logEntries.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> removeLogFiles [
+	"Borrar los archivos que perdieron referencia"
+	| filesToRemove |
+	filesToRemove := ((self logEntries at:1) source asFileReference parent fullName) asFileReference. "Tomo la referencia de la carpeta"
+	filesToRemove := filesToRemove children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar"
+	filesToRemove do: [:file | file delete]. "Eliminar los archivos enlistados"
+	
+
+	
+	
+	
 ]
 
 { #category : #accessing }
@@ -125,15 +158,20 @@ LogFileManager >> report [
 ]
 
 { #category : #reading }
-LogFileManager >> reportLogStageError: aLogEntry onStream: aStream [ 
-	"Read a log file and add them as LogEntry files to the log entries"
-	(aLogEntry hasStageErrorOn: aStream) ifTrue: [report add: (ReportStageError nameFile: aStream fileReference basename line: aStream position)].
+LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [ 
+	(aLogEntry hasStageErrorOn: aStream) 
+		ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
+	(self hasTimestampRepeated: aLogEntry) 
+		ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated.' nameFile: aStream fileReference basename line: aStream position) ].
+	(aLogEntry stage > 2) 
+		ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
 ]
 
 { #category : #'as yet unclassified' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	| sources |
+	| sources filesToRemove |
+	self removeLogFiles.
 	sources := (logEntries collect: [ :log | log source ]) removeDuplicates.
 	sources do: [ :source | self saveLogsWithSourceFile: source ].
 	
@@ -147,8 +185,8 @@ LogFileManager >> saveFiles [
 LogFileManager >> saveLogsWithSourceFile: aFile [
 	"comment stating purpose of message"
 	| logsToSave |
-	logsToSave := self selectWithCriteria: [ :log | log source fullPath = aFile fullPath ].
-	self writeFiles: (self sortLogEntriesByTimestamp: logsToSave) withName: aFile fullPath.
+	logsToSave := self selectWithCriteria: [ :log | log source = aFile  ].
+	self writeFiles: (self sortLogEntriesByTimestamp: logsToSave) withName: aFile .
 	
 	
 	
@@ -157,7 +195,7 @@ LogFileManager >> saveLogsWithSourceFile: aFile [
 { #category : #reading }
 LogFileManager >> selectWithCriteria: aBlock [
 	"Read a log file and add them as LogEntry files to the log entries"
-	^ logEntries select: [ :log | log hasCriteria: aBlock ].
+	^ logEntries select:[ :log | log hasCriteria: aBlock ].
 ]
 
 { #category : #sorting }
