@@ -65,7 +65,15 @@ LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 { #category : #accessing }
 LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
-	( aLogEntry isValidLog) ifTrue: [ self timestamp: (aLogEntry timestamp) selector: (aLogEntry selector) arguments: (aLogEntry arguments) stage: (aLogEntry stage) source: (aLogEntry source).] ifFalse: [self error: 'El log ingresado no es válido.']. "Ventana de error"
+	( aLogEntry isValidLog) 
+	ifTrue: [
+		(aLogEntry hasPathStageDifferent) 
+		ifTrue: [ self error: 'El nombre del archivo no coincide con el stage del log.' ] "Abrir un cartelito de advertencia"
+		ifFalse: [ 
+			(aLogEntry stage > 2) 
+			ifTrue: [self error: 'El valor del stage debe ser entre 0, 1 y 2']
+			ifFalse: [self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage source: aLogEntry source] ] ]
+	ifFalse: [self error: 'El log ingresado no es válido.']. "Ventana de error"
 ]
 
 { #category : #conversion }
@@ -130,6 +138,12 @@ LogEntry >> gtInspectorTreeTableLogIn: composite [
 LogEntry >> hasCriteria: aBlock [
 	"comment stating purpose of message"
 	^ aBlock cull: self
+]
+
+{ #category : #accessing }
+LogEntry >> hasPathStageDifferent [
+	"comment stating purpose of message"
+	^ (source asFileReference basename beginsWith: ('stage', stage asString)) not.
 ]
 
 { #category : #conversion }

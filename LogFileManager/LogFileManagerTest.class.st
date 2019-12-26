@@ -110,7 +110,7 @@ LogFileManagerTest >> testNoReportLogState [
 	"comment stating purpose of message"
 	| logStream |
 	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
-	logFileManager reportLogStageError: log33 onStream: logStream.
+	logFileManager reportLogErrors: log33 onStream: logStream.
 	self assert: ( logFileManager report size) equals: (0).
 ]
 
@@ -160,7 +160,7 @@ LogFileManagerTest >> testReportLogState [
 	"comment stating purpose of message"
 	| logStream |
 	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
-	logFileManager reportLogStageError: log0 onStream: logStream.
+	logFileManager reportLogErrors: log0 onStream: logStream.
 	self assert: ( logFileManager report size) equals: (1).
 	self assert: ( (logFileManager report at:1) nameFile) equals: ('stage0-testfile.changes').
 	self assert: ( (logFileManager report at:1) line) equals: (0).

@@ -50,6 +50,12 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 	^ browser
 ]
 
+{ #category : #reading }
+LogFileManager >> hasTimestampRepeated: aLogEntry [
+	"Read a log file and add them as LogEntry files to the log entries"
+	^ logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
+]
+
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
@@ -101,7 +107,7 @@ LogFileManager >> readLogsEntries: logStream [
 	| logCreated |
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
-		self reportLogStageError: logCreated onStream: logStream.
+		self reportLogErrors: logCreated onStream: logStream.
 		self addLog: logCreated ].
 	^ logEntries.
 ]
@@ -112,7 +118,7 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	| logCreated |
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
-		self reportLogStageError: logCreated onStream: logStream.
+		self reportLogErrors: logCreated onStream: logStream.
 		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ]. 
 	].
 	^ logEntries.
@@ -125,9 +131,12 @@ LogFileManager >> report [
 ]
 
 { #category : #reading }
-LogFileManager >> reportLogStageError: aLogEntry onStream: aStream [ 
+LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [ 
 	"Read a log file and add them as LogEntry files to the log entries"
-	(aLogEntry hasStageErrorOn: aStream) ifTrue: [report add: (ReportStageError nameFile: aStream fileReference basename line: aStream position)].
+	(aLogEntry hasStageErrorOn: aStream) 
+		ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
+	(self hasTimestampRepeated: aLogEntry) 
+		ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated.' nameFile: aStream fileReference basename line: aStream position) ].
 ]
 
 { #category : #'as yet unclassified' }
