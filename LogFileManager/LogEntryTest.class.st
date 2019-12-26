@@ -52,7 +52,7 @@ LogEntryTest >> testConvertChunkToLogEntryWrong [
 	self assert: (logEntry convertChunkToLogEntry: 'self
 	timestamp: 3721902053120
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
-	stage: 0.') equals: (LogEntry timestamp: nil selector: nil arguments: nil stage:nil).
+	stage: 0.') equals: (LogEntry timestamp:nil selector:nil arguments: nil stage:nil source:nil). "Deberia reportar un error"
 ]
 
 { #category : #tests }

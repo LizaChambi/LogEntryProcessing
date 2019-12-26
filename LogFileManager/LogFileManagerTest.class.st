@@ -124,7 +124,7 @@ LogFileManagerTest >> testOneEntryWithCR [
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
 	self assert: ((result at: 1) arguments) equals: (#('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
 	self assert: ((result at:1) stage) equals: (1).
-	self assert: ((result at:1) source) equals: ('/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfileCr.changes' asFileReference).
+	self assert: ((result at:1) source) equals: ('/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfileCr.changes').
 ]
 
 { #category : #tests }
@@ -137,7 +137,7 @@ LogFileManagerTest >> testOneEntryWithoutCR [
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
 	self assert: ((result at: 1) arguments) equals: ( #('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
 	self assert: ((result at: 1) stage) equals: (0).
-	self assert: ((result at:1) source) equals: ('/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference).
+	self assert: ((result at:1) source) equals: ('/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes').
 ]
 
 { #category : #tests }
@@ -170,8 +170,8 @@ LogFileManagerTest >> testReportLogState [
 LogFileManagerTest >> testSaveFilesEdited [
 	"Dado 4 logEntries modificados, grabarlos en sus archivos correspondientes."
 	| l1 l2 l3 l4 path1 path2 |
-	path1 := './operations/stage0-200-DNU-Setup.changes' asFileReference.
-	path2 := './operations/stage1-3753505986994.changes' asFileReference.
+	path1 := './operations/stage0-200-DNU-Setup.changes' .
+	path2 := './operations/stage1-3753505986994.changes' .
 	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
 	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
 	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
@@ -212,8 +212,8 @@ self
 LogFileManagerTest >> testSaveFilesInit [
 	"Dado 4 log entries, los graba en sus archivos correspondientes."
 	| l1 l2 l3 l4 path1 path2 |
-	path1 := './operations/stage0-200-DNU-Setup.changes' asFileReference.
-	path2 := './operations/stage1-3753505986994.changes' asFileReference.
+	path1 := './operations/stage0-200-DNU-Setup.changes' .
+	path2 := './operations/stage1-3753505986994.changes' .
 	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
 	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
 	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
@@ -251,8 +251,8 @@ self
 LogFileManagerTest >> testSaveLogsWithSourceFile [
 	"comment stating purpose of message"
 	| log1 log2 log3 log4 path1 path2 |
-	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage1-testfile.changes' asFileReference.
-	path2 := '/home/Pharo/stage0-testfile.changes' asFileReference.
+	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage1-testfile.changes' .
+	path2 := '/home/Pharo/stage0-testfile.changes' .
 	log1 := LogEntry timestamp: 0 selector: #doAddClassNamed:in:superclass: arguments: #('DateTime' #SmtSupportVASTTypingApp 'Array') stage: 1 source: path1.
 	log2 := LogEntry timestamp: 8 selector: #doAddClassNamed:in: arguments: #('SmtEntireFileReadStream' #SmtSupportVASTTypingApp) stage: 1 source: path2.
 	log3 := LogEntry timestamp: 25 selector: #doAddCorrelationRule:to: arguments: #('argument1.argument1' 'ByteArray>>do:') stage: 1 source: path1.
@@ -283,7 +283,7 @@ LogFileManagerTest >> testSelectWithCriteria [
 	log8 := LogEntry timestamp: 8 selector: #doAddClassNamed: arguments: #('SmtEntireFileReadStream') stage: 0 source: path.
 	logFileManager addLog: log33; addLog: log0; addLog: log8.
 
-	self assert: ( (logFileManager selectWithCriteria: [:each | (each source fullPath) = path]) size) equals: (2).
+	self assert: ( (logFileManager selectWithCriteria: [:each | (each source) = path]) size) equals: (2).
 ]
 
 { #category : #tests }

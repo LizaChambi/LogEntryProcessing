@@ -18,7 +18,7 @@ Class {
 LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
-		ifTrue: [ logEntries add: aLogEntry. aLogEntry addDependent: self] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
+		ifTrue: [ logEntries add: aLogEntry.] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
 ]
 
 { #category : #'as yet unclassified' }
@@ -32,7 +32,7 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 LogFileManager >> gtInspectorReportStages: composite [
 	<gtInspectorPresentationOrder: 2>
 	composite fastList
-		title: 'Report';
+		title: 'Warning Report';
 		display: [:each | (each report isEmpty ) ifTrue: ( #('No reports') ) ifFalse: [each report]].
 ]
 
@@ -53,8 +53,8 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
-	logEntries := OrderedCollection new..
-	report  := OrderedCollection new..
+	logEntries := OrderedCollection new.
+	report  := OrderedCollection new.
 ]
 
 { #category : #accessing }
@@ -147,8 +147,8 @@ LogFileManager >> saveFiles [
 LogFileManager >> saveLogsWithSourceFile: aFile [
 	"comment stating purpose of message"
 	| logsToSave |
-	logsToSave := self selectWithCriteria: [ :log | log source fullPath = aFile fullPath ].
-	self writeFiles: (self sortLogEntriesByTimestamp: logsToSave) withName: aFile fullPath.
+	logsToSave := self selectWithCriteria: [ :log | log source = aFile  ].
+	self writeFiles: (self sortLogEntriesByTimestamp: logsToSave) withName: aFile .
 	
 	
 	

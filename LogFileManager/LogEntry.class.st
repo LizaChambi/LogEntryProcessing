@@ -18,17 +18,17 @@ LogEntry class >> chunk: aChunk [
 
 { #category : #'as yet unclassified' }
 LogEntry class >> readLog: logStream [
-	^ self new convertChunkToLogEntry: logStream next withOriginPath: logStream fileReference.
+	^ self new convertChunkToLogEntry: logStream next withOriginPath: logStream fileReference fullName.
 ]
 
 { #category : #'as yet unclassified' }
 LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage [
-	^ self new  timestamp: anInteger selector: aString arguments: aCollection stage: aStage
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage
 ]
 
 { #category : #'as yet unclassified' }
 LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath [
-	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath asString.
 ]
 
 { #category : #comparing }
@@ -53,10 +53,7 @@ LogEntry >> arguments [
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	^ [ [(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: SyntaxErrorNotification do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil] ] ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil].
-	"* Creo un log invalido <- " 
-	"* Corto la ejecucion"
-	"* Creo un log invalido y genero un registro de logs erroneos con el mismo string que recibí"
+	[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil] "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
 ]
 
 { #category : #tests }
@@ -68,17 +65,18 @@ LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 { #category : #accessing }
 LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
-	( aLogEntry isValidLog) ifTrue: [ ^ self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage ] ifFalse: [self error: 'El log ingresado no es válido.'].
+	( aLogEntry isValidLog) ifTrue: [ self timestamp: (aLogEntry timestamp) selector: (aLogEntry selector) arguments: (aLogEntry arguments) stage: (aLogEntry stage) source: (aLogEntry source).] ifFalse: [self error: 'El log ingresado no es válido.']. "Ventana de error"
 ]
 
 { #category : #conversion }
 LogEntry >> editable [
 	"comment stating purpose of message"
-	^ 'timestamp:', self timestamp asString, (Character cr asString), 
-	'selector: ', self selector asString, (Character cr asString), 
-	'arguments: ', self arguments asString, (Character cr asString),
-	'stage: ', self stage asString, (Character cr asString),
-	'source: ', self source fullPath, (Character cr asString).
+	^'timestamp: ', timestamp asString,'
+selector: ', '#', selector asString, '
+arguments: ', arguments asString, '
+stage: ', stage asString, '
+source: ', $' asString , source, $' asString , '.
+'.
 ]
 
 { #category : #accessing }
@@ -91,9 +89,10 @@ LogEntry >> gtInspectorEditLogEntry: composite [
    		row: #main.
    browser transmit
       to: #main;
-      andShow: [ :a | a text
-        onChangeOfPort: #text act: [ :text  |
-          morph contents: text text. self editWithLog: (LogEntry chunk: ('self ', morph contents) )]; display: [ :log | log editable ]].
+      andShow: [ :a | a text 
+			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: 'self ', Character cr asString, (text text)) ];
+       " onChangeOfPort: #text act: [ :text  |
+          morph contents: text text. self editWithLog: (LogEntry chunk: (morph contents) )];" display: [ :log | log editable ]].
  	^ browser
 ]
 
@@ -141,7 +140,7 @@ LogEntry >> hasStageErrorOn: aLogStream [
 
 { #category : #accessing }
 LogEntry >> isValidLog [
-	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [self stage notNil and: [ self source notNil]] ]].
+	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [(self stage notNil) and: [ self source notNil]] ]].
 ]
 
 { #category : #conversion }
@@ -212,11 +211,11 @@ LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage
 ]
 
 { #category : #initialization }
-LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage:aStage source: aPathString [
+LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage:aStage source: aPath [
 	"comment stating purpose of message"
 	timestamp:= aTimestamp.
 	selector := aString.
 	arguments := aCollection.
 	stage := aStage.
-	source := aPathString asFileReference.
+	source := aPath.
 ]
