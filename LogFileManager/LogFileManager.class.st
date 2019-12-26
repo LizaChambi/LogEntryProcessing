@@ -41,8 +41,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
 	| browser |
 	browser := composite wrapper title: 'StagesTree'.
-	browser show: [:a | 
-		a fastTreeTable 
+	browser show: [:a | a fastTreeTable 
 			display: [:each | {each}];
 			children: [ :x | x sortLogsByStage ];
 			column: 'Stages' evaluated: [:logs | (logs class = LogFileManager ) ifTrue: [ logs ] ifFalse: [ 'Stage ', (logs at:1) stage asString] ];
@@ -124,6 +123,20 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	^ logEntries.
 ]
 
+{ #category : #'as yet unclassified' }
+LogFileManager >> removeLogFiles [
+	"Borrar los archivos que perdieron referencia"
+	| filesToRemove |
+	filesToRemove := ((self logEntries at:1) source asFileReference parent fullName) asFileReference. "Tomo la referencia de la carpeta"
+	filesToRemove := filesToRemove children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar"
+	filesToRemove do: [:file | file delete]. "Eliminar los archivos enlistados"
+	
+
+	
+	
+	
+]
+
 { #category : #accessing }
 LogFileManager >> report [
 	"comment stating purpose of message"
@@ -137,12 +150,15 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 		ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
 	(self hasTimestampRepeated: aLogEntry) 
 		ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated.' nameFile: aStream fileReference basename line: aStream position) ].
+	(aLogEntry stage > 2) 
+		ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
 ]
 
 { #category : #'as yet unclassified' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	| sources |
+	| sources filesToRemove |
+	self removeLogFiles.
 	sources := (logEntries collect: [ :log | log source ]) removeDuplicates.
 	sources do: [ :source | self saveLogsWithSourceFile: source ].
 	
