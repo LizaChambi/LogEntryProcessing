@@ -100,6 +100,14 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 	
 ]
 
+{ #category : #'read/write usage' }
+LogFileManager >> readLogFilesFromFolder: inputDirectory [
+	"comment stating purpose of message"
+	| filesToRead |
+	filesToRead := self filesToReadFromFolder: inputDirectory.
+	filesToRead do: [ :file | self readLogsEntries: (self logStream: file)].
+]
+
 { #category : #reading }
 LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
