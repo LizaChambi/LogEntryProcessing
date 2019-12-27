@@ -40,8 +40,8 @@ LogFileManagerTest >> tearDown [
 	"comment stating purpose of message"
 	'OututFile.txt' asFileReference ensureDelete.
 	'sortedLogFiles' asFileReference ensureDelete.
-	'./operations/stage0-200-DNU-Setup.changes' asFileReference ensureDelete.
-	'./operations/stage1-3753505986994.changes' asFileReference ensureDelete.
+	'/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' asFileReference ensureDelete.
+	'/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' asFileReference ensureDelete.
 ]
 
 { #category : #tests }
@@ -183,8 +183,8 @@ LogFileManagerTest >> testReportLogState [
 LogFileManagerTest >> testSaveFilesEdited [
 	"Dado 4 logEntries modificados, grabarlos en sus archivos correspondientes."
 	| l1 l2 l3 l4 path1 path2 |
-	path1 := './operations/stage0-200-DNU-Setup.changes' .
-	path2 := './operations/stage1-3753505986994.changes' .
+	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
+	path2 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
 	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
 	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
 	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
@@ -194,10 +194,10 @@ LogFileManagerTest >> testSaveFilesEdited [
 	logFileManager saveFiles.
 	
 	l1 editWithLog: (LogEntry timestamp: 250 selector: #doAddPackageNamed: arguments: #('SmtGeneratedMethodsCallingDNU') stage: 0 source: path1).
-	l4 editWithLog: (LogEntry timestamp: 3753599495956 selector:  #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 1 source: path1).
+	l4 editWithLog: (LogEntry timestamp: 99999999999 selector:  #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: path1).
 	
 	logFileManager saveFiles.
-	self assert: (self readFile: './operations/stage0-200-DNU-Setup.changes') equals:('self
+	self assert: (self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes') equals:('self
 	timestamp: 201
 	selector: #doSetPackageNamed:asInMigrationSet:
 	arguments: #(#SmtGeneratedMethodsCallingDNU #true)
@@ -208,12 +208,12 @@ self
 	arguments: #(''SmtGeneratedMethodsCallingDNU'')
 	stage: 0.
 self
-	timestamp: 3753599495956
+	timestamp: 99999999999
 	selector: #doAssignType:to:
 	arguments: #(#String #''NeoJSONTest>>testMaps|BA|1|string'')
-	stage: 1.
+	stage: 0.
 ').
-	self assert: (self readFile: './operations/stage1-3753505986994.changes') equals:('self
+	self assert: (self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes') equals:('self
 	timestamp: 40
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(#SmtGeneratedPools nil #())
@@ -222,11 +222,29 @@ self
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testSaveFilesEditedWithError [
+	"Dado 4 logEntries modificados, grabarlos en sus archivos correspondientes."
+	| l1 l2 l3 l4 path1 path2 |
+	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
+	path2 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
+	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
+	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
+	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
+	l4 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: path1.	
+	logFileManager addLog: l1; addLog: l2; addLog: l3; addLog: l4.
+	
+	logFileManager saveFiles.
+	
+	self should: [l4 editWithLog: (LogEntry timestamp: 3753599495956 selector:  #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 1 source: path1)] raise: Error.
+	
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testSaveFilesInit [
 	"Dado 4 log entries, los graba en sus archivos correspondientes."
 	| l1 l2 l3 l4 path1 path2 |
-	path1 := './operations/stage0-200-DNU-Setup.changes' .
-	path2 := './operations/stage1-3753505986994.changes' .
+	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
+	path2 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
 	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
 	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
 	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
@@ -236,7 +254,7 @@ LogFileManagerTest >> testSaveFilesInit [
 	logFileManager saveFiles.
 	
 	self assert: (logFileManager logEntries size) equals: (4).
-	self assert: (self readFile: './operations/stage0-200-DNU-Setup.changes') equals:('self
+	self assert: (self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes') equals:('self
 	timestamp: 200
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(''SmtGeneratedMethodsCallingDNU'' nil #())
@@ -252,7 +270,7 @@ self
 	arguments: #(#String #''NeoJSONTest>>testMaps|BA|1|string'')
 	stage: 0.
 ').
-	self assert: (self readFile: './operations/stage1-3753505986994.changes') equals:('self
+	self assert: (self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes') equals:('self
 	timestamp: 40
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(#SmtGeneratedPools nil #())
