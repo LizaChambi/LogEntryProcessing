@@ -94,21 +94,21 @@ LogEntry >> gtInspectorEditLogEntry: composite [
    morph := StringMorph new.
    browser := composite tabulator title: 'Editor'.
    browser
-   		row: #main.
+   		row: #edit.
    browser transmit
-      to: #main;
+      to: #edit;
       andShow: [ :a | a text 
-			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: 'self ', Character cr asString, (text text)) ];
+			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: 'self ', Character cr asString, (text text)). composite update];
        " onChangeOfPort: #text act: [ :text  |
           morph contents: text text. self editWithLog: (LogEntry chunk: (morph contents) )];" display: [ :log | log editable ]].
  	^ browser
 ]
 
 { #category : #accessing }
-LogEntry >> gtInspectorLogIn: composite [
+LogEntry >> gtInspectorLog: composite [
 	<gtInspectorPresentationOrder: 1>
 	composite text
-		title: 'PropText';
+		title: 'PrettyPrint';
 		display: [:log | log prettyPrint ].
 ]
 
