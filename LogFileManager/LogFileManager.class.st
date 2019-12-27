@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'logEntries',
-		'report'
+		'report',
+		'logStages'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -72,6 +73,12 @@ LogFileManager >> initialize [
 LogFileManager >> logEntries [
 	"comment stating purpose of message"
 	^ logEntries.
+]
+
+{ #category : #accessing }
+LogFileManager >> logStages [
+	"comment stating purpose of message"
+	^ logStages.
 ]
 
 { #category : #reading }
