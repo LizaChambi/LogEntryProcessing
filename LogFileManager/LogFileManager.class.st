@@ -51,7 +51,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 			display: [:each | {each}];
 			children: [ :x | x sortLogsByStage ];
 			column: 'Stages' evaluated: [:logs | (logs class = LogFileManager ) ifTrue: [ logs ] ifFalse: [ 'Stage ', (logs at:1) stage asString] ];
-			maxDepth:1; rootsExpanded]; addAction: (GLMGenericAction new action: [ self saveFiles ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
+			maxDepth:1; rootsExpanded]; addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
 	^ browser
 ]
 

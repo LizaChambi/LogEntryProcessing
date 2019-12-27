@@ -92,16 +92,16 @@ LogEntry >> gtInspectorEditLogEntry: composite [
 	<gtInspectorPresentationOrder: 5>
 | browser morph |
    morph := StringMorph new.
-   browser := composite tabulator title: 'Editor'.
+   browser := composite tabulator title: 'LogEditor'.
    browser
    		row: #edit.
    browser transmit
       to: #edit;
       andShow: [ :a | a text 
 			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: 'self ', Character cr asString, (text text)). composite update];
-       " onChangeOfPort: #text act: [ :text  |
-          morph contents: text text. self editWithLog: (LogEntry chunk: (morph contents) )];" display: [ :log | log editable ]].
- 	^ browser
+			display: [ :log | log editable ]
+		].
+ 	^ browser.
 ]
 
 { #category : #accessing }
@@ -113,20 +113,20 @@ LogEntry >> gtInspectorLog: composite [
 ]
 
 { #category : #accessing }
-LogEntry >> gtInspectorTreeLogIn: composite [
+LogEntry >> gtInspectorLogTree: composite [
 	<gtInspectorPresentationOrder: 2>
 	composite fastTree 
-		title: 'PropTree';
+		title: 'LogTree';
 		display: [:each | {each} ];
 		children: [ :each | each properties];
 		maxDepth:1; rootsExpanded.
 ]
 
 { #category : #accessing }
-LogEntry >> gtInspectorTreeTableLogIn: composite [
+LogEntry >> gtInspectorLogTreeTable: composite [
 	<gtInspectorPresentationOrder: 3>
 	composite fastTreeTable
-		title: 'PropTreeTable';
+		title: 'LogTreeTable';
 		display: [:each | {each} ];
 		children: [ :x | x propertiesAsociation ];
 		column: 'Property' evaluated: [:asoc | (asoc class = LogEntry) ifTrue: [asoc] ifFalse: [asoc key ] ];
