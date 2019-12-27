@@ -68,12 +68,12 @@ LogEntry >> editWithLog: aLogEntry [
 	( aLogEntry isValidLog) 
 	ifTrue: [
 		(aLogEntry hasPathStageDifferent) 
-		ifTrue: [ self error: 'El nombre del archivo no coincide con el stage del log.' ] "Abrir un cartelito de advertencia"
+		ifTrue: [ self assert: 'El nombre del archivo no coincide con el stage del log.' ] "Abrir un cartelito de advertencia"
 		ifFalse: [ 
-			(aLogEntry stage > 2) 
-			ifTrue: [self error: 'El valor del stage debe ser entre 0, 1 y 2']
+			(aLogEntry stage < 0) 
+			ifTrue: [self assert: 'El valor del stage no es un número válido.']
 			ifFalse: [self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage source: aLogEntry source] ] ]
-	ifFalse: [self error: 'El log ingresado no es válido.']. "Ventana de error"
+	ifFalse: [self assert: 'El log ingresado no es válido.']. "Ventana de error"
 ]
 
 { #category : #conversion }

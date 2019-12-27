@@ -14,6 +14,12 @@ Class {
 	#category : #LogFileManager
 }
 
+{ #category : #'read/write usage' }
+LogFileManager class >> readLogFilesFromFolder: aPath [
+	"comment stating purpose of message"
+	^ self new readLogFilesFromFolder: aPath.
+]
+
 { #category : #adding }
 LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"

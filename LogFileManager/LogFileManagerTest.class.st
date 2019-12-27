@@ -14,12 +14,6 @@ Class {
 	#category : #'LogFileManager-Test'
 }
 
-{ #category : #'as yet unclassified' }
-LogFileManagerTest class >> readLogFilesFormFolder: aPath [
-	"comment stating purpose of message"
-	^ self new readLogFilesFromFolder: aPath.
-]
-
 { #category : #tests }
 LogFileManagerTest >> readFile: aPath [
 	"comment stating purpose of message"
@@ -157,7 +151,7 @@ LogFileManagerTest >> testReadLogEntries [
 { #category : #tests }
 LogFileManagerTest >> testReadLogFilesFromFolder [
 	"comment stating purpose of message"
-	logFileManager readLogFilesFromFolder: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources'.
+	logFileManager := LogFileManager readLogFilesFromFolder: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources'.
 	self assert: (logFileManager logEntries size) equals: (3).
 ]
 
