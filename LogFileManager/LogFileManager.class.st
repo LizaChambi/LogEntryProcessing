@@ -159,7 +159,6 @@ LogFileManager >> report [
 
 { #category : #reading }
 LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [ 
-	"Read a log file and add them as LogEntry files to the log entries"
 	(aLogEntry hasStageErrorOn: aStream) 
 		ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
 	(self hasTimestampRepeated: aLogEntry) 

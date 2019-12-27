@@ -65,15 +65,10 @@ LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 { #category : #accessing }
 LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
-	( aLogEntry isValidLog) 
-	ifTrue: [
-		(aLogEntry hasPathStageDifferent) 
-		ifTrue: [ self error: 'El nombre del archivo no coincide con el stage del log.' ] "Abrir un cartelito de advertencia"
-		ifFalse: [ 
-			(aLogEntry stage asNumber < 0) 
-			ifTrue: [self error: 'El valor del stage no es un número válido.']
-			ifFalse: [self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage source: aLogEntry source] ] ]
-	ifFalse: [self error: 'El log ingresado no es válido.']. "Ventana de error"
+	self assert: [ aLogEntry isValidLog] description: 'El log ingresado no es válido.'.
+	self assert: [ aLogEntry stage asNumber > 0] description: 'El valor del stage no es un número válido'.
+	self assert: [ aLogEntry hasPathStageDifferent not] description: 'El nombre del archivo no coincide con el stage del log.'.
+	self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage source: aLogEntry source.
 ]
 
 { #category : #conversion }
