@@ -46,10 +46,47 @@ LogFileManagerTest >> testAddLog [
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testAddStage [
+	"comment stating purpose of message"
+	logFileManager addStage: 1.
+	self assert: ((logFileManager stages at:1) stage) equals: (1).
+	self assert: ((logFileManager stages at:1) groups isEmpty).
+	self assert: (logFileManager stages size) equals: (1).
+	
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testExceptionAddLogNil [
 	"comment stating purpose of message"
 	logFileManager addLog: (LogEntry timestamp: nil selector: nil arguments:nil stage: nil source: 'path' ).
 	self assert: (logFileManager logEntries isEmpty).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testFindStage [
+	"comment stating purpose of message"
+	logFileManager addStage: 0; addStage: 1.
+	self assert: ((logFileManager findStage:0) stage ) equals: (0).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testFindStageException [
+	"comment stating purpose of message"
+	logFileManager addStage: 0; addStage: 1.
+	self should: [(logFileManager findStage:3) stage ] raise: (Error).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testGroups [
+	"comment stating purpose of message"
+	logFileManager addStage: 1.
+	logFileManager addStage: 2.
+	logFileManager addStage: 0.
+	self assert: ((logFileManager groups at:1) stage) equals: (0).
+	self assert: ((logFileManager groups at:2) stage) equals: (1).
+	self assert: ((logFileManager groups at:3) stage) equals: (2).
 ]
 
 { #category : #tests }
@@ -122,7 +159,7 @@ LogFileManagerTest >> testOneEntryWithCR [
 	self assert: result notEmpty.
 	self assert: ((result at: 1) timestamp) equals: (0).
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
-	self assert: ((result at: 1) arguments) equals: (#('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
+	self assert: ((result at: 1) arguments) equals: #('argument1.argument1 same-as #Integer' 'ByteArray>>do:').
 	self assert: ((result at:1) stage) equals: (1).
 	self assert: ((result at:1) source) equals: ('/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfileCr.changes').
 ]
@@ -319,6 +356,15 @@ LogFileManagerTest >> testSortLogEntriesByTimestamp [
 	self assert: ((logFileManager sortLogEntriesByTimestamp: logFileManager logEntries) first timestamp) equals: (0).
 	self assert: ((logFileManager sortLogEntriesByTimestamp: logFileManager logEntries) second timestamp) equals: (8).
 	self assert: ((logFileManager sortLogEntriesByTimestamp: logFileManager logEntries) last timestamp) equals: (33).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testStages [
+	"comment stating purpose of message"
+	logFileManager addStage: 1.
+	logFileManager addStage: 2.
+	logFileManager addStage: 0.
+	self assert: (logFileManager stages size ) equals: (3).
 ]
 
 { #category : #tests }

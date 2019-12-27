@@ -23,7 +23,7 @@ LogEntry class >> readLog: logStream [
 
 { #category : #'as yet unclassified' }
 LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage [
-	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage.
 ]
 
 { #category : #'as yet unclassified' }
@@ -53,7 +53,7 @@ LogEntry >> arguments [
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil] "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
+	[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
 ]
 
 { #category : #tests }
@@ -66,7 +66,7 @@ LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
 	self assert: [ aLogEntry isValidLog] description: 'El log ingresado no es válido.'.
-	self assert: [ aLogEntry stage asNumber > 0] description: 'El valor del stage no es un número válido'.
+	self assert: [ aLogEntry stage asNumber >= 0] description: 'El valor del stage no es un número válido'.
 	self assert: [ aLogEntry hasPathStageDifferent not] description: 'El nombre del archivo no coincide con el stage del log.'.
 	self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage source: aLogEntry source.
 ]
@@ -74,11 +74,12 @@ LogEntry >> editWithLog: aLogEntry [
 { #category : #conversion }
 LogEntry >> editable [
 	"comment stating purpose of message"
-	^'timestamp: ', timestamp asString,'
-selector: ', '#', selector asString, '
-arguments: ', arguments asString, '
-stage: ', stage asString, '
-source: ', $' asString , source, $' asString , '.
+	^'self
+	timestamp: ', timestamp asString,'
+	selector: ', '#', selector asString, '
+	arguments: ', arguments asString, '
+	stage: ', stage asString, '
+	source: ', $' asString , source, $' asString , '.
 '.
 ]
 
@@ -92,8 +93,8 @@ LogEntry >> gtInspectorEditLogEntry: composite [
    		row: #edit.
    browser transmit
       to: #edit;
-      andShow: [ :a | a text 
-			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: 'self ', Character cr asString, (text text)). composite update];
+      andShow: [ :a | a pharoScript 
+			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: (text text)). composite update];
 			display: [ :log | log editable ]
 		].
  	^ browser.
@@ -145,6 +146,11 @@ LogEntry >> hasPathStageDifferent [
 LogEntry >> hasStageErrorOn: aLogStream [
 	"comment stating purpose of message"
 	^ (aLogStream fileReference basename beginsWith: ('stage', self stage asString)) not.
+]
+
+{ #category : #accessing }
+LogEntry >> isLogEntry [
+	^ true
 ]
 
 { #category : #accessing }
@@ -208,6 +214,12 @@ LogEntry >> stage [
 LogEntry >> timestamp [
 	"comment stating purpose of message"
 	^ timestamp. 
+]
+
+{ #category : #accessing }
+LogEntry >> timestamp: aNumber [
+	"comment stating purpose of message"
+	timestamp := aNumber. 
 ]
 
 { #category : #initialization }

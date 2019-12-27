@@ -2,8 +2,8 @@ Class {
 	#name : #LogFileManager,
 	#superclass : #Object,
 	#instVars : [
-		'logEntries',
-		'report'
+		'report',
+		'logStages'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -24,7 +24,60 @@ LogFileManager class >> readLogFilesFromFolder: aPath [
 LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
-		ifTrue: [ logEntries add: aLogEntry.] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
+		ifTrue: [ 
+			"logEntries add: aLogEntry."
+			self addStage: aLogEntry stage.
+			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aLogEntry source.]
+]
+
+{ #category : #adding }
+LogFileManager >> addNewGroup [
+	"comment stating purpose of message"
+	self shouldBeImplemented.
+]
+
+{ #category : #adding }
+LogFileManager >> addNewLog [
+	"comment stating purpose of message"
+	self addStage: self nextStage.
+]
+
+{ #category : #adding }
+LogFileManager >> addStage: aNumber. [
+	"comment stating purpose of message"
+	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
+]
+
+{ #category : #adding }
+LogFileManager >> existStage: aNumber [
+	"comment stating purpose of message"
+	^ logStages anySatisfy: [ :stage | stage stage = aNumber ].
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> fastListDragAndDrop [
+	<glmBrowser: 'Fast List drag&drop' input: 'OrderedCollection new'>
+	"self new fastListDragAndDrop openOn: (1 to: 5) asOrderedCollection"
+	| browser |
+	browser := GLMTabulator new.
+	browser column: #source; column: #target.
+	browser transmit to: #source; andShow: [:a | 
+		a fastList 
+			title: 'Source';
+			display: (1 to: 10)].
+"			allowItemDrag: [:item :list | true ];
+			transformDraggedItem: [:item :list | item + 100 ]"
+	browser transmit to: #target; andShow: [:a |  
+		a fastList
+			title: 'Target'; 
+			display: [:collection | collection asString ]].
+		"	allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isNumber ];
+			dropOnItem: [:draggedObject :targetItem :list | 
+				list entity addLast: (targetItem + draggedObject).
+				list update.
+				true ]
+			]."
+	^ browser
 ]
 
 { #category : #'as yet unclassified' }
@@ -32,6 +85,18 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 	"comment stating purpose of message"
 	^ ((inputDirectory asFileReference) children) select: [ :each | each basename endsWith: '.changes' ].
 
+]
+
+{ #category : #adding }
+LogFileManager >> findStage: aNumber [
+	"comment stating purpose of message"
+	^ logStages detect: [ :stage | stage hasStage: aNumber ]. 
+]
+
+{ #category : #accessing }
+LogFileManager >> groups [
+	"comment stating purpose of message"
+	^ self stages sort: [:stage1 :stage2 | stage1 stage < stage2 stage].
 ]
 
 { #category : #'as yet unclassified' }
@@ -43,35 +108,68 @@ LogFileManager >> gtInspectorReportStages: composite [
 ]
 
 { #category : #'as yet unclassified' }
+LogFileManager >> gtInspectorTreeLogFiles3: composite [
+ <gtInspectorPresentationOrder: 1>
+	| browser |
+	browser := composite tabulator.
+	browser title: 'DragAndDrop'.
+	browser column: #source; column: #target.
+	browser transmit to: #target; andShow: [:a | 
+		a fastList
+			display: [:each | each logEntries];
+			allowItemDrag: [:item :list | item isLogEntry]; "Si cumple con esta condicion, deja arrastrar al objeto, de lo contrario, no se puede arrastrar"
+			transformDraggedItem: [:item :list | item "item + 100"] "Acá modificas el item que se está arrastrando."
+			].
+	browser transmit to: #source; andShow: [:a |  
+		a fastList
+			display: [: each | each logEntries ];
+			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry]; "Si cumple este requisito, deja dropear el objeto, sino regresa a su lugar"
+			"Esto es lo que hace con la lista original -list entity- (LogFileManager) y el objeto recibido -draggedObject-. 
+			targetItem creo que es el item sobre el que se posó "
+			dropOnItem: [:draggedObject :targetItem :list | 
+				list entity addLog: (draggedObject).
+				list update.
+				true ]
+			].
+	^ browser.
+]
+
+{ #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
 	| browser |
 	browser := composite wrapper title: 'StagesTree'.
 	browser show: [:a | a fastTreeTable 
 			display: [:each | {each}];
-			children: [ :x | x sortLogsByStage ];
-			column: 'Stages' evaluated: [:logs | (logs class = LogFileManager ) ifTrue: [ logs ] ifFalse: [ 'Stage ', (logs at:1) stage asString] ];
-			maxDepth:1; rootsExpanded]; addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
-	^ browser
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each print ] width: 1000;
+			maxDepth:2; rootsExpanded];
+		addAction: (GLMGenericAction new action: [ self addNewGroup. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group');
+		addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage');
+		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
+	 ^ browser
 ]
 
 { #category : #reading }
 LogFileManager >> hasTimestampRepeated: aLogEntry [
 	"Read a log file and add them as LogEntry files to the log entries"
-	^ logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
+	^ self logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
 ]
 
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
-	logEntries := OrderedCollection new.
+	logStages := OrderedCollection new.
 	report  := OrderedCollection new.
 ]
 
 { #category : #accessing }
 LogFileManager >> logEntries [
 	"comment stating purpose of message"
-	^ logEntries.
+	| logs |
+	logs := OrderedCollection new.
+	logStages do: [ :stage | logs addAll: stage logEntries ].
+	^ logs.
 ]
 
 { #category : #reading }
@@ -82,7 +180,7 @@ LogFileManager >> logStream: fileReference [
 { #category : #accessing }
 LogFileManager >> logsWithStage: aStage [
 	"comment stating purpose of message"
-	^ (logEntries select: [ :log | log stage = aStage]) sort: [:log1 :log2 | log1 <= log2] .
+	^ (self logEntries select: [ :log | log stage = aStage]) sort: [:log1 :log2 | log1 <= log2] .
 ]
 
 { #category : #'read/write usage' }
@@ -91,7 +189,7 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 	| filesToRead |
 	filesToRead := self filesToReadFromFolder: inputDirectory.
 	filesToRead do: [ :file | self readLogsEntries: (self logStream: file)].
-	self writeFiles: (self sortLogEntriesByTimestamp: logEntries ) withName: fileNameOutput.
+	self writeFiles: (self sortLogEntriesByTimestamp: self logEntries ) withName: fileNameOutput.
 ]
 
 { #category : #'as yet unclassified' }
@@ -100,10 +198,22 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 	| filesToRead |
 	filesToRead := self filesToReadFromFolder: inputDirectory.
 	filesToRead do: [ :file | self readLogsEntries: (self logStream: file) withCriteria: aBlock].
-	self writeFiles: (self sortLogEntriesByTimestamp: logEntries) withName: fileNameOutput.
+	self writeFiles: (self sortLogEntriesByTimestamp: self logEntries) withName: fileNameOutput.
 	
 	
 	
+]
+
+{ #category : #adding }
+LogFileManager >> nextStage [
+	"comment stating purpose of message"
+	^(logStages collect: [ :stage | stage stage ]) max + 1. 
+]
+
+{ #category : #adding }
+LogFileManager >> print [
+	"comment stating purpose of message"
+	^ self asString.
 ]
 
 { #category : #'read/write usage' }
@@ -122,7 +232,7 @@ LogFileManager >> readLogsEntries: logStream [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
 		self addLog: logCreated ].
-	^ logEntries.
+	^ self logEntries.
 ]
 
 { #category : #reading }
@@ -134,14 +244,14 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 		self reportLogErrors: logCreated onStream: logStream.
 		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ]. 
 	].
-	^ logEntries.
+	^ self logEntries.
 ]
 
 { #category : #'as yet unclassified' }
 LogFileManager >> removeLogFiles [
 	"Borrar los archivos que perdieron referencia"
 	| filesToRemove |
-	filesToRemove := ((self logEntries at:1) source asFileReference parent fullName) asFileReference. "Tomo la referencia de la carpeta"
+	filesToRemove := (((logStages at:1) groups at:1) source asFileReference parent fullName) asFileReference. "Tomo la referencia de la carpeta"
 	filesToRemove := filesToRemove children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar"
 	filesToRemove do: [:file | file delete]. "Eliminar los archivos enlistados"
 	
@@ -170,9 +280,9 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 { #category : #'as yet unclassified' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	| sources filesToRemove |
+	| sources |
 	self removeLogFiles.
-	sources := (logEntries collect: [ :log | log source ]) removeDuplicates.
+	sources := (self logEntries collect: [ :log | log source ]) removeDuplicates.
 	sources do: [ :source | self saveLogsWithSourceFile: source ].
 	
 
@@ -195,7 +305,7 @@ LogFileManager >> saveLogsWithSourceFile: aFile [
 { #category : #reading }
 LogFileManager >> selectWithCriteria: aBlock [
 	"Read a log file and add them as LogEntry files to the log entries"
-	^ logEntries select:[ :log | log hasCriteria: aBlock ].
+	^ self logEntries select:[ :log | log hasCriteria: aBlock ].
 ]
 
 { #category : #sorting }
@@ -216,7 +326,7 @@ LogFileManager >> sortLogsByStage [
 { #category : #accessing }
 LogFileManager >> stages [
 	"comment stating purpose of message"
-	^ (logEntries collect: [ :log | log stage]) removeDuplicates sort.
+	^ logStages.
 ]
 
 { #category : #'as yet unclassified' }
