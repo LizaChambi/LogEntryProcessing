@@ -53,6 +53,12 @@ LogFileManager >> findStage: aNumber [
 	(index = 0) ifTrue: [ self error: 'Stage ', aNumber asString, ' not found' ] ifFalse:[ ^ logStages at:index ].
 ]
 
+{ #category : #accessing }
+LogFileManager >> groups [
+	"comment stating purpose of message"
+	^ self stages.
+]
+
 { #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorReportStages: composite [
 	<gtInspectorPresentationOrder: 2>
@@ -68,9 +74,14 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 	browser := composite wrapper title: 'StagesTree'.
 	browser show: [:a | a fastTreeTable 
 			display: [:each | {each}];
-			children: [ :x | x sortLogsByStage ];
-			column: 'Stages' evaluated: [:logs | (logs class = LogFileManager ) ifTrue: [ logs ] ifFalse: [ 'Stage ', (logs at:1) stage asString] ];
-			maxDepth:1; rootsExpanded]; addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | 
+				(each class = Stage ) 
+				ifTrue: [ 'Stage ', each stage asString ]
+				ifFalse: [ each ] ];
+			column: '' evaluated: [:each | ''];
+			maxDepth:2; rootsExpanded]; 
+		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
 	^ browser
 ]
 
@@ -242,7 +253,7 @@ LogFileManager >> sortLogsByStage [
 { #category : #accessing }
 LogFileManager >> stages [
 	"comment stating purpose of message"
-	^ (logStages collect: [ : stage | stage stage]) sort.
+	^ logStages.
 ]
 
 { #category : #'as yet unclassified' }

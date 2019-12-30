@@ -22,9 +22,21 @@ Stage >> addLog: aLogEntry withSource: aPath [
 ]
 
 { #category : #'as yet unclassified' }
+Stage >> groups [
+	"comment stating purpose of message"
+	^ self sources.
+]
+
+{ #category : #'as yet unclassified' }
 Stage >> logFiles [
 	"comment stating purpose of message"
 	^ logFiles .
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> sources [
+	"comment stating purpose of message"
+	^ logFiles keys sort.
 ]
 
 { #category : #'as yet unclassified' }
