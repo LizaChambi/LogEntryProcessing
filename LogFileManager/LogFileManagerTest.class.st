@@ -46,10 +46,28 @@ LogFileManagerTest >> testAddLog [
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testAddStage [
+	"comment stating purpose of message"
+	logFileManager addStage: 1.
+	self assert: ((logFileManager logStages at:1) stage) equals: (1).
+	self assert: ((logFileManager logStages at:1) logFiles isEmpty)..
+	self assert: (logFileManager logStages size) equals: (1).
+	
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testExceptionAddLogNil [
 	"comment stating purpose of message"
 	logFileManager addLog: (LogEntry timestamp: nil selector: nil arguments:nil stage: nil source: 'path' ).
 	self assert: (logFileManager logEntries isEmpty).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testFindStage [
+	"comment stating purpose of message"
+	logFileManager addStage: 0; addStage: 1.
+	self assert: ((logFileManager findStage:1) stage ) equals: (1).
+	
 ]
 
 { #category : #tests }
@@ -319,6 +337,17 @@ LogFileManagerTest >> testSortLogEntriesByTimestamp [
 	self assert: ((logFileManager sortLogEntriesByTimestamp: logFileManager logEntries) first timestamp) equals: (0).
 	self assert: ((logFileManager sortLogEntriesByTimestamp: logFileManager logEntries) second timestamp) equals: (8).
 	self assert: ((logFileManager sortLogEntriesByTimestamp: logFileManager logEntries) last timestamp) equals: (33).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testStages [
+	"comment stating purpose of message"
+	logFileManager addStage: 1.
+	logFileManager addStage: 2.
+	logFileManager addStage: 0.
+	self assert: (logFileManager stages at:1 ) equals: (0).
+	self assert: (logFileManager stages at:2 ) equals: (1).
+	self assert: (logFileManager stages at:3 ) equals: (2).
 ]
 
 { #category : #tests }

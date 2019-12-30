@@ -23,12 +23,12 @@ LogEntry class >> readLog: logStream [
 
 { #category : #'as yet unclassified' }
 LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage [
-	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage asNumber.
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage.
 ]
 
 { #category : #'as yet unclassified' }
 LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath [
-	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage asNumber source: aPath asString.
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath asString.
 ]
 
 { #category : #comparing }
@@ -53,7 +53,7 @@ LogEntry >> arguments [
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil] "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
+	[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
 ]
 
 { #category : #tests }

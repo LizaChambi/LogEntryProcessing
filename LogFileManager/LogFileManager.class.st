@@ -242,7 +242,7 @@ LogFileManager >> sortLogsByStage [
 { #category : #accessing }
 LogFileManager >> stages [
 	"comment stating purpose of message"
-	^ (logEntries collect: [ :log | log stage]) removeDuplicates sort.
+	^ (logStages collect: [ : stage | stage stage]) sort.
 ]
 
 { #category : #'as yet unclassified' }
