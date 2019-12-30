@@ -25,7 +25,17 @@ LogFileManager class >> readLogFilesFromFolder: aPath [
 LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
-		ifTrue: [ logEntries add: aLogEntry.] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
+		ifTrue: [ 
+			logEntries add: aLogEntry. 
+			self addStage: aLogEntry stage.
+			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aLogEntry source.
+			] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
+]
+
+{ #category : #adding }
+LogFileManager >> addStage: aNumber. [
+	"comment stating purpose of message"
+	(logStages anySatisfy: [ :stage | stage stage = aNumber ]) ifFalse: [ logStages add: (Stage new:aNumber) ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -33,6 +43,14 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 	"comment stating purpose of message"
 	^ ((inputDirectory asFileReference) children) select: [ :each | each basename endsWith: '.changes' ].
 
+]
+
+{ #category : #adding }
+LogFileManager >> findStage: aNumber [
+	"comment stating purpose of message"
+	| index |
+	index := logStages findFirst: [ :stage | stage stage = aNumber ].
+	(index = 0) ifTrue: [ self error: 'Stage ', aNumber asString, ' not found' ] ifFalse:[ ^ logStages at:index ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -66,6 +84,7 @@ LogFileManager >> hasTimestampRepeated: aLogEntry [
 LogFileManager >> initialize [
 	"comment stating purpose of message"
 	logEntries := OrderedCollection new.
+	logStages := OrderedCollection new.
 	report  := OrderedCollection new.
 ]
 

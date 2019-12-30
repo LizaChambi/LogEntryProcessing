@@ -23,12 +23,12 @@ LogEntry class >> readLog: logStream [
 
 { #category : #'as yet unclassified' }
 LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage [
-	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage asNumber.
 ]
 
 { #category : #'as yet unclassified' }
 LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath [
-	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath asString.
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage asNumber source: aPath asString.
 ]
 
 { #category : #comparing }
