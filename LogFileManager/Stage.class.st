@@ -28,6 +28,20 @@ Stage >> groups [
 ]
 
 { #category : #'as yet unclassified' }
+Stage >> gtInspectorLogsEntries: composite [
+	<gtInspectorPresentationOrder: 2>
+	composite fastList
+		title: 'Logs';
+		display: [:each | each logEntries].
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> logEntries [
+	"comment stating purpose of message"
+	^ logFiles values.
+]
+
+{ #category : #'as yet unclassified' }
 Stage >> logFiles [
 	"comment stating purpose of message"
 	^ logFiles .

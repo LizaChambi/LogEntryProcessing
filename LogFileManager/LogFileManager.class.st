@@ -56,7 +56,7 @@ LogFileManager >> findStage: aNumber [
 { #category : #accessing }
 LogFileManager >> groups [
 	"comment stating purpose of message"
-	^ self stages.
+	^ self stages sort: [:stage1 :stage2 | stage1 stage < stage2 stage].
 ]
 
 { #category : #'as yet unclassified' }
@@ -78,8 +78,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 			column: 'Stages' evaluated: [:each | 
 				(each class = Stage ) 
 				ifTrue: [ 'Stage ', each stage asString ]
-				ifFalse: [ each ] ];
-			column: '' evaluated: [:each | ''];
+				ifFalse: [ each ] ] width: 1000;
 			maxDepth:2; rootsExpanded]; 
 		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
 	^ browser
@@ -103,12 +102,6 @@ LogFileManager >> initialize [
 LogFileManager >> logEntries [
 	"comment stating purpose of message"
 	^ logEntries.
-]
-
-{ #category : #accessing }
-LogFileManager >> logStages [
-	"comment stating purpose of message"
-	^ logStages.
 ]
 
 { #category : #reading }
