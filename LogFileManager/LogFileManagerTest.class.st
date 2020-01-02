@@ -66,7 +66,15 @@ LogFileManagerTest >> testExceptionAddLogNil [
 LogFileManagerTest >> testFindStage [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1.
-	self assert: ((logFileManager findStage:1) stage ) equals: (1).
+	self assert: ((logFileManager findStage:0) stage ) equals: (0).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testFindStageException [
+	"comment stating purpose of message"
+	logFileManager addStage: 0; addStage: 1.
+	self should: [(logFileManager findStage:3) stage ] raise: (Error).
 	
 ]
 

@@ -3,7 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'stage',
-		'logFiles'
+		'groups'
 	],
 	#category : #LogFileManager
 }
@@ -11,14 +11,14 @@ Class {
 { #category : #'instance creation' }
 Stage class >> new: aNumber [
 	"comment stating purpose of message"
-	^ (self new) stage: aNumber logsFiles: Dictionary new.
+	^ (self new) stage: aNumber groups: OrderedCollection new.
 	
 ]
 
 { #category : #'as yet unclassified' }
 Stage >> addLog: aLogEntry withSource: aPath [
 	"comment stating purpose of message"
-	logFiles at:aPath put: aLogEntry.
+	groups at: aPath ifPresent: [ :value | value add: aLogEntry. value. ] ifAbsentPut: [ | newFile | newFile:= OrderedCollection new. newFile add: aLogEntry. newFile].
 ]
 
 { #category : #'as yet unclassified' }
@@ -38,19 +38,19 @@ Stage >> gtInspectorLogsEntries: composite [
 { #category : #'as yet unclassified' }
 Stage >> logEntries [
 	"comment stating purpose of message"
-	^ logFiles values.
+	^ groups values inject: (OrderedCollection new) into: [ :collect :each | collect addAll: each].
 ]
 
 { #category : #'as yet unclassified' }
 Stage >> logFiles [
 	"comment stating purpose of message"
-	^ logFiles .
+	^ groups .
 ]
 
 { #category : #'as yet unclassified' }
 Stage >> sources [
 	"comment stating purpose of message"
-	^ logFiles keys sort.
+	^ groups keys sort.
 ]
 
 { #category : #'as yet unclassified' }
@@ -60,8 +60,8 @@ Stage >> stage [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> stage: aNumber logsFiles: aDictionary [
+Stage >> stage: aNumber groups: aDictionary [
 	"comment stating purpose of message"
 	stage:= aNumber.
-	logFiles:= aDictionary.
+	groups:= aDictionary.
 ]

@@ -210,6 +210,12 @@ LogEntry >> timestamp [
 	^ timestamp. 
 ]
 
+{ #category : #accessing }
+LogEntry >> timestamp: aNumber [
+	"comment stating purpose of message"
+	timestamp := aNumber. 
+]
+
 { #category : #initialization }
 LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage:aStage [
 	"comment stating purpose of message"
