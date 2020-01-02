@@ -26,7 +26,7 @@ LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
 		ifTrue: [ 
-			logEntries add: aLogEntry.
+			"logEntries add: aLogEntry."
 			self addStage: aLogEntry stage.
 			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aLogEntry source.
 			] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
@@ -35,7 +35,13 @@ LogFileManager >> addLog: aLogEntry [
 { #category : #adding }
 LogFileManager >> addStage: aNumber. [
 	"comment stating purpose of message"
-	(logStages anySatisfy: [ :stage | stage stage = aNumber ]) ifFalse: [ logStages add: (Stage new:aNumber) ].
+	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
+]
+
+{ #category : #adding }
+LogFileManager >> existStage: aNumber [
+	"comment stating purpose of message"
+	^ logStages anySatisfy: [ :stage | stage stage = aNumber ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -48,9 +54,7 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 { #category : #adding }
 LogFileManager >> findStage: aNumber [
 	"comment stating purpose of message"
-	| search |
-	search := logStages select: [ :stage | stage stage = aNumber ].
-	(search isNil) ifTrue: [ self error: 'Stage ', aNumber asString, ' not found' ] ifFalse:[ ^ (search at:1) ].
+	^ logStages detect: [ :stage | stage hasStage: aNumber ]. 
 ]
 
 { #category : #accessing }

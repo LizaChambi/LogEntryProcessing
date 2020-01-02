@@ -11,13 +11,18 @@ Class {
 { #category : #'as yet unclassified' }
 LogGroup class >> withSource: aPath [
 	"comment stating purpose of message"
-	(self new) source: aPath logs: OrderedCollection new.
+	^(self new) source: aPath logs: OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
 LogGroup >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	logsEntries add: aLogEntry.
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> hasSource: aPath [
+	^ (source = aPath).
 ]
 
 { #category : #'as yet unclassified' }

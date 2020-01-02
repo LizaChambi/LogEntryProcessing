@@ -16,15 +16,22 @@ Stage class >> new: aNumber [
 ]
 
 { #category : #'as yet unclassified' }
+Stage >> addGroup: aPath [
+	"comment stating purpose of message"
+	(groups anySatisfy: [ :group | group hasSource: aPath]) ifFalse:[groups add: (LogGroup withSource: aPath)].
+]
+
+{ #category : #'as yet unclassified' }
 Stage >> addLog: aLogEntry withSource: aPath [
 	"comment stating purpose of message"
-	groups at: aPath ifPresent: [ :value | value add: aLogEntry. value. ] ifAbsentPut: [ | newFile | newFile:= OrderedCollection new. newFile add: aLogEntry. newFile].
+	self addGroup:aPath.
+	(self searchGroup: aPath) addLog: aLogEntry.
 ]
 
 { #category : #'as yet unclassified' }
 Stage >> groups [
 	"comment stating purpose of message"
-	^ self sources.
+	^ groups.
 ]
 
 { #category : #'as yet unclassified' }
@@ -36,21 +43,20 @@ Stage >> gtInspectorLogsEntries: composite [
 ]
 
 { #category : #'as yet unclassified' }
+Stage >> hasStage: aNumber [
+	"comment stating purpose of message"
+	^ stage = aNumber.
+]
+
+{ #category : #'as yet unclassified' }
 Stage >> logEntries [
 	"comment stating purpose of message"
-	^ groups values inject: (OrderedCollection new) into: [ :collect :each | collect addAll: each].
+	^ groups collect: [ :group | group logEntries ] into: OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> logFiles [
-	"comment stating purpose of message"
-	^ groups .
-]
-
-{ #category : #'as yet unclassified' }
-Stage >> sources [
-	"comment stating purpose of message"
-	^ groups keys sort.
+Stage >> searchGroup: aPath [
+	^ groups detect: [ :group | group hasSource: aPath].
 ]
 
 { #category : #'as yet unclassified' }
@@ -60,8 +66,8 @@ Stage >> stage [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> stage: aNumber groups: aDictionary [
+Stage >> stage: aNumber groups: anArray [
 	"comment stating purpose of message"
 	stage:= aNumber.
-	groups:= aDictionary.
+	groups:= anArray.
 ]
