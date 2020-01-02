@@ -3,7 +3,7 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'source',
-		'group'
+		'logsEntries'
 	],
 	#category : #LogFileManager
 }
@@ -11,12 +11,18 @@ Class {
 { #category : #'as yet unclassified' }
 LogGroup class >> withSource: aPath [
 	"comment stating purpose of message"
-	(self new) source: aPath group: OrderedCollection new.
+	(self new) source: aPath logs: OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> group [
-	^ group.
+LogGroup >> addLog: aLogEntry [
+	"comment stating purpose of message"
+	logsEntries add: aLogEntry.
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> logEntries [
+	^ logsEntries.
 ]
 
 { #category : #'as yet unclassified' }
@@ -25,8 +31,8 @@ LogGroup >> source [
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> source: aPath group: anArray [
+LogGroup >> source: aPath logs: anArray [
 	"comment stating purpose of message"
 	source:= aPath.
-	group:= anArray.
+	logsEntries:= anArray.
 ]
