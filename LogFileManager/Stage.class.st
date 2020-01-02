@@ -51,7 +51,16 @@ Stage >> hasStage: aNumber [
 { #category : #'as yet unclassified' }
 Stage >> logEntries [
 	"comment stating purpose of message"
-	^ groups collect: [ :group | group logEntries ] into: OrderedCollection new.
+	| newCollect |
+	newCollect := OrderedCollection new.
+	groups do: [ :group | newCollect addAll: group logEntries ].
+	^ newCollect.
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> print [
+	"comment stating purpose of message"
+	^ 'Stage ', stage asString.
 ]
 
 { #category : #'as yet unclassified' }

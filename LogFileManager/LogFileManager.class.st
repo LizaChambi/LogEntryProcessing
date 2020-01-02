@@ -26,7 +26,7 @@ LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
 		ifTrue: [ 
-			"logEntries add: aLogEntry."
+			logEntries add: aLogEntry.
 			self addStage: aLogEntry stage.
 			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aLogEntry source.
 			] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
@@ -79,10 +79,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 	browser show: [:a | a fastTreeTable 
 			display: [:each | {each}];
 			children: [ :x | x groups];
-			column: 'Stages' evaluated: [:each | 
-				(each class = Stage ) 
-				ifTrue: [ 'Stage ', each stage asString ]
-				ifFalse: [ each ] ] width: 1000;
+			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			maxDepth:2; rootsExpanded]; 
 		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
 	^ browser
@@ -138,6 +135,12 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 	
 	
 	
+]
+
+{ #category : #adding }
+LogFileManager >> print [
+	"comment stating purpose of message"
+	^ self asString.
 ]
 
 { #category : #'read/write usage' }

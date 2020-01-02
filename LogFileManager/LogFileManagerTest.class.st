@@ -50,7 +50,7 @@ LogFileManagerTest >> testAddStage [
 	"comment stating purpose of message"
 	logFileManager addStage: 1.
 	self assert: ((logFileManager stages at:1) stage) equals: (1).
-	self assert: ((logFileManager stages at:1) logFiles isEmpty)..
+	self assert: ((logFileManager stages at:1) groups isEmpty).
 	self assert: (logFileManager stages size) equals: (1).
 	
 ]
@@ -159,7 +159,7 @@ LogFileManagerTest >> testOneEntryWithCR [
 	self assert: result notEmpty.
 	self assert: ((result at: 1) timestamp) equals: (0).
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
-	self assert: ((result at: 1) arguments) equals: (#('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
+	self assert: ((result at: 1) arguments) equals: #('argument1.argument1 same-as #Integer' 'ByteArray>>do:').
 	self assert: ((result at:1) stage) equals: (1).
 	self assert: ((result at:1) source) equals: ('/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfileCr.changes').
 ]

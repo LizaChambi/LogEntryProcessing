@@ -21,6 +21,14 @@ LogGroup >> addLog: aLogEntry [
 ]
 
 { #category : #'as yet unclassified' }
+LogGroup >> gtInspectorLogsEntries: composite [
+	<gtInspectorPresentationOrder: 1>
+	composite fastList
+		title: 'Logs';
+		display: [:each | each logEntries].
+]
+
+{ #category : #'as yet unclassified' }
 LogGroup >> hasSource: aPath [
 	^ (source = aPath).
 ]
@@ -28,6 +36,11 @@ LogGroup >> hasSource: aPath [
 { #category : #'as yet unclassified' }
 LogGroup >> logEntries [
 	^ logsEntries.
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> print [
+	^ self source.
 ]
 
 { #category : #'as yet unclassified' }
