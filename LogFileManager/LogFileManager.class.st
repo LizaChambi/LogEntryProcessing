@@ -117,8 +117,8 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	browser transmit to: #target; andShow: [:a | 
 		a fastList
 			display: [:each | each logEntries];
-			allowItemDrag: [:item :list | true ];
-			transformDraggedItem: [:item :list | item "item + 100"]
+			allowItemDrag: [:item :list | item isLogEntry]; "Si cumple con esta condicion, deja arrastrar al objeto, de lo contrario, no se puede arrastrar"
+			transformDraggedItem: [:item :list | item "item + 100"] "Acá modificas el item que se está arrastrando."
 			].
 	browser transmit to: #source; andShow: [:a |  
 		a fastList
