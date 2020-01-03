@@ -74,11 +74,12 @@ LogEntry >> editWithLog: aLogEntry [
 { #category : #conversion }
 LogEntry >> editable [
 	"comment stating purpose of message"
-	^'timestamp: ', timestamp asString,'
-selector: ', '#', selector asString, '
-arguments: ', arguments asString, '
-stage: ', stage asString, '
-source: ', $' asString , source, $' asString , '.
+	^'self
+	timestamp: ', timestamp asString,'
+	selector: ', '#', selector asString, '
+	arguments: ', arguments asString, '
+	stage: ', stage asString, '
+	source: ', $' asString , source, $' asString , '.
 '.
 ]
 
@@ -92,8 +93,8 @@ LogEntry >> gtInspectorEditLogEntry: composite [
    		row: #edit.
    browser transmit
       to: #edit;
-      andShow: [ :a | a text 
-			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: 'self ', Character cr asString, (text text)). composite update];
+      andShow: [ :a | a pharoScript 
+			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: (text text)). composite update];
 			display: [ :log | log editable ]
 		].
  	^ browser.
@@ -145,6 +146,11 @@ LogEntry >> hasPathStageDifferent [
 LogEntry >> hasStageErrorOn: aLogStream [
 	"comment stating purpose of message"
 	^ (aLogStream fileReference basename beginsWith: ('stage', self stage asString)) not.
+]
+
+{ #category : #accessing }
+LogEntry >> isLogEntry [
+	^ true
 ]
 
 { #category : #accessing }
