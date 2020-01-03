@@ -2,7 +2,6 @@ Class {
 	#name : #LogFileManager,
 	#superclass : #Object,
 	#instVars : [
-		'logEntries',
 		'report',
 		'logStages'
 	],
@@ -26,10 +25,9 @@ LogFileManager >> addLog: aLogEntry [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
 		ifTrue: [ 
-			logEntries add: aLogEntry.
+			"logEntries add: aLogEntry."
 			self addStage: aLogEntry stage.
-			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aLogEntry source.
-			] "ifFalse: [ - se puede guardar el log erroneo en un archivo con los logs erroneos - ]".
+			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aLogEntry source.]
 ]
 
 { #category : #adding }
@@ -88,13 +86,12 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 { #category : #reading }
 LogFileManager >> hasTimestampRepeated: aLogEntry [
 	"Read a log file and add them as LogEntry files to the log entries"
-	^ logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
+	^ self logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
 ]
 
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
-	logEntries := OrderedCollection new.
 	logStages := OrderedCollection new.
 	report  := OrderedCollection new.
 ]
@@ -102,7 +99,10 @@ LogFileManager >> initialize [
 { #category : #accessing }
 LogFileManager >> logEntries [
 	"comment stating purpose of message"
-	^ logEntries.
+	| logs |
+	logs := OrderedCollection new.
+	logStages do: [ :stage | logs addAll: stage logEntries ].
+	^ logs.
 ]
 
 { #category : #reading }
@@ -113,7 +113,7 @@ LogFileManager >> logStream: fileReference [
 { #category : #accessing }
 LogFileManager >> logsWithStage: aStage [
 	"comment stating purpose of message"
-	^ (logEntries select: [ :log | log stage = aStage]) sort: [:log1 :log2 | log1 <= log2] .
+	^ (self logEntries select: [ :log | log stage = aStage]) sort: [:log1 :log2 | log1 <= log2] .
 ]
 
 { #category : #'read/write usage' }
@@ -122,7 +122,7 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 	| filesToRead |
 	filesToRead := self filesToReadFromFolder: inputDirectory.
 	filesToRead do: [ :file | self readLogsEntries: (self logStream: file)].
-	self writeFiles: (self sortLogEntriesByTimestamp: logEntries ) withName: fileNameOutput.
+	self writeFiles: (self sortLogEntriesByTimestamp: self logEntries ) withName: fileNameOutput.
 ]
 
 { #category : #'as yet unclassified' }
@@ -131,7 +131,7 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 	| filesToRead |
 	filesToRead := self filesToReadFromFolder: inputDirectory.
 	filesToRead do: [ :file | self readLogsEntries: (self logStream: file) withCriteria: aBlock].
-	self writeFiles: (self sortLogEntriesByTimestamp: logEntries) withName: fileNameOutput.
+	self writeFiles: (self sortLogEntriesByTimestamp: self logEntries) withName: fileNameOutput.
 	
 	
 	
@@ -159,7 +159,7 @@ LogFileManager >> readLogsEntries: logStream [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
 		self addLog: logCreated ].
-	^ logEntries.
+	^ self logEntries.
 ]
 
 { #category : #reading }
@@ -171,14 +171,14 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 		self reportLogErrors: logCreated onStream: logStream.
 		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ]. 
 	].
-	^ logEntries.
+	^ self logEntries.
 ]
 
 { #category : #'as yet unclassified' }
 LogFileManager >> removeLogFiles [
 	"Borrar los archivos que perdieron referencia"
 	| filesToRemove |
-	filesToRemove := ((self logEntries at:1) source asFileReference parent fullName) asFileReference. "Tomo la referencia de la carpeta"
+	filesToRemove := (((logStages at:1) groups at:1) source asFileReference parent fullName) asFileReference. "Tomo la referencia de la carpeta"
 	filesToRemove := filesToRemove children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar"
 	filesToRemove do: [:file | file delete]. "Eliminar los archivos enlistados"
 	
@@ -207,9 +207,9 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 { #category : #'as yet unclassified' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	| sources filesToRemove |
+	| sources |
 	self removeLogFiles.
-	sources := (logEntries collect: [ :log | log source ]) removeDuplicates.
+	sources := (self logEntries collect: [ :log | log source ]) removeDuplicates.
 	sources do: [ :source | self saveLogsWithSourceFile: source ].
 	
 
@@ -232,7 +232,7 @@ LogFileManager >> saveLogsWithSourceFile: aFile [
 { #category : #reading }
 LogFileManager >> selectWithCriteria: aBlock [
 	"Read a log file and add them as LogEntry files to the log entries"
-	^ logEntries select:[ :log | log hasCriteria: aBlock ].
+	^ self logEntries select:[ :log | log hasCriteria: aBlock ].
 ]
 
 { #category : #sorting }

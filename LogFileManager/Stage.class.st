@@ -24,7 +24,7 @@ Stage >> addGroup: aPath [
 { #category : #'as yet unclassified' }
 Stage >> addLog: aLogEntry withSource: aPath [
 	"comment stating purpose of message"
-	self addGroup:aPath.
+	self addGroup: aPath.
 	(self searchGroup: aPath) addLog: aLogEntry.
 ]
 
