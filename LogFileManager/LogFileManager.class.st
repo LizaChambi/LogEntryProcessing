@@ -31,6 +31,12 @@ LogFileManager >> addLog: aLogEntry [
 ]
 
 { #category : #adding }
+LogFileManager >> addNewLog [
+	"comment stating purpose of message"
+	self addStage: self nextStage.
+]
+
+{ #category : #adding }
 LogFileManager >> addStage: aNumber. [
 	"comment stating purpose of message"
 	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
@@ -78,9 +84,10 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 			display: [:each | {each}];
 			children: [ :x | x groups];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
-			maxDepth:2; rootsExpanded]; 
+			maxDepth:2; rootsExpanded];
+		addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage');
 		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
-	^ browser
+	 ^ browser
 ]
 
 { #category : #reading }
@@ -135,6 +142,12 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 	
 	
 	
+]
+
+{ #category : #adding }
+LogFileManager >> nextStage [
+	"comment stating purpose of message"
+	^(logStages collect: [ :stage | stage stage ]) max + 1. 
 ]
 
 { #category : #adding }
