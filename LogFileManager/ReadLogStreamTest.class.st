@@ -4,7 +4,7 @@ Class {
 	#instVars : [
 		'stream'
 	],
-	#category : #LogFileManager
+	#category : #'LogFileManager-Test'
 }
 
 { #category : #running }

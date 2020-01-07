@@ -5,7 +5,11 @@ Class {
 		'logFileManager',
 		'log0',
 		'log8',
-		'log33'
+		'log33',
+		'path1',
+		'path2',
+		'path3',
+		'pathFolder'
 	],
 	#classInstVars : [
 		'text',
@@ -27,6 +31,10 @@ LogFileManagerTest >> setUp [
 	log33 := LogEntry timestamp: 33 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #() ) stage:0 source: 'path33'.
 	log0 := LogEntry timestamp: 0 selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames: arguments: #('DateTime' #SmtSupportVASTTypingApp 'Array' #() #() #() ) stage:1 source: 'path0'.
 	log8 := LogEntry timestamp: 8 selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames: arguments: #('SmtEntireFileReadStream' #SmtSupportVASTTypingApp 'CfsReadFileStream' #() #() #() ) stage: 0 source: 'path8'.
+	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/stage0-entriesExample.changes'.
+	path2 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
+	path3 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfileCr.changes'.
+	pathFolder := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/resources'.
 ]
 
 { #category : #running }
@@ -93,7 +101,7 @@ LogFileManagerTest >> testGroups [
 LogFileManagerTest >> testLogsWithStage0 [
 	"comment stating purpose of message"
 	| logStream |
-	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/stage0-entriesExample.changes' asFileReference readStream.
+	logStream := ReadLogStream onStream: path1 asFileReference readStream.
 	logFileManager addLog: log0.
 	logFileManager addLog: log33.
 	logFileManager addLog: log8.
@@ -103,7 +111,7 @@ LogFileManagerTest >> testLogsWithStage0 [
 { #category : #tests }
 LogFileManagerTest >> testMergeOrderedALogFileFromPath [
 	"comment stating purpose of message"
-	logFileManager mergeOrderedLogFilesFrom: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources' withName: 'sortedLogFiles'.
+	logFileManager mergeOrderedLogFilesFrom: pathFolder withName: 'sortedLogFiles'.
 
 	self assert: (self readFile: 'sortedLogFiles') equals: 'self
 	timestamp: 0
@@ -126,7 +134,7 @@ self
 { #category : #tests }
 LogFileManagerTest >> testMergeOrderedALogFileFromPathWithCriteria [
 	"comment stating purpose of message"
-	logFileManager mergeOrderedLogFilesFrom: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources' withName: 'sortedLogFiles' 
+	logFileManager mergeOrderedLogFilesFrom: pathFolder withName: 'sortedLogFiles' 
 	matchingACriteria: [:log | log timestamp < 10 ].
 
 	self assert: (self readFile: 'sortedLogFiles') equals: 'self
@@ -146,7 +154,7 @@ self
 LogFileManagerTest >> testNoReportLogState [
 	"comment stating purpose of message"
 	| logStream |
-	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
+	logStream := ReadLogStream onStream: path2 asFileReference readStream.
 	logFileManager reportLogErrors: log33 onStream: logStream.
 	self assert: ( logFileManager report size) equals: (0).
 ]
@@ -155,26 +163,26 @@ LogFileManagerTest >> testNoReportLogState [
 LogFileManagerTest >> testOneEntryWithCR [
 	"comment stating purpose of message"
 	| result |
-	result := logFileManager readLogsEntries: (ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfileCr.changes' asFileReference readStream ).
+	result := logFileManager readLogsEntries: (ReadLogStream onStream: path3 asFileReference readStream ).
 	self assert: result notEmpty.
 	self assert: ((result at: 1) timestamp) equals: (0).
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
-	self assert: ((result at: 1) arguments) equals: #('argument1.argument1 same-as #Integer' 'ByteArray>>do:').
-	self assert: ((result at:1) stage) equals: (1).
-	self assert: ((result at:1) source) equals: ('/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfileCr.changes').
+	self assert: ((result at: 1) arguments) equals: ( #('argument1.argument1 same-as #Integer' 'ByteArray>>do:')).
+	self assert: ((result at: 1) stage) equals: (0).
+	self assert: ((result at: 1) source) equals: (path3).
 ]
 
 { #category : #tests }
 LogFileManagerTest >> testOneEntryWithoutCR [
 	"comment stating purpose of message"
 	| result |
-	result := logFileManager readLogsEntries: (ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream ).
+	result := logFileManager readLogsEntries: (ReadLogStream onStream: path2 asFileReference readStream ).
 	self assert: result notEmpty.
 	self assert: ((result at: 1) timestamp) equals: (0).
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
 	self assert: ((result at: 1) arguments) equals: ( #('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
 	self assert: ((result at: 1) stage) equals: (0).
-	self assert: ((result at:1) source) equals: ('/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes').
+	self assert: ((result at: 1) source) equals: (path2).
 ]
 
 { #category : #tests }
@@ -182,20 +190,20 @@ LogFileManagerTest >> testReadLogEntries [
 	"comment stating purpose of message"
 	|entryManager|
 	entryManager := LogFileManager new.
-	self assert: ((entryManager readLogsEntries: (ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/stage0-entriesExample.changes' asFileReference readStream ) ) size) equals: 3.
+	self assert: ((entryManager readLogsEntries: (ReadLogStream onStream: path1 asFileReference readStream ) ) size) equals: 3.
 ]
 
 { #category : #tests }
 LogFileManagerTest >> testReadLogFilesFromFolder [
 	"comment stating purpose of message"
-	logFileManager := LogFileManager readLogFilesFromFolder: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources'.
+	logFileManager := LogFileManager readLogFilesFromFolder: pathFolder.
 	self assert: (logFileManager logEntries size) equals: (3).
 ]
 
 { #category : #tests }
 LogFileManagerTest >> testReadLogsEntriesWithCriteriaTimestamp0 [
 	"comment stating purpose of message"
-	logFileManager readLogsEntries: (ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/stage0-entriesExample.changes' asFileReference readStream ) withCriteria: [:log | log timestamp = 0].
+	logFileManager readLogsEntries: (ReadLogStream onStream: path1 asFileReference readStream ) withCriteria: [:log | log timestamp = 0].
 	self assert: (logFileManager logEntries size) equals: (1).
 ]
 
@@ -203,7 +211,7 @@ LogFileManagerTest >> testReadLogsEntriesWithCriteriaTimestamp0 [
 LogFileManagerTest >> testReportLogState [
 	"comment stating purpose of message"
 	| logStream |
-	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
+	logStream := ReadLogStream onStream: path2 asFileReference readStream.
 	logFileManager reportLogErrors: log0 onStream: logStream.
 	self assert: ( logFileManager report size) equals: (1).
 	self assert: ( (logFileManager report at:1) nameFile) equals: ('stage0-testfile.changes').
@@ -213,9 +221,9 @@ LogFileManagerTest >> testReportLogState [
 { #category : #tests }
 LogFileManagerTest >> testSaveFilesEdited [
 	"Dado 4 logEntries modificados, grabarlos en sus archivos correspondientes."
-	| l1 l2 l3 l4 path1 path2 |
-	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
-	path2 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
+	| l1 l2 l3 l4 |
+	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
+	path2 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
 	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
 	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
 	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
@@ -228,7 +236,7 @@ LogFileManagerTest >> testSaveFilesEdited [
 	l4 editWithLog: (LogEntry timestamp: 99999999999 selector:  #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: path1).
 	
 	logFileManager saveFiles.
-	self assert: (self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes') equals:('self
+	self assert: (self readFile: path1) equals:('self
 	timestamp: 201
 	selector: #doSetPackageNamed:asInMigrationSet:
 	arguments: #(#SmtGeneratedMethodsCallingDNU #true)
@@ -244,7 +252,7 @@ self
 	arguments: #(#String #''NeoJSONTest>>testMaps|BA|1|string'')
 	stage: 0.
 ').
-	self assert: (self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes') equals:('self
+	self assert: (self readFile: path2) equals:('self
 	timestamp: 40
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(#SmtGeneratedPools nil #())
@@ -255,9 +263,9 @@ self
 { #category : #tests }
 LogFileManagerTest >> testSaveFilesEditedWithError [
 	"Dado 4 logEntries modificados, grabarlos en sus archivos correspondientes."
-	| l1 l2 l3 l4 path1 path2 |
-	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
-	path2 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
+	| l1 l2 l3 l4 |
+	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
+	path2 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
 	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
 	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
 	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
@@ -273,9 +281,9 @@ LogFileManagerTest >> testSaveFilesEditedWithError [
 { #category : #tests }
 LogFileManagerTest >> testSaveFilesInit [
 	"Dado 4 log entries, los graba en sus archivos correspondientes."
-	| l1 l2 l3 l4 path1 path2 |
-	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
-	path2 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
+	| l1 l2 l3 l4 |
+	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
+	path2 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
 	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
 	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
 	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
@@ -285,7 +293,7 @@ LogFileManagerTest >> testSaveFilesInit [
 	logFileManager saveFiles.
 	
 	self assert: (logFileManager logEntries size) equals: (4).
-	self assert: (self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes') equals:('self
+	self assert: (self readFile: path1) equals:('self
 	timestamp: 200
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(''SmtGeneratedMethodsCallingDNU'' nil #())
@@ -301,7 +309,7 @@ self
 	arguments: #(#String #''NeoJSONTest>>testMaps|BA|1|string'')
 	stage: 0.
 ').
-	self assert: (self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes') equals:('self
+	self assert: (self readFile: path2) equals:('self
 	timestamp: 40
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(#SmtGeneratedPools nil #())
@@ -312,8 +320,8 @@ self
 { #category : #tests }
 LogFileManagerTest >> testSaveLogsWithSourceFile [
 	"comment stating purpose of message"
-	| log1 log2 log3 log4 path1 path2 |
-	path1 := '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage1-testfile.changes' .
+	| log1 log2 log3 log4 |
+	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage1-testfile.changes' .
 	path2 := '/home/Pharo/stage0-testfile.changes' .
 	log1 := LogEntry timestamp: 0 selector: #doAddClassNamed:in:superclass: arguments: #('DateTime' #SmtSupportVASTTypingApp 'Array') stage: 1 source: path1.
 	log2 := LogEntry timestamp: 8 selector: #doAddClassNamed:in: arguments: #('SmtEntireFileReadStream' #SmtSupportVASTTypingApp) stage: 1 source: path2.
@@ -322,7 +330,7 @@ LogFileManagerTest >> testSaveLogsWithSourceFile [
 	logFileManager addLog: log1; addLog: log2; addLog: log3; addLog: log4.
 	logFileManager saveLogsWithSourceFile: path1.
 	
-	self assert: ( self readFile: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage1-testfile.changes') equals: 'self
+	self assert: ( self readFile: path1) equals: 'self
 	timestamp: 0
 	selector: #doAddClassNamed:in:superclass:
 	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'')

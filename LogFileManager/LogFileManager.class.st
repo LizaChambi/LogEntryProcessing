@@ -31,12 +31,6 @@ LogFileManager >> addLog: aLogEntry [
 ]
 
 { #category : #adding }
-LogFileManager >> addNewGroup [
-	"comment stating purpose of message"
-	self shouldBeImplemented.
-]
-
-{ #category : #adding }
 LogFileManager >> addNewLog [
 	"comment stating purpose of message"
 	self addStage: self nextStage.
@@ -49,35 +43,19 @@ LogFileManager >> addStage: aNumber. [
 ]
 
 { #category : #adding }
+LogFileManager >> dosLogs [
+	"comment stating purpose of message"
+	|col|
+	col := OrderedCollection new.
+	col add: (LogEntry timestamp: 1212 selector:#soyAlgo arguments:#() stage: 1 source: 'path/stage1.change').
+	col add: (LogEntry timestamp: 555 selector:#soyOtroAlgo: arguments:#(sep) stage: 1 source: 'path/stage1.change').
+	^ col.
+]
+
+{ #category : #adding }
 LogFileManager >> existStage: aNumber [
 	"comment stating purpose of message"
 	^ logStages anySatisfy: [ :stage | stage stage = aNumber ].
-]
-
-{ #category : #'as yet unclassified' }
-LogFileManager >> fastListDragAndDrop [
-	<glmBrowser: 'Fast List drag&drop' input: 'OrderedCollection new'>
-	"self new fastListDragAndDrop openOn: (1 to: 5) asOrderedCollection"
-	| browser |
-	browser := GLMTabulator new.
-	browser column: #source; column: #target.
-	browser transmit to: #source; andShow: [:a | 
-		a fastList 
-			title: 'Source';
-			display: (1 to: 10)].
-"			allowItemDrag: [:item :list | true ];
-			transformDraggedItem: [:item :list | item + 100 ]"
-	browser transmit to: #target; andShow: [:a |  
-		a fastList
-			title: 'Target'; 
-			display: [:collection | collection asString ]].
-		"	allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isNumber ];
-			dropOnItem: [:draggedObject :targetItem :list | 
-				list entity addLast: (targetItem + draggedObject).
-				list update.
-				true ]
-			]."
-	^ browser
 ]
 
 { #category : #'as yet unclassified' }
@@ -108,52 +86,121 @@ LogFileManager >> gtInspectorReportStages: composite [
 ]
 
 { #category : #'as yet unclassified' }
+LogFileManager >> gtInspectorTreeLogFiles2: composite [
+	<gtInspectorPresentationOrder: 2>
+	|tabulator finder|
+	tabulator := GLMTabulator new.
+	tabulator title: 'StagesTree2'.
+	tabulator row: #Tree; row:#'Toolbar' size:60.
+	(tabulator transmit) to:#Tree;
+		andShow: [ :cp | cp fastTreeTable
+			display: [:each | {each}];
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each print ] width: 1000;
+			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] 
+				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
+			maxDepth:2; 
+			rootsExpanded;
+			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
+		].
+	(tabulator transmit) to:#Toolbar; from:#Tree;
+		andShow: [ :x | |data| x text 
+			display: [:dataTree | data:= dataTree. '']; 
+			withGhostText: 'Ingrese la dirección de un grupo';
+			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
+				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
+	].
+	" (tabulator transmit) to:#Inspect; from:#Tree;
+		andShow: [ :x | x list dynamicActionsOnSelection: [:text | OrderedCollection with: (GLMGenericAction new title: 'Print selection'; action: [text selectedText Smalltalk tools inspector]; yourself) ] ]."
+
+	composite custom: tabulator.
+]
+
+{ #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles3: composite [
- <gtInspectorPresentationOrder: 1>
+ <gtInspectorPresentationOrder: 3>
 	| browser |
 	browser := composite tabulator.
 	browser title: 'DragAndDrop'.
-	browser column: #source; column: #target.
-	browser transmit to: #target; andShow: [:a | 
+	browser column: #target; column: #source.
+	browser transmit to: #target; andShow: [:a | a fastTreeTable
+		display: [:each | {each}];
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each ] width: 1000;
+			allowDropOnItem: [:draggedObject :targetItem :list | true "draggedObject isNumber" ]; "allowDropOnItem es la condición para poder arrastrar el item"
+				" draggedObject es el LogEntry que se esta arrastrando"
+				"targetItem es el item sobre se está parado, puede ser un string vacio."
+				"list es la estructura. Ej GLMFastTreePresentation."
+				"draggedObject es el bloque que se ejecutará cuando se -suelte- algo sobre un item"
+			dropOnItem: [:draggedObject :targetItem :list | "draggedObject es el objeto que se está arrastrando"
+				"targetItem es el objeto sobre el que se dejó el objeto arrastrado, puede ser un string vacío de no parar sobre nada"
+				"list es la estructura del dato. Ej GMLFastListPresentation"
+				list entity addLog: draggedObject"(targetItem + draggedObject)".
+				list update.
+				true ]
+			"display: [:each | {each}];
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each print ] width: 1000;
+			allowItemDrag: [:item :list | true ];
+			maxDepth:2; rootsExpanded."
+		].
+	(browser transmit) to: #source; andShow: [:a |  
 		a fastList
-			display: [:each | each logEntries];
-			allowItemDrag: [:item :list | item isLogEntry]; "Si cumple con esta condicion, deja arrastrar al objeto, de lo contrario, no se puede arrastrar"
-			transformDraggedItem: [:item :list | item "item + 100"] "Acá modificas el item que se está arrastrando."
-			].
-	browser transmit to: #source; andShow: [:a |  
-		a fastList
-			display: [: each | each logEntries ];
-			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry]; "Si cumple este requisito, deja dropear el objeto, sino regresa a su lugar"
-			"Esto es lo que hace con la lista original -list entity- (LogFileManager) y el objeto recibido -draggedObject-. 
-			targetItem creo que es el item sobre el que se posó "
+			display: [: each | each dosLogs ];
+			allowItemDrag: [:item :list | Transcript show: item; show:list. true ];
+			transformDraggedItem: [:item :list | "Transcript show: item; show: list." item]
+"			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry ];
 			dropOnItem: [:draggedObject :targetItem :list | 
 				list entity addLog: (draggedObject).
 				list update.
-				true ]
+				true ]"
 			].
-	^ browser.
+	^ browser
 ]
 
 { #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
-	| browser |
-	browser := composite wrapper title: 'StagesTree'.
-	browser show: [:a | a fastTreeTable 
+	|tabulator pager|
+	tabulator := GLMTabulator new.
+	pager:= GLMPager new.
+	tabulator title: 'StagesTree'.
+	tabulator addRow:#Tree; addRow:#Toolbar size: 60.
+	tabulator transmit to:#Tree; 
+		"andShow: [ :cp | cp fastTreeTable"
+		andShow: [ :cp | cp pager show: [ :algo | algo fastTreeTable  
 			display: [:each | {each}];
 			children: [ :x | x groups];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
-			maxDepth:2; rootsExpanded];
-		addAction: (GLMGenericAction new action: [ self addNewGroup. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group');
-		addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage');
-		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes').
-	 ^ browser
+			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] 
+				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
+			maxDepth:2; 
+			rootsExpanded;
+			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
+		].].
+	tabulator transmit to:#Toolbar; from:#Tree;
+		andShow: [ :x | |data| x text 
+			display: [:dataTree | data:= dataTree. '']; 
+			withGhostText: 'Ingrese la dirección de un grupo';
+			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
+				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
+	].
+
+	composite custom: tabulator.
 ]
 
 { #category : #reading }
 LogFileManager >> hasTimestampRepeated: aLogEntry [
 	"Read a log file and add them as LogEntry files to the log entries"
 	^ self logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
+]
+
+{ #category : #reading }
+LogFileManager >> hasTimestampRepeatedInGroup: aLogEntry [
+	"Read a log file and add them as LogEntry files to the log entries"
+	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group = aLogEntry group ] ].
 ]
 
 { #category : #initialization }
@@ -228,7 +275,7 @@ LogFileManager >> readLogFilesFromFolder: inputDirectory [
 LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| logCreated |
-	[ logStream atEnd ] whileFalse: [
+	[ logStream atEnd] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
 		self addLog: logCreated ].
@@ -242,7 +289,7 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ]. 
+		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ].
 	].
 	^ self logEntries.
 ]
@@ -268,13 +315,15 @@ LogFileManager >> report [
 ]
 
 { #category : #reading }
-LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [ 
-	(aLogEntry hasStageErrorOn: aStream) 
-		ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
-	(self hasTimestampRepeated: aLogEntry) 
-		ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated.' nameFile: aStream fileReference basename line: aStream position) ].
-	(aLogEntry stage > 2) 
-		ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
+LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
+	(aLogEntry isValidLog) ifTrue:
+	[ (aLogEntry hasStageErrorOn: aStream) 
+			ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
+		(self hasTimestampRepeated: aLogEntry) 
+			ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated.' nameFile: aStream fileReference basename line: aStream position) ].
+		(aLogEntry stage > 2) 
+			ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
+	].
 ]
 
 { #category : #'as yet unclassified' }

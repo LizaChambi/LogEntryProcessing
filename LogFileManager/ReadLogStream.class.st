@@ -26,6 +26,11 @@ ReadLogStream >> fileReference [
 ]
 
 { #category : #initalize }
+ReadLogStream >> isEmptyChunk: aChunk [
+	^ (aChunk includesSubstring: 'self') not.
+]
+
+{ #category : #initalize }
 ReadLogStream >> next [
 	"comment stating purpose of message"
 	| chunk finalized |
@@ -35,7 +40,13 @@ ReadLogStream >> next [
 	[ finalized ] whileFalse: 
 	[ 
 		chunk := chunk, (stream upTo: $.), '.'.
-		( (stream peek = Character lf) or: [ (stream peek = Character cr) or: [ (stream atEnd) ] ]) ifTrue: [ stream next. finalized := true. ^ chunk. ]
+		( (stream peek = Character lf) or: [ (stream peek = Character cr) or: [ (stream atEnd) ] ]) 
+			ifTrue: [ "
+				((stream atEnd) and: [self isEmptyChunk: chunk]) ifTrue:  [finalized := true]"
+				(self isEmptyChunk: chunk) 
+					ifTrue: [ stream next. finalized := true. chunk:='']
+					ifFalse: [ stream next. finalized := true. ^ chunk. ] 
+			"]."].
 	].
 ]
 

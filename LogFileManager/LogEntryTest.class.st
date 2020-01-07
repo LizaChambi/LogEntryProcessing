@@ -13,7 +13,7 @@ Class {
 { #category : #running }
 LogEntryTest >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
-	logEntry := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:0.
+	logEntry := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:0 source: 'stage0-path'.
 ]
 
 { #category : #tests }
@@ -56,6 +56,54 @@ LogEntryTest >> testConvertChunkToLogEntryWrong [
 ]
 
 { #category : #tests }
+LogEntryTest >> testEditWithLog [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: 0 source: 'path').
+]
+
+{ #category : #tests }
+LogEntryTest >> testEditWithLogAssertLeftoverArguments [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: 0303 selector: #method arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
+LogEntryTest >> testEditWithLogAssertMissingArguments [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: 0303 selector: #method:withArguments: arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
+LogEntryTest >> testEditWithLogAssertSelectorEmptyList [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: 0303 selector: #() arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
+LogEntryTest >> testEditWithLogAssertSelectorNoMethod [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: 0303 selector: 123 arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
+LogEntryTest >> testEditWithLogAssertTimestamp [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: (-13) selector: #method arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
 LogEntryTest >> testHasCriteriaTimestamp0 [
 	"comment stating purpose of message"
 	self assert: ( logEntry hasCriteria: [:log | log timestamp = 0] ).
@@ -79,7 +127,7 @@ LogEntryTest >> testHasCriteriaWithoutArgumentsError [
 LogEntryTest >> testHasNoStageErrorOnLogStream [
 	"comment stating purpose of message"
 	| logStream |
-	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
+	logStream := ReadLogStream onStream: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
 	self assert: ( (logEntry hasStageErrorOn: logStream) not).
 ]
 
@@ -87,8 +135,8 @@ LogEntryTest >> testHasNoStageErrorOnLogStream [
 LogEntryTest >> testHasStageErrorOnLogStream [
 	"comment stating purpose of message"
 	| logStream logWithStage2 |
-	logStream := ReadLogStream onStream: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
-	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 source: '/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
+	logStream := ReadLogStream onStream: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
+	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 source: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
 	self assert: (logWithStage2 hasStageErrorOn: logStream).
 ]
 
