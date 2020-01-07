@@ -44,11 +44,6 @@ LogGroup >> isGroup [
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> isLFM [
-	^ true.
-]
-
-{ #category : #'as yet unclassified' }
 LogGroup >> logEntries [
 	^ logsEntries.
 ]

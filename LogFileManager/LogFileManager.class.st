@@ -133,17 +133,17 @@ LogFileManager >> hasTimestampRepeated: aLogEntry [
 	^ self logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
 ]
 
+{ #category : #reading }
+LogFileManager >> hasTimestampRepeatedInGroup: aLogEntry [
+	"Read a log file and add them as LogEntry files to the log entries"
+	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group = aLogEntry group ] ].
+]
+
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
 	logStages := OrderedCollection new.
 	report  := OrderedCollection new.
-]
-
-{ #category : #'as yet unclassified' }
-LogFileManager >> isLFM [
-	^ true.
-
 ]
 
 { #category : #accessing }

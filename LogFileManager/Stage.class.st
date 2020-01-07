@@ -49,17 +49,6 @@ Stage >> hasStage: aNumber [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> isGroup [
-	"comment stating purpose of message"
-	^ false
-]
-
-{ #category : #'as yet unclassified' }
-Stage >> isLFM [
-	^ true.
-]
-
-{ #category : #'as yet unclassified' }
 Stage >> logEntries [
 	"comment stating purpose of message"
 	| newCollect |
