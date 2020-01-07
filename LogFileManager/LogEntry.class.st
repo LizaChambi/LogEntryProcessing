@@ -69,12 +69,30 @@ LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 { #category : #accessing }
 LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
-	self assert: [ aLogEntry isValidLog] description: 'El log ingresado no es válido'.
-	self assert: [ aLogEntry timestamp asNumber >= 0] description: 'El valor del timestamp debe ser un número válido'.
-	self assert: [ (aLogEntry selector isSymbol) or: [ (aLogEntry selector isCollection) and: [aLogEntry selector size >= 1 ]] ] description: 'Selector debe tener al menos un método.'.
-	self assert: [ aLogEntry stage asNumber >= 0] description: 'El valor del stage no es un número válido'.
-	self assert: [ aLogEntry hasPathStageDifferent not] description: 'El nombre del archivo no coincide con el stage del log.'.
-	self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage source: aLogEntry source.
+	self
+		assert: [ aLogEntry isValidLog ]
+		description: 'El log ingresado no es válido'.
+	self
+		assert: [ aLogEntry timestamp asNumber >= 0 ]
+		description: 'El valor del timestamp debe ser un número válido'.
+	self
+		assert: [ aLogEntry selector isSymbol]
+		description: 'Selector debe tener al menos un método.'.
+	self
+		assert: [ aLogEntry hasANumberCorrectArguments]
+		description: 'La cantidad de argumentos no coinciden con los definidos en el selector.'.
+	self
+		assert: [ aLogEntry stage asNumber >= 0 ]
+		description: 'El valor del stage no es un número válido'.
+	self
+		assert: [ aLogEntry hasPathStageDifferent not ]
+		description: 'El nombre del archivo no coincide con el stage del log.'.
+	self
+		timestamp: aLogEntry timestamp
+		selector: aLogEntry selector
+		arguments: aLogEntry arguments
+		stage: aLogEntry stage
+		source: aLogEntry source.
 	^ self
 ]
 
@@ -133,6 +151,11 @@ LogEntry >> gtInspectorLogTreeTable: composite [
 		column: 'Property' evaluated: [:asoc | (asoc class = LogEntry) ifTrue: [asoc] ifFalse: [asoc key ] ];
 		column: 'Value' evaluated: [:asoc | (asoc class = LogEntry) ifTrue: [''] ifFalse: [ (asoc value) value: (asoc key)] ];
 		maxDepth:1; rootsExpanded.
+]
+
+{ #category : #accessing }
+LogEntry >> hasANumberCorrectArguments [
+	^ selector numArgs = arguments size.
 ]
 
 { #category : #accessing }
