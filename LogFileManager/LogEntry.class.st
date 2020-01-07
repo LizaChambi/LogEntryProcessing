@@ -22,6 +22,11 @@ LogEntry class >> readLog: logStream [
 ]
 
 { #category : #'as yet unclassified' }
+LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection [
+	^ self new timestamp: anInteger selector: aString arguments: aCollection.
+]
+
+{ #category : #'as yet unclassified' }
 LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage [
 	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage.
 ]
@@ -40,8 +45,7 @@ LogEntry >> <= aLogEntry [
 { #category : #comparing }
 LogEntry >> = aLogEntry [
 	"comment stating purpose of message"
-
-	^ (timestamp = aLogEntry timestamp) and: [(arguments = aLogEntry arguments ) and: [selector = aLogEntry selector]].
+	^ (timestamp = aLogEntry timestamp) and: [(arguments = aLogEntry arguments ) and: [(selector = aLogEntry selector) and: [(stage = aLogEntry stage) and: [source = aLogEntry source ]]]].
 ]
 
 { #category : #accessing }
@@ -69,6 +73,7 @@ LogEntry >> editWithLog: aLogEntry [
 	self assert: [ aLogEntry stage asNumber >= 0] description: 'El valor del stage no es un número válido'.
 	self assert: [ aLogEntry hasPathStageDifferent not] description: 'El nombre del archivo no coincide con el stage del log.'.
 	self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage source: aLogEntry source.
+	^ self
 ]
 
 { #category : #conversion }
@@ -77,9 +82,7 @@ LogEntry >> editable [
 	^'self
 	timestamp: ', timestamp asString,'
 	selector: ', '#', selector asString, '
-	arguments: ', arguments asString, '
-	stage: ', stage asString, '
-	source: ', $' asString , source, $' asString , '.
+	arguments: ', arguments asString, '.
 '.
 ]
 
@@ -220,6 +223,14 @@ LogEntry >> timestamp [
 LogEntry >> timestamp: aNumber [
 	"comment stating purpose of message"
 	timestamp := aNumber. 
+]
+
+{ #category : #initialization }
+LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection [
+	"comment stating purpose of message"
+	timestamp:= aTimestamp.
+	selector := aString.
+	arguments := aCollection.
 ]
 
 { #category : #initialization }

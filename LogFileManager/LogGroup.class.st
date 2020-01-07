@@ -21,6 +21,11 @@ LogGroup >> addLog: aLogEntry [
 ]
 
 { #category : #'as yet unclassified' }
+LogGroup >> groups [
+	^ OrderedCollection new.
+]
+
+{ #category : #'as yet unclassified' }
 LogGroup >> gtInspectorLogsEntries: composite [
 	<gtInspectorPresentationOrder: 1>
 	composite fastList
@@ -31,6 +36,16 @@ LogGroup >> gtInspectorLogsEntries: composite [
 { #category : #'as yet unclassified' }
 LogGroup >> hasSource: aPath [
 	^ (source = aPath).
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> isGroup [
+	^ true
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> isLFM [
+	^ true.
 ]
 
 { #category : #'as yet unclassified' }

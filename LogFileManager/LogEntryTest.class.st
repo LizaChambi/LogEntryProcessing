@@ -13,7 +13,7 @@ Class {
 { #category : #running }
 LogEntryTest >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
-	logEntry := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:0.
+	logEntry := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:0 source: 'stage0-path'.
 ]
 
 { #category : #tests }
@@ -53,6 +53,14 @@ LogEntryTest >> testConvertChunkToLogEntryWrong [
 	timestamp: 3721902053120
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
 	stage: 0.') equals: (LogEntry timestamp:nil selector:nil arguments: nil stage:nil source:nil). "Deberia reportar un error"
+]
+
+{ #category : #tests }
+LogEntryTest >> testEditWithLog [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: 0 source: 'path').
 ]
 
 { #category : #tests }

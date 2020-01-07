@@ -55,32 +55,6 @@ LogFileManager >> existStage: aNumber [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> fastListDragAndDrop [
-	<glmBrowser: 'Fast List drag&drop' input: 'OrderedCollection new'>
-	"self new fastListDragAndDrop openOn: (1 to: 5) asOrderedCollection"
-	| browser |
-	browser := GLMTabulator new.
-	browser column: #source; column: #target.
-	browser transmit to: #source; andShow: [:a | 
-		a fastList 
-			title: 'Source';
-			display: (1 to: 10)].
-"			allowItemDrag: [:item :list | true ];
-			transformDraggedItem: [:item :list | item + 100 ]"
-	browser transmit to: #target; andShow: [:a |  
-		a fastList
-			title: 'Target'; 
-			display: [:collection | collection asString ]].
-		"	allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isNumber ];
-			dropOnItem: [:draggedObject :targetItem :list | 
-				list entity addLast: (targetItem + draggedObject).
-				list update.
-				true ]
-			]."
-	^ browser
-]
-
-{ #category : #'as yet unclassified' }
 LogFileManager >> filesToReadFromFolder: inputDirectory [
 	"comment stating purpose of message"
 	^ ((inputDirectory asFileReference) children) select: [ :each | each basename endsWith: '.changes' ].
@@ -113,25 +87,28 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	| browser |
 	browser := composite tabulator.
 	browser title: 'DragAndDrop'.
-	browser column: #source; column: #target.
-	browser transmit to: #target; andShow: [:a | 
-		a fastList
-			display: [:each | each logEntries];
-			allowItemDrag: [:item :list | item isLogEntry]; "Si cumple con esta condicion, deja arrastrar al objeto, de lo contrario, no se puede arrastrar"
-			transformDraggedItem: [:item :list | item "item + 100"] "Acá modificas el item que se está arrastrando."
-			].
-	browser transmit to: #source; andShow: [:a |  
+	browser column: #target; column: #source.
+	browser transmit to: #target; andShow: [:a | a fastList
+			addAction: (GLMGenericAction new action: [ self addNewGroup. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group');
+			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage');
+			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes');
+			display: [:each | each logEntries].
+			"display: [:each | {each}];
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each print ] width: 1000;
+			allowItemDrag: [:item :list | true ];
+			maxDepth:2; rootsExpanded."
+		].
+	(browser transmit) from:#target; to: #source; andShow: [:a |  
 		a fastList
 			display: [: each | each logEntries ];
-			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry]; "Si cumple este requisito, deja dropear el objeto, sino regresa a su lugar"
-			"Esto es lo que hace con la lista original -list entity- (LogFileManager) y el objeto recibido -draggedObject-. 
-			targetItem creo que es el item sobre el que se posó "
+			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry ];
 			dropOnItem: [:draggedObject :targetItem :list | 
 				list entity addLog: (draggedObject).
 				list update.
 				true ]
 			].
-	^ browser.
+	^ browser
 ]
 
 { #category : #'as yet unclassified' }
@@ -161,6 +138,12 @@ LogFileManager >> initialize [
 	"comment stating purpose of message"
 	logStages := OrderedCollection new.
 	report  := OrderedCollection new.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> isLFM [
+	^ true.
+
 ]
 
 { #category : #accessing }
