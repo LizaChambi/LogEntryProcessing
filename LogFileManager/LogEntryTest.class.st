@@ -64,6 +64,14 @@ LogEntryTest >> testEditWithLog [
 ]
 
 { #category : #tests }
+LogEntryTest >> testEditWithLogAssertTimestamp [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: (-13) selector: #method: arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
 LogEntryTest >> testHasCriteriaTimestamp0 [
 	"comment stating purpose of message"
 	self assert: ( logEntry hasCriteria: [:log | log timestamp = 0] ).
