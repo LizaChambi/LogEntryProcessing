@@ -71,6 +71,7 @@ LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
 	self assert: [ aLogEntry isValidLog] description: 'El log ingresado no es válido'.
 	self assert: [ aLogEntry timestamp asNumber >= 0] description: 'El valor del timestamp debe ser un número válido'.
+	self assert: [ (aLogEntry selector isSymbol) or: [ (aLogEntry selector isCollection) and: [aLogEntry selector size >= 1 ]] ] description: 'Selector debe tener al menos un método.'.
 	self assert: [ aLogEntry stage asNumber >= 0] description: 'El valor del stage no es un número válido'.
 	self assert: [ aLogEntry hasPathStageDifferent not] description: 'El nombre del archivo no coincide con el stage del log.'.
 	self timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage source: aLogEntry source.

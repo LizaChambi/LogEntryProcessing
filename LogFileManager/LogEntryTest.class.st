@@ -64,10 +64,26 @@ LogEntryTest >> testEditWithLog [
 ]
 
 { #category : #tests }
+LogEntryTest >> testEditWithLogAssertSelectorEmptyList [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: 0303 selector: #() arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
+LogEntryTest >> testEditWithLogAssertSelectorNoMethod [
+	"comment stating purpose of message"
+	| aLogEntry |
+	aLogEntry := LogEntry timestamp: 0303 selector: 123 arguments: #(arg) stage: logEntry stage source: logEntry source.
+	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
 LogEntryTest >> testEditWithLogAssertTimestamp [
 	"comment stating purpose of message"
 	| aLogEntry |
-	aLogEntry := LogEntry timestamp: (-13) selector: #method: arguments: #(arg) stage: logEntry stage source: logEntry source.
+	aLogEntry := LogEntry timestamp: (-13) selector: #method arguments: #(arg) stage: logEntry stage source: logEntry source.
 	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
 ]
 
