@@ -116,7 +116,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
 	| browser |
 	browser := composite wrapper title: 'StagesTree'.
-	browser show: [:a | a fastTreeTable 
+	browser show: [:a | a fastTreeTable algo
 			display: [:each | {each}];
 			children: [ :x | x groups];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
