@@ -113,22 +113,19 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 { #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
-	| browser treeTable |
+	| browser |
 	browser := composite wrapper title: 'StagesTree'.
-	browser show: [:a | treeTable := a fastTreeTable. treeTable
+	browser show: [:a |  a fastTreeTable
 			display: [:each | {each}];
 			children: [ :x | x groups];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
-			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] icon: GLMUIThemeExtraIcons glamorousAdd on: $g entitled: 'Add group';
+			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
-			rootsExpanded.
-			a addAction: (GLMGenericAction new action: [ (treeTable selection class = Stage) ifTrue:[ treeTable selection addNewGroup. composite update] ifFalse: [Transcript show: (a selection class)]]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle);
+			rootsExpanded;
+			"addAction: (GLMGenericAction new action: [ (composite fastTreeTable selection class = Stage) ifTrue:[ composite fastTreeTable selection addNewGroup. composite update] ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle);"
 		addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 			].
-"		addAction: (GLMGenericAction new action: [ (composite fastTreeTable selection class = Stage) ifTrue:[ composite fastTreeTable selection addNewGroup. composite update] ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle);
-		addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
-		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle)."
 	 ^ browser
 ]
 
