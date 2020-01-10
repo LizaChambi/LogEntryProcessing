@@ -29,6 +29,12 @@ Stage >> addLog: aLogEntry withSource: aPath [
 ]
 
 { #category : #'as yet unclassified' }
+Stage >> addNewGroup [
+	"comment stating purpose of message"
+	self addGroup: 'grupo/dePrueba.ext'.
+]
+
+{ #category : #'as yet unclassified' }
 Stage >> groups [
 	"comment stating purpose of message"
 	^ groups.

@@ -21,6 +21,12 @@ LogGroup >> addLog: aLogEntry [
 ]
 
 { #category : #'as yet unclassified' }
+LogGroup >> addNewGroup [
+	"comment stating purpose of message"
+
+]
+
+{ #category : #'as yet unclassified' }
 LogGroup >> groups [
 	^ OrderedCollection new.
 ]
