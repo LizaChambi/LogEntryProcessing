@@ -122,7 +122,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
 			rootsExpanded;
-			"addAction: (GLMGenericAction new action: [ (composite fastTreeTable selection class = Stage) ifTrue:[ composite fastTreeTable selection addNewGroup. composite update] ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle);"
+		addAction: (GLMGenericAction new action: [ :f | (f selection class = Stage) ifTrue:[f selection addNewGroup. composite update ]]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle);
 		addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 		addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 			].
