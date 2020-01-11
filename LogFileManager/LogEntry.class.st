@@ -137,7 +137,7 @@ LogEntry >> gtInspectorLogTree: composite [
 	composite fastTree 
 		title: 'LogTree';
 		display: [:each | {each} ];
-		children: [ :each | each properties];
+		children: [ :each | each properties.];
 		maxDepth:1; rootsExpanded.
 ]
 
