@@ -31,12 +31,6 @@ LogFileManager >> addLog: aLogEntry [
 ]
 
 { #category : #adding }
-LogFileManager >> addNewGroup [
-	"comment stating purpose of message"
-
-]
-
-{ #category : #adding }
 LogFileManager >> addNewLog [
 	"comment stating purpose of message"
 	self addStage: self nextStage.
@@ -123,11 +117,9 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
 			rootsExpanded;
-			addAction: (GLMGenericAction new action: [ :ftt | (ftt selection class = Stage) ifTrue:[ 
-					ftt selection addNewGroup. 
-					composite update.
-					]
-				]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle);
+"			addAction: (GLMGenericAction new action: [ :ftt | (ftt selection class = Stage) ifTrue:[ 
+					ftt selection addNewGroup. composite update.]
+				]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle);"
 			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 		].
@@ -137,7 +129,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 				withGhostText: 'Ingrese la dirección de un grupo';
 				addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text.
 					composite update.]
-					]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Log'; showTitle).
+					]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 		].
 	].
 	 ^ browser  
