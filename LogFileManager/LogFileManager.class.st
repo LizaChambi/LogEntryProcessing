@@ -107,32 +107,32 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 { #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
-	| browser |
-	browser := composite wrapper title: 'StagesTree'.
-	browser show: [:a | |tabulator| tabulator := a tabulator. tabulator addRow:#Tree; addRow:#Toolbar size: 60.
+	|tabulator|
+	tabulator := GLMTabulator new.
+	tabulator addRow:#Tree; addRow:#Toolbar size: 60.
 		tabulator transmit to:#Tree; andShow: [ :cp | cp fastTreeTable
 			display: [:each | {each}];
 			children: [ :x | x groups];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
-			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
+			selectionAct: [:tree | (tree selection class = Stage) 
+											ifTrue: [ tree selection addNewGroup. composite update] 
+								] icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
 			rootsExpanded;
-"			addAction: (GLMGenericAction new action: [ :ftt | (ftt selection class = Stage) ifTrue:[ 
-					ftt selection addNewGroup. composite update.]
-				]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle);"
 			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 		].
-			tabulator transmit to:#Toolbar; from:#Tree;
-			andShow: [ :x | |data| x text 
-				display: [:dataTree | data:= dataTree. '']; 
-				withGhostText: 'Ingrese la dirección de un grupo';
-				addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text.
-					composite update.]
-					]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
-		].
+	tabulator transmit to:#Toolbar; from:#Tree;
+		andShow: [ :x | |data| x text 
+			display: [:dataTree | data:= dataTree. '']; 
+			withGhostText: 'Ingrese la dirección de un grupo';
+			addAction: (GLMGenericAction new action: [:path | (data class = Stage) 
+																			ifTrue: [data addGroup: path text. composite update.]
+																	]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 	].
-	 ^ browser  
+	tabulator title: 'StagesTree'.
+	composite custom: tabulator.
+
 ]
 
 { #category : #reading }
