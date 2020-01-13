@@ -76,30 +76,67 @@ LogFileManager >> gtInspectorReportStages: composite [
 ]
 
 { #category : #'as yet unclassified' }
+LogFileManager >> gtInspectorTreeLogFiles2: composite [
+	<gtInspectorPresentationOrder: 2>
+	|tabulator finder|
+	tabulator := GLMTabulator new.
+	tabulator title: 'StagesTree2'.
+	tabulator row: #Tree; row:#'Toolbar' size:60.
+	(tabulator transmit) to:#Tree;
+		andShow: [ :cp | cp fastTreeTable
+			display: [:each | {each}];
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each print ] width: 1000;
+			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] 
+				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
+			maxDepth:2; 
+			rootsExpanded;
+			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
+		].
+	(tabulator transmit) to:#Toolbar; from:#Tree;
+		andShow: [ :x | |data| x text 
+			display: [:dataTree | data:= dataTree. '']; 
+			withGhostText: 'Ingrese la dirección de un grupo';
+			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
+				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
+	].
+	" (tabulator transmit) to:#Inspect; from:#Tree;
+		andShow: [ :x | x list dynamicActionsOnSelection: [:text | OrderedCollection with: (GLMGenericAction new title: 'Print selection'; action: [text selectedText Smalltalk tools inspector]; yourself) ] ]."
+
+	composite custom: tabulator.
+]
+
+{ #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles3: composite [
- <gtInspectorPresentationOrder: 1>
+ <gtInspectorPresentationOrder: 3>
 	| browser |
 	browser := composite tabulator.
 	browser title: 'DragAndDrop'.
 	browser column: #target; column: #source.
 	browser transmit to: #target; andShow: [:a | a fastList
-			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage');
-			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes');
-			display: [:each | each logEntries].
+			display: [:each | self logEntries];
+			allowDropOnItem: [:draggedObject :targetItem :list | true "draggedObject isNumber" ];
+			dropOnItem: [:draggedObject :targetItem :list | 
+				list entity addLog: draggedObject"(targetItem + draggedObject)".
+				list update.
+				true ]
 			"display: [:each | {each}];
 			children: [ :x | x groups];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			allowItemDrag: [:item :list | true ];
 			maxDepth:2; rootsExpanded."
 		].
-	(browser transmit) from:#target; to: #source; andShow: [:a |  
+	(browser transmit) to: #source; andShow: [:a |  
 		a fastList
-			display: [: each | each logEntries ];
-			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry ];
+			display: [: each | self logEntries];
+			allowItemDrag: [:item :list | true ].
+			
+"			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry ];
 			dropOnItem: [:draggedObject :targetItem :list | 
 				list entity addLog: (draggedObject).
 				list update.
-				true ]
+				true ]"
 			].
 	^ browser
 ]
@@ -107,32 +144,33 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 { #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
-	|tabulator|
+	|tabulator pager|
 	tabulator := GLMTabulator new.
+	pager:= GLMPager new.
+	tabulator title: 'StagesTree'.
 	tabulator addRow:#Tree; addRow:#Toolbar size: 60.
-		tabulator transmit to:#Tree; andShow: [ :cp | cp fastTreeTable
+	tabulator transmit to:#Tree; 
+		"andShow: [ :cp | cp fastTreeTable"
+		andShow: [ :cp | cp pager show: [ :algo | algo fastTreeTable  
 			display: [:each | {each}];
 			children: [ :x | x groups];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
-			selectionAct: [:tree | (tree selection class = Stage) 
-											ifTrue: [ tree selection addNewGroup. composite update] 
-								] icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
+			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] 
+				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
 			rootsExpanded;
 			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
-		].
+		].].
 	tabulator transmit to:#Toolbar; from:#Tree;
 		andShow: [ :x | |data| x text 
 			display: [:dataTree | data:= dataTree. '']; 
 			withGhostText: 'Ingrese la dirección de un grupo';
-			addAction: (GLMGenericAction new action: [:path | (data class = Stage) 
-																			ifTrue: [data addGroup: path text. composite update.]
-																	]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
+			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
+				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 	].
-	tabulator title: 'StagesTree'.
-	composite custom: tabulator.
 
+	composite custom: tabulator.
 ]
 
 { #category : #reading }
