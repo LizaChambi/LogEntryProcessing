@@ -43,6 +43,16 @@ LogFileManager >> addStage: aNumber. [
 ]
 
 { #category : #adding }
+LogFileManager >> dosLogs [
+	"comment stating purpose of message"
+	|col|
+	col := OrderedCollection new.
+	col add: (LogEntry timestamp: 1212 selector:#soyAlgo arguments:#() stage: 1 source: 'path/stage1.change').
+	col add: (LogEntry timestamp: 555 selector:#soyOtroAlgo: arguments:#(sep) stage: 1 source: 'path/stage1.change').
+	^ col.
+]
+
+{ #category : #adding }
 LogFileManager >> existStage: aNumber [
 	"comment stating purpose of message"
 	^ logStages anySatisfy: [ :stage | stage stage = aNumber ].
@@ -114,10 +124,18 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	browser := composite tabulator.
 	browser title: 'DragAndDrop'.
 	browser column: #target; column: #source.
-	browser transmit to: #target; andShow: [:a | a fastList
-			display: [:each | self logEntries];
-			allowDropOnItem: [:draggedObject :targetItem :list | true "draggedObject isNumber" ];
-			dropOnItem: [:draggedObject :targetItem :list | 
+	browser transmit to: #target; andShow: [:a | a fastTreeTable
+		display: [:each | {each}];
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each ] width: 1000;
+			allowDropOnItem: [:draggedObject :targetItem :list | true "draggedObject isNumber" ]; "allowDropOnItem es la condición para poder arrastrar el item"
+				" draggedObject es el LogEntry que se esta arrastrando"
+				"targetItem es el item sobre se está parado, puede ser un string vacio."
+				"list es la estructura. Ej GLMFastTreePresentation."
+				"draggedObject es el bloque que se ejecutará cuando se -suelte- algo sobre un item"
+			dropOnItem: [:draggedObject :targetItem :list | "draggedObject es el objeto que se está arrastrando"
+				"targetItem es el objeto sobre el que se dejó el objeto arrastrado, puede ser un string vacío de no parar sobre nada"
+				"list es la estructura del dato. Ej GMLFastListPresentation"
 				list entity addLog: draggedObject"(targetItem + draggedObject)".
 				list update.
 				true ]
@@ -129,9 +147,9 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 		].
 	(browser transmit) to: #source; andShow: [:a |  
 		a fastList
-			display: [: each | self logEntries];
-			allowItemDrag: [:item :list | true ].
-			
+			display: [: each | each dosLogs ];
+			allowItemDrag: [:item :list | Transcript show: item; show:list. true ];
+			transformDraggedItem: [:item :list | "Transcript show: item; show: list." item]
 "			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry ];
 			dropOnItem: [:draggedObject :targetItem :list | 
 				list entity addLog: (draggedObject).
@@ -257,7 +275,7 @@ LogFileManager >> readLogFilesFromFolder: inputDirectory [
 LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| logCreated |
-	[ logStream atEnd ] whileFalse: [
+	[ logStream atEnd] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
 		self addLog: logCreated ].
@@ -271,7 +289,7 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ]. 
+		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ].
 	].
 	^ self logEntries.
 ]
@@ -297,13 +315,15 @@ LogFileManager >> report [
 ]
 
 { #category : #reading }
-LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [ 
-	(aLogEntry hasStageErrorOn: aStream) 
-		ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
-	(self hasTimestampRepeated: aLogEntry) 
-		ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated.' nameFile: aStream fileReference basename line: aStream position) ].
-	(aLogEntry stage > 2) 
-		ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
+LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
+	(aLogEntry isValidLog) ifTrue:
+	[ (aLogEntry hasStageErrorOn: aStream) 
+			ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
+		(self hasTimestampRepeated: aLogEntry) 
+			ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated.' nameFile: aStream fileReference basename line: aStream position) ].
+		(aLogEntry stage > 2) 
+			ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
+	].
 ]
 
 { #category : #'as yet unclassified' }

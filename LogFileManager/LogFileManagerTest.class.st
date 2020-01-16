@@ -167,9 +167,9 @@ LogFileManagerTest >> testOneEntryWithCR [
 	self assert: result notEmpty.
 	self assert: ((result at: 1) timestamp) equals: (0).
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
-	self assert: ((result at: 1) arguments) equals: #('argument1.argument1 same-as #Integer' 'ByteArray>>do:').
-	self assert: ((result at:1) stage) equals: (1).
-	self assert: ((result at:1) source) equals: (path3).
+	self assert: ((result at: 1) arguments) equals: ( #('argument1.argument1 same-as #Integer' 'ByteArray>>do:')).
+	self assert: ((result at: 1) stage) equals: (0).
+	self assert: ((result at: 1) source) equals: (path3).
 ]
 
 { #category : #tests }
@@ -182,7 +182,7 @@ LogFileManagerTest >> testOneEntryWithoutCR [
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
 	self assert: ((result at: 1) arguments) equals: ( #('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
 	self assert: ((result at: 1) stage) equals: (0).
-	self assert: ((result at:1) source) equals: (path2).
+	self assert: ((result at: 1) source) equals: (path2).
 ]
 
 { #category : #tests }

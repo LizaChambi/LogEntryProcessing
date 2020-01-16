@@ -18,7 +18,10 @@ LogEntry class >> chunk: aChunk [
 
 { #category : #'as yet unclassified' }
 LogEntry class >> readLog: logStream [
-	^ self new convertChunkToLogEntry: logStream next withOriginPath: logStream fileReference fullName.
+	| print|
+	print := self new convertChunkToLogEntry: logStream next withOriginPath: logStream fileReference fullName.
+	Transcript show: print prettyPrint.
+	^ print.
 ]
 
 { #category : #'as yet unclassified' }
@@ -57,13 +60,13 @@ LogEntry >> arguments [
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
+	^[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex|^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
 ]
 
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 	"comment stating purpose of message"
-	^ (self convertChunkToLogEntry: aChunk) source: aFileReference.
+	^ ((self convertChunkToLogEntry: aChunk) source: aFileReference).
 ]
 
 { #category : #accessing }
@@ -88,10 +91,10 @@ LogEntry >> editWithLog: aLogEntry [
 		assert: [ aLogEntry hasPathStageDifferent not ]
 		description: 'El nombre del archivo no coincide con el stage del log.'.
 	self
-		timestamp: aLogEntry timestamp
+		timestamp: aLogEntry timestamp asNumber
 		selector: aLogEntry selector
 		arguments: aLogEntry arguments
-		stage: aLogEntry stage
+		stage: aLogEntry stage asNumber
 		source: aLogEntry source.
 	^ self
 ]
