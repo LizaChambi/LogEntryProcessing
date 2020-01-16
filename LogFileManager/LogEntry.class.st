@@ -94,7 +94,7 @@ LogEntry >> editWithLog: aLogEntry [
 		timestamp: aLogEntry timestamp asNumber
 		selector: aLogEntry selector
 		arguments: aLogEntry arguments
-		stage: aLogEntry stage asNumber
+		stage: aLogEntry stage
 		source: aLogEntry source.
 	^ self
 ]
@@ -105,8 +105,18 @@ LogEntry >> editable [
 	^'self
 	timestamp: ', timestamp asString,'
 	selector: ', '#', selector asString, '
-	arguments: ', arguments asString, '.
-'.
+	arguments: ', arguments asString, '.'.
+]
+
+{ #category : #accessing }
+LogEntry >> editor: aString [
+	| newLog |
+	"comment stating purpose of message"
+	newLog := LogEntry chunk: aString.
+	newLog stage: self stage.
+	newLog source: self source.
+	Transcript show: newLog prettyPrint.
+	self editWithLog: newLog.
 ]
 
 { #category : #accessing }
@@ -120,7 +130,7 @@ LogEntry >> gtInspectorEditLogEntry: composite [
    browser transmit
       to: #edit;
       andShow: [ :a | a pharoScript 
-			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editWithLog: (LogEntry chunk: (text text)). composite update];
+			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editor: text text. composite update];
 			display: [ :log | log editable ]
 		].
  	^ browser.
@@ -239,6 +249,12 @@ LogEntry >> source: aFileReference [
 LogEntry >> stage [
 	"comment stating purpose of message"
 	^ stage.
+]
+
+{ #category : #accessing }
+LogEntry >> stage: aNumber [
+	"comment stating purpose of message"
+	stage := aNumber.
 ]
 
 { #category : #accessing }
