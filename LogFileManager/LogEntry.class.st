@@ -90,6 +90,7 @@ LogEntry >> editWithLog: aLogEntry [
 	self
 		assert: [ aLogEntry hasPathStageDifferent not ]
 		description: 'El nombre del archivo no coincide con el stage del log.'.
+
 	self
 		timestamp: aLogEntry timestamp asNumber
 		selector: aLogEntry selector
@@ -115,7 +116,6 @@ LogEntry >> editor: aString [
 	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
 	newLog source: self source.
-	Transcript show: newLog prettyPrint.
 	self editWithLog: newLog.
 ]
 
@@ -137,7 +137,7 @@ LogEntry >> gtInspectorEditLogEntry: composite [
 ]
 
 { #category : #accessing }
-LogEntry >> gtInspectorLog: composite [
+LogEntry >> gtInspectorLogOutput: composite [
 	<gtInspectorPresentationOrder: 1>
 	composite text
 		title: 'PrettyPrint';
