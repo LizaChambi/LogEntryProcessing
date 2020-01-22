@@ -37,7 +37,7 @@ LogFileManager >> addNewLog [
 ]
 
 { #category : #adding }
-LogFileManager >> addStage: aNumber. [
+LogFileManager >> addStage: aNumber [.
 	"comment stating purpose of message"
 	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
 ]
@@ -118,48 +118,6 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> gtInspectorTreeLogFiles3: composite [
- <gtInspectorPresentationOrder: 3>
-	| browser |
-	browser := composite tabulator.
-	browser title: 'DragAndDrop'.
-	browser column: #target; column: #source.
-	browser transmit to: #target; andShow: [:a | a fastTreeTable
-		display: [:each | {each}];
-			children: [ :x | x groups];
-			column: 'Stages' evaluated: [:each | each ] width: 1000;
-			allowDropOnItem: [:draggedObject :targetItem :list | true "draggedObject isNumber" ]; "allowDropOnItem es la condición para poder arrastrar el item"
-				" draggedObject es el LogEntry que se esta arrastrando"
-				"targetItem es el item sobre se está parado, puede ser un string vacio."
-				"list es la estructura. Ej GLMFastTreePresentation."
-				"draggedObject es el bloque que se ejecutará cuando se -suelte- algo sobre un item"
-			dropOnItem: [:draggedObject :targetItem :list | "draggedObject es el objeto que se está arrastrando"
-				"targetItem es el objeto sobre el que se dejó el objeto arrastrado, puede ser un string vacío de no parar sobre nada"
-				"list es la estructura del dato. Ej GMLFastListPresentation"
-				list entity addLog: draggedObject"(targetItem + draggedObject)".
-				list update.
-				true ]
-			"display: [:each | {each}];
-			children: [ :x | x groups];
-			column: 'Stages' evaluated: [:each | each print ] width: 1000;
-			allowItemDrag: [:item :list | true ];
-			maxDepth:2; rootsExpanded."
-		].
-	(browser transmit) to: #source; andShow: [:a |  
-		a fastList
-			display: [: each | each dosLogs ];
-			allowItemDrag: [:item :list | Transcript show: item; show:list. true ];
-			transformDraggedItem: [:item :list | "Transcript show: item; show: list." item]
-"			allowDropOnItem: [:draggedObject :targetItem :list | draggedObject isLogEntry ];
-			dropOnItem: [:draggedObject :targetItem :list | 
-				list entity addLog: (draggedObject).
-				list update.
-				true ]"
-			].
-	^ browser
-]
-
-{ #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
 	|tabulator pager|
@@ -189,12 +147,6 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 	].
 
 	composite custom: tabulator.
-]
-
-{ #category : #reading }
-LogFileManager >> hasTimestampRepeated: aLogEntry [
-	"Read a log file and add them as LogEntry files to the log entries"
-	^ self logEntries anySatisfy: [ :log | log timestamp = aLogEntry timestamp ].
 ]
 
 { #category : #reading }
@@ -319,8 +271,8 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 	(aLogEntry isValidLog) ifTrue:
 	[ (aLogEntry hasStageErrorOn: aStream) 
 			ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
-		(self hasTimestampRepeated: aLogEntry) 
-			ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated.' nameFile: aStream fileReference basename line: aStream position) ].
+		(self hasTimestampRepeatedInGroup: aLogEntry) 
+			ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position) ].
 		(aLogEntry stage > 2) 
 			ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
 	].

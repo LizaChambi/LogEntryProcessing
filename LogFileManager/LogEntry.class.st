@@ -60,7 +60,7 @@ LogEntry >> arguments [
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	^[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex|^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
+	^[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
 ]
 
 { #category : #tests }
@@ -69,27 +69,18 @@ LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 	^ ((self convertChunkToLogEntry: aChunk) source: aFileReference).
 ]
 
-{ #category : #accessing }
+{ #category : #editing }
 LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
 	self
 		assert: [ aLogEntry isValidLog ]
-		description: 'El log ingresado no es válido'.
-	self
-		assert: [ aLogEntry timestamp asNumber >= 0 ]
-		description: 'El valor del timestamp debe ser un número válido'.
-	self
-		assert: [ aLogEntry selector isSymbol]
-		description: 'Selector debe tener al menos un método.'.
-	self
-		assert: [ aLogEntry hasANumberCorrectArguments]
-		description: 'La cantidad de argumentos no coinciden con los definidos en el selector.'.
+		description: 'Invalid log entered: The log is composed with ''self timestamp: aNumber selector: aMethod arguments: anArray'''.
 	self
 		assert: [ aLogEntry stage asNumber >= 0 ]
-		description: 'El valor del stage no es un número válido'.
+		description: 'Invalid stage value: ''stage: (aNumber >= 0)'''.
 	self
 		assert: [ aLogEntry hasPathStageDifferent not ]
-		description: 'El nombre del archivo no coincide con el stage del log.'.
+		description: 'File name do not matching with stage: File name must have prefix ''stage'' with number stage (Example, ''stage1-...'')'.
 
 	self
 		timestamp: aLogEntry timestamp asNumber
@@ -111,8 +102,10 @@ LogEntry >> editable [
 
 { #category : #accessing }
 LogEntry >> editor: aString [
-	| newLog |
+	| newLog parsing |
 	"comment stating purpose of message"
+	parsing := LogEntryComposition new parseAndFlatten: aString.
+	self parserValidation: parsing.
 	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
 	newLog source: self source.
@@ -197,6 +190,21 @@ LogEntry >> isLogEntry [
 { #category : #accessing }
 LogEntry >> isValidLog [
 	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [(self stage notNil) and: [ self source notNil]] ]].
+]
+
+{ #category : #accessing }
+LogEntry >> parserValidation: aCollection [
+	"index 1: self			
+			2: timestamp 	3: aNumber
+			4: selector 		5: aSymbol
+			6: arguments 	7: aCollection "
+	self
+		assert: [ (aCollection at: 5) numArgs = (aCollection at: 7) size ]
+		description: 'Numbers of arguments does not matching with number of arguments the selector'.
+	self 
+		assert: [ (aCollection at: 3) asNumber >= 0  ]
+		description: 'Invalid timestamp: Timestamp value should be >= 0'.
+	
 ]
 
 { #category : #conversion }
