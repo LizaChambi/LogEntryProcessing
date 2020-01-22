@@ -141,6 +141,14 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 ]
 
 { #category : #tests }
+LogEntryTest >> testParserLogEntry [
+	"comment stating purpose of message"
+	| ppSelector identifier |
+	
+	self assert: (true).
+]
+
+{ #category : #tests }
 LogEntryTest >> testStringOutput [
 	"comment stating purpose of message"
 	self assert: ((logEntry timestamp: '123' selector: 'doAdd' arguments: '(return same-as)' stage: '0' source: 'path' ) prettyPrint) = 'self

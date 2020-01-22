@@ -37,7 +37,7 @@ LogFileManager >> addNewLog [
 ]
 
 { #category : #adding }
-LogFileManager >> addStage: aNumber. [
+LogFileManager >> addStage: aNumber [.
 	"comment stating purpose of message"
 	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
 ]
