@@ -143,9 +143,21 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 { #category : #tests }
 LogEntryTest >> testParserLogEntry [
 	"comment stating purpose of message"
-	| ppSelector identifier |
+	| ppTimestamp ppSelector ppArguments identifier text parser|
+	ppTimestamp := #digit asPParser plus trim.
+	ppSelector := $# asPParser trim, #word asPParser plus trim.
+	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
+		'timestamp:' asPParser trim, ppTimestamp, 
+		'selector:' asPParser trim, ppSelector, 
+		'arguments:' asPParser trim, $# asPParser trim, #blank asPParser optional trim, $( asPParser trim, $) asPParser trim, '.' asPParser trim.
 	
-	self assert: (true).
+	text := 'self timestamp:0 selector:#method arguments:#().'.
+	identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '.Caracter: ', (text at:pos ) asString, msg ].
+	
+	parser := identifier parse: text.
+	
+	self assert: (parser size) equals:(10).
+	self assert: (parser contains: 'self ').
 ]
 
 { #category : #tests }
