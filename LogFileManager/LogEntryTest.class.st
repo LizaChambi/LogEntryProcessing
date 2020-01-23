@@ -160,9 +160,8 @@ LogEntryTest >> testParserLogEntryWithoutArguments [
 { #category : #tests }
 LogEntryTest >> testParserLogEntryWithoutArguments2 [
 	"comment stating purpose of message"
-	| ppTimestamp ppSelector ppMethod ppArguments identifier text parser|
+	| ppTimestamp ppSelector ppMethod identifier text parser |
 	ppMethod := PP2LiteralSequenceNode new.
-	ppArguments := PP2LiteralSequenceNode new.
 	ppMethod := #word asPParser plus, $: asPParser optional.
 	ppTimestamp := #digit asPParser plus trim.
 	ppSelector := $# asPParser trim, ppMethod plus.
@@ -172,7 +171,7 @@ LogEntryTest >> testParserLogEntryWithoutArguments2 [
 		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, $) asPParser trim, '.' asPParser trim.
 	
 	text := 'self timestamp:0 selector:#method:andMethod: arguments:#().'.
-	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '.Caracter: ', (text at:pos ) asString, msg ].
+	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
 	
 	self assert: (parser size) equals:(11).
 ]
