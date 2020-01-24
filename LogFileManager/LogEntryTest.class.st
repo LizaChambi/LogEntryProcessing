@@ -141,67 +141,110 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 ]
 
 { #category : #tests }
-LogEntryTest >> testParserLogEntryWithWordsAndSymbolArguments [
+LogEntryTest >> testParserLogEntry [
 	"comment stating purpose of message"
-	| ppTimestamp ppSelector ppMethod ppArguments ppArgument ppArgWords identifier text parser |
+	| ppTimestamp ppSelector ppMethod identifier text parser |
 	ppMethod := PP2LiteralSequenceNode new.
-	ppMethod := #word asPParser plus, $: asPParser optional.
-	ppArgWords := #word asPParser / $_ asPParser / $> asPParser / $| asPParser / $@ asPParser / $[ asPParser / $] asPParser / $- asPParser /$: asPParser / $= asPParser / '\$' asPParser / $, asPParser.
-	ppArgument := (#word asPParser plus trim) / ($# asPParser, ppArgWords plus) trim.
+	ppMethod := #word asPParser plus, $: asPParser star.
 	ppTimestamp := #digit asPParser plus trim.
 	ppSelector := $# asPParser trim, ppMethod plus.
-	ppArguments := ppArgument star.
 	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
 		'timestamp:' asPParser trim, ppTimestamp, 
 		'selector:' asPParser trim, ppSelector, 
-		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, ppArguments optional, $) asPParser trim, '.' asPParser trim.
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
+		"4 false #NIL #Boolean_N #AbtRow #() #(''rcv'') #''Scaled class>>abt_X-ml:$1'' #''Lo[String,Obj]'' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
+	baseClass := aClass.
+	^self'' "
+	text := ' self timestamp:0 selector:#method:andMethod: arguments:#(4 false #NIL #Boolean_N #AbtRow #() #(''rcv'') #''Scaled class>>abt_X-ml:$1'' #''Lo[String,Obj]'' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
+	baseClass := aClass.
+	^self'' ). .'.
+	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
+	
+	self assert: (parser size) equals:(10).
+]
+
+{ #category : #tests }
+LogEntryTest >> testParserLogEntryWithWordsAndSymbolArguments [
+	"comment stating purpose of message"
+| ppTimestamp ppSelector ppMethod identifier text parser |
+	ppMethod := PP2LiteralSequenceNode new.
+	ppMethod := #word asPParser plus, $: asPParser star.
+	ppTimestamp := #digit asPParser plus trim.
+	ppSelector := $# asPParser trim, ppMethod plus.
+	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
+		'timestamp:' asPParser trim, ppTimestamp, 
+		'selector:' asPParser trim, ppSelector, 
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
 	" 4 #NIL #Boolean_N #AbtRow #() #(''rcv'') #'Scaled class>>abt_X-ml:$1' #'Lo[String,Obj]' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
 	baseClass := aClass.
 	^self'' "
-	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false #AbtRow #Boolean_N).'.
+	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false #AbtRow #Boolean_N ).'.
 	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
 	
-	self assert: (parser size) equals:(12).
+	self assert: (parser size) equals:(10).
 ]
 
 { #category : #tests }
 LogEntryTest >> testParserLogEntryWithWordsArguments [
 	"comment stating purpose of message"
-	| ppTimestamp ppSelector ppMethod ppArguments ppArgument identifier text parser |
+	| ppTimestamp ppSelector ppMethod identifier text parser |
 	ppMethod := PP2LiteralSequenceNode new.
-	ppMethod := #word asPParser plus, $: asPParser optional.
-	ppArgument := #word asPParser plus trim.
+	ppMethod := #word asPParser plus, $: asPParser star.
 	ppTimestamp := #digit asPParser plus trim.
 	ppSelector := $# asPParser trim, ppMethod plus.
-	ppArguments := ppArgument star.
 	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
 		'timestamp:' asPParser trim, ppTimestamp, 
 		'selector:' asPParser trim, ppSelector, 
-		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, ppArguments optional, $) asPParser trim, '.' asPParser trim.
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
 	" 4 #NIL #Boolean_N #AbtRow #() #(''rcv'') #'Scaled class>>abt_X-ml:$1' #'Lo[String,Obj]' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
 	baseClass := aClass.
 	^self'' "
 	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false nil 4 ).'.
 	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
 	
-	self assert: (parser size) equals:(12).
+	self assert: (parser size) equals:(10).
+]
+
+{ #category : #tests }
+LogEntryTest >> testParserLogEntryWithWordsSymbolsAndStringsArguments [
+	"comment stating purpose of message"
+| ppTimestamp ppSelector ppMethod identifier text parser |
+	ppMethod := PP2LiteralSequenceNode new.
+	ppMethod := #word asPParser plus, $: asPParser star.
+	ppTimestamp := #digit asPParser plus trim.
+	ppSelector := $# asPParser trim, ppMethod plus.
+	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
+		'timestamp:' asPParser trim, ppTimestamp, 
+		'selector:' asPParser trim, ppSelector, 
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
+		"4 false #NIL #Boolean_N #AbtRow #() #(''rcv'') #''Scaled class>>abt_X-ml:$1'' #''Lo[String,Obj]'' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
+	baseClass := aClass.
+	^self'' "
+	text := ' self timestamp:0 selector:#method:andMethod: arguments:#(4 false #NIL #Boolean_N #AbtRow #() #(''rcv'') #''Scaled class>>abt_X-ml:$1'' #''Lo[String,Obj]'' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
+	baseClass := aClass.
+	^self'' ). .'.
+	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
+	
+	self assert: (parser size) equals:(10).
 ]
 
 { #category : #tests }
 LogEntryTest >> testParserLogEntryWithoutArguments [
 	"comment stating purpose of message"
-	| ppTimestamp ppSelector identifier text parser|
+	| ppTimestamp ppSelector ppMethod identifier text parser |
+	ppMethod := PP2LiteralSequenceNode new.
+	ppMethod := #word asPParser plus, $: asPParser star.
 	ppTimestamp := #digit asPParser plus trim.
-	ppSelector := $# asPParser trim, #word asPParser plus trim.
+	ppSelector := $# asPParser trim, ppMethod plus.
 	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
 		'timestamp:' asPParser trim, ppTimestamp, 
 		'selector:' asPParser trim, ppSelector, 
-		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, $) asPParser trim, '.' asPParser trim.
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
 	
 	text := 'self timestamp:0 selector:#method arguments:#().'.
 	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '.Caracter: ', (text at:pos ) asString, msg ].
 	
-	self assert: (parser size) equals:(11).
+	self assert: (parser size) equals:(10).
 ]
 
 { #category : #tests }
@@ -209,18 +252,18 @@ LogEntryTest >> testParserLogEntryWithoutArguments2 [
 	"comment stating purpose of message"
 	| ppTimestamp ppSelector ppMethod identifier text parser |
 	ppMethod := PP2LiteralSequenceNode new.
-	ppMethod := #word asPParser plus, $: asPParser optional.
+	ppMethod := #word asPParser plus, $: asPParser star.
 	ppTimestamp := #digit asPParser plus trim.
 	ppSelector := $# asPParser trim, ppMethod plus.
 	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
 		'timestamp:' asPParser trim, ppTimestamp, 
 		'selector:' asPParser trim, ppSelector, 
-		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, $) asPParser trim, '.' asPParser trim.
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
 	
 	text := 'self timestamp:0 selector:#method:andMethod: arguments:#().'.
 	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
 	
-	self assert: (parser size) equals:(11).
+	self assert: (parser size) equals:(10).
 ]
 
 { #category : #tests }
