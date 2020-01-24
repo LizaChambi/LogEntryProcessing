@@ -141,6 +141,29 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 ]
 
 { #category : #tests }
+LogEntryTest >> testParserLogEntryWith2Arguments [
+	"comment stating purpose of message"
+	| ppTimestamp ppSelector ppMethod ppArguments ppArgument identifier text parser |
+	ppMethod := PP2LiteralSequenceNode new.
+	ppMethod := #word asPParser plus, $: asPParser optional.
+	ppArgument := #word asPParser plus trim.
+	ppTimestamp := #digit asPParser plus trim.
+	ppSelector := $# asPParser trim, ppMethod plus.
+	ppArguments := ppArgument star.
+	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
+		'timestamp:' asPParser trim, ppTimestamp, 
+		'selector:' asPParser trim, ppSelector, 
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, ppArguments optional, $) asPParser trim, '.' asPParser trim.
+	" #Boolean_N #AbtRow #''BD>>test|BA|4|row'' #''onClass: aClass 
+	baseClass := aClass.
+	^self'' "
+	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false nil ).'.
+	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
+	
+	self assert: (parser size) equals:(12).
+]
+
+{ #category : #tests }
 LogEntryTest >> testParserLogEntryWithoutArguments [
 	"comment stating purpose of message"
 	| ppTimestamp ppSelector identifier text parser|
