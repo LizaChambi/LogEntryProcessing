@@ -117,12 +117,12 @@ LogEntry >> editor: aString [
 	ppMethod := #word asPParser plus, $: asPParser star.
 	ppTimestamp := #digit asPParser plus trim.
 	ppSelector := $# asPParser trim, ppMethod plus.
-	identifier := #blank asPParser star, 'self' asPParser, #blank asPParser star,
+	identifier := #blank asPParser star, $s asPParser, $e asPParser, $l asPParser, $f asPParser, #blank asPParser star,
 		'timestamp:' asPParser trim, ppTimestamp, 
 		'selector:' asPParser trim, ppSelector, 
 		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
 	
-	identifier parse: aString onError: [ :msg :pos | self error: 'Error at position: ', pos asString", '. Caracter: ', (text at:pos ) asString, ' .', msg "].
+	identifier parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos+1) asString", '. Caracter: ', (text at:pos ) asString, ' .', msg "].
 
 	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
