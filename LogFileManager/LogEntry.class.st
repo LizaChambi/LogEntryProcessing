@@ -111,8 +111,19 @@ LogEntry >> editable [
 
 { #category : #accessing }
 LogEntry >> editor: aString [
-	| newLog |
+	| newLog ppTimestamp ppSelector ppMethod identifier |
 	"comment stating purpose of message"
+	ppMethod := PP2LiteralSequenceNode new.
+	ppMethod := #word asPParser plus, $: asPParser star.
+	ppTimestamp := #digit asPParser plus trim.
+	ppSelector := $# asPParser trim, ppMethod plus.
+	identifier := #blank asPParser star, 'self' asPParser, #blank asPParser star,
+		'timestamp:' asPParser trim, ppTimestamp, 
+		'selector:' asPParser trim, ppSelector, 
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
+	
+	identifier parse: aString onError: [ :msg :pos | self error: 'Error at position: ', pos asString", '. Caracter: ', (text at:pos ) asString, ' .', msg "].
+
 	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
 	newLog source: self source.
