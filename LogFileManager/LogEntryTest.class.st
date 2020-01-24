@@ -143,10 +143,11 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 { #category : #tests }
 LogEntryTest >> testParserLogEntryWithWordsAndSymbolArguments [
 	"comment stating purpose of message"
-	| ppTimestamp ppSelector ppMethod ppArguments ppArgument identifier text parser |
+	| ppTimestamp ppSelector ppMethod ppArguments ppArgument ppArgWords identifier text parser |
 	ppMethod := PP2LiteralSequenceNode new.
 	ppMethod := #word asPParser plus, $: asPParser optional.
-	ppArgument := (#word asPParser plus trim) / ($# asPParser, #word asPParser plus trim).
+	ppArgWords := #word asPParser / $_ asPParser / $> asPParser / $| asPParser / $@ asPParser / $[ asPParser / $] asPParser / $- asPParser /$: asPParser / $= asPParser / '\$' asPParser / $, asPParser.
+	ppArgument := (#word asPParser plus trim) / ($# asPParser, ppArgWords plus) trim.
 	ppTimestamp := #digit asPParser plus trim.
 	ppSelector := $# asPParser trim, ppMethod plus.
 	ppArguments := ppArgument star.
@@ -157,7 +158,7 @@ LogEntryTest >> testParserLogEntryWithWordsAndSymbolArguments [
 	" 4 #NIL #Boolean_N #AbtRow #() #(''rcv'') #'Scaled class>>abt_X-ml:$1' #'Lo[String,Obj]' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
 	baseClass := aClass.
 	^self'' "
-	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false #NIL ).'.
+	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false #AbtRow #Boolean_N).'.
 	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
 	
 	self assert: (parser size) equals:(12).
