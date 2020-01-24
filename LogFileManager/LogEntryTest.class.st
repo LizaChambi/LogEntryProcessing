@@ -141,7 +141,30 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 ]
 
 { #category : #tests }
-LogEntryTest >> testParserLogEntryWith2Arguments [
+LogEntryTest >> testParserLogEntryWithWordsAndSymbolArguments [
+	"comment stating purpose of message"
+	| ppTimestamp ppSelector ppMethod ppArguments ppArgument identifier text parser |
+	ppMethod := PP2LiteralSequenceNode new.
+	ppMethod := #word asPParser plus, $: asPParser optional.
+	ppArgument := (#word asPParser plus trim) / ($# asPParser, #word asPParser plus trim).
+	ppTimestamp := #digit asPParser plus trim.
+	ppSelector := $# asPParser trim, ppMethod plus.
+	ppArguments := ppArgument star.
+	identifier := 'self ' asPParser trim, #blank asPParser optional trim,
+		'timestamp:' asPParser trim, ppTimestamp, 
+		'selector:' asPParser trim, ppSelector, 
+		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, ppArguments optional, $) asPParser trim, '.' asPParser trim.
+	" 4 #NIL #Boolean_N #AbtRow #() #(''rcv'') #'Scaled class>>abt_X-ml:$1' #'Lo[String,Obj]' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
+	baseClass := aClass.
+	^self'' "
+	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false #NIL ).'.
+	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
+	
+	self assert: (parser size) equals:(12).
+]
+
+{ #category : #tests }
+LogEntryTest >> testParserLogEntryWithWordsArguments [
 	"comment stating purpose of message"
 	| ppTimestamp ppSelector ppMethod ppArguments ppArgument identifier text parser |
 	ppMethod := PP2LiteralSequenceNode new.
@@ -154,10 +177,10 @@ LogEntryTest >> testParserLogEntryWith2Arguments [
 		'timestamp:' asPParser trim, ppTimestamp, 
 		'selector:' asPParser trim, ppSelector, 
 		'arguments:' asPParser trim, $# asPParser trim, $( asPParser trim, ppArguments optional, $) asPParser trim, '.' asPParser trim.
-	" #Boolean_N #AbtRow #''BD>>test|BA|4|row'' #''onClass: aClass 
+	" 4 #NIL #Boolean_N #AbtRow #() #(''rcv'') #'Scaled class>>abt_X-ml:$1' #'Lo[String,Obj]' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
 	baseClass := aClass.
 	^self'' "
-	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false nil ).'.
+	text := 'self timestamp:0 selector:#method:andMethod: arguments:#(false nil 4 ).'.
 	parser := identifier parse: text onError: [ :msg :pos | self error: 'Error en la posición: ', pos asString, '. Caracter: ', (text at:pos ) asString, ' .', msg ].
 	
 	self assert: (parser size) equals:(12).
