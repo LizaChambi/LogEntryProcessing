@@ -74,22 +74,22 @@ LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
 	self
 		assert: [ aLogEntry isValidLog ]
-		description: 'El log ingresado no es válido'.
+		description: 'Invalid log entered: The log is composed with ''self timestamp: aNumber selector: aMethod arguments: anArray'''.
 	self
 		assert: [ aLogEntry timestamp asNumber >= 0 ]
-		description: 'El valor del timestamp debe ser un número válido'.
+		description: 'Invalid timestamp value: ''timestamp: (aNumber >= 0)'''.
 	self
-		assert: [ aLogEntry selector isSymbol]
-		description: 'Selector debe tener al menos un método.'.
+		assert: [ aLogEntry selector isSymbol ]
+		description: 'Selector must have some method.'.
 	self
 		assert: [ aLogEntry hasANumberCorrectArguments]
-		description: 'La cantidad de argumentos no coinciden con los definidos en el selector.'.
+		description: 'Numbers of arguments does not matching with number of arguments the selector.'.
 	self
 		assert: [ aLogEntry stage asNumber >= 0 ]
-		description: 'El valor del stage no es un número válido'.
+		description: 'Invalid stage value: ''stage: (aNumber >= 0)'''.
 	self
 		assert: [ aLogEntry hasPathStageDifferent not ]
-		description: 'El nombre del archivo no coincide con el stage del log.'.
+		description: 'File name do not matching with stage: File name must have prefix ''stage'' with number stage (Example, ''stage1-...'')'.
 
 	self
 		timestamp: aLogEntry timestamp asNumber
