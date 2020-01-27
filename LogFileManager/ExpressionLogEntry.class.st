@@ -13,7 +13,8 @@ Class {
 { #category : #accessing }
 ExpressionLogEntry >> parse: aString [
 	"comment stating purpose of message"
-	^ ppLogEntry parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos+1) asString, '. Character: ', (aString at:pos) asString, ' .', msg ].
+	^ ppLogEntry parse: aString onError: [ :msg :pos | 
+		self error: 'Error at position: ', (pos+1) asString, '. Character was found: ', $' asString, (aString at:pos) asString, $' asString, '.', msg ].
 ]
 
 { #category : #accessing }
