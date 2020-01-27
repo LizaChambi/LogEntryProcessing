@@ -26,6 +26,17 @@ ExpressionLogEntryTest >> testPPArgumentsWithSpace [
 ]
 
 { #category : #tests }
+ExpressionLogEntryTest >> testPPLogEntry [
+	"comment stating purpose of message"
+	self parse: 'self 
+	timestamp:0 
+	selector:#method:and:other: 
+	arguments:#(4 false #NIL #Boolean_N #AbtRow #() #(''rcv'') #''Scaled class>>abt_X-ml:$1'' #''Lo[String,Obj]'' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
+	baseClass := aClass.
+	^self'' ).' rule: #ppLogEntry.
+]
+
+{ #category : #tests }
 ExpressionLogEntryTest >> testPPSelectorWithAArguments [
 	"comment stating purpose of message"
 	self parse: '#method:' rule: #ppSelector.

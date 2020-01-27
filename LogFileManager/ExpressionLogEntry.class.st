@@ -2,7 +2,7 @@ Class {
 	#name : #ExpressionLogEntry,
 	#superclass : #PP2CompositeNode,
 	#instVars : [
-		'identifier',
+		'ppLogEntry',
 		'ppTimestamp',
 		'ppSelector',
 		'ppArguments'
@@ -11,24 +11,9 @@ Class {
 }
 
 { #category : #accessing }
-ExpressionLogEntry >> identifier [
-	"comment stating purpose of message"
-	^ #blank asPParser star, $s asPParser, $e asPParser, $l asPParser, $f asPParser, #blank asPParser star trim, #space asPParser star trim, #blank asPParser star trim,
-		$t asPParser, $i asPParser, $m asPParser, $e asPParser, $s asPParser, $t asPParser, $a asPParser, $m asPParser, $p asPParser, $: asPParser trim, self ppTimestamp, 
-		$s asPParser, $e asPParser, $l asPParser, $e asPParser, $c asPParser, $t asPParser, $o asPParser, $r asPParser, $: asPParser trim, self ppSelector,
-		$a asPParser, $r asPParser, $g asPParser, $u asPParser, $m asPParser, $e asPParser, $n asPParser, $t asPParser, $s asPParser, $: asPParser trim, self ppArguments.
-]
-
-{ #category : #accessing }
 ExpressionLogEntry >> parse: aString [
 	"comment stating purpose of message"
-	^ identifier parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos+1) asString", '. Caracter: ', (text at:pos ) asString", ' .', msg ].
-]
-
-{ #category : #accessing }
-ExpressionLogEntry >> parserValidator: aString [
-	"comment stating purpose of message"
-	^ identifier parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos+1) asString", '. Caracter: ', (text at:pos ) asString, ' .', msg "].
+	^ ppLogEntry parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos+1) asString, '. Character: ', (aString at:pos) asString, ' .', msg ].
 ]
 
 { #category : #accessing }
@@ -38,12 +23,22 @@ ExpressionLogEntry >> ppArguments [
 ]
 
 { #category : #accessing }
+ExpressionLogEntry >> ppLogEntry [
+	"comment stating purpose of message"
+	^ (#space asPParser star trim, $s asPParser, $e asPParser, $l asPParser, $f asPParser, #space asPParser star trim,
+		$t asPParser, $i asPParser, $m asPParser, $e asPParser, $s asPParser, $t asPParser, $a asPParser, $m asPParser, $p asPParser, $: asPParser trim, ppTimestamp, 
+		$s asPParser, $e asPParser, $l asPParser, $e asPParser, $c asPParser, $t asPParser, $o asPParser, $r asPParser, $: asPParser trim, ppSelector,
+		$a asPParser, $r asPParser, $g asPParser, $u asPParser, $m asPParser, $e asPParser, $n asPParser, $t asPParser, $s asPParser, $: asPParser trim, ppArguments),
+		#space asPParser star trim, $) asPParser plus, #space asPParser star trim, $. asPParser plus trim.
+]
+
+{ #category : #accessing }
 ExpressionLogEntry >> ppSelector [
 	"comment stating purpose of message"
 	| ppMethod |
 	ppMethod := PP2LiteralSequenceNode new.
-	ppMethod := #word asPParser plus, $: asPParser star, #blank asPParser star trim, #space asPParser star trim, #blank asPParser star trim.
-	^ $# asPParser trim, ppMethod plus.
+	ppMethod := #word asPParser plus, $: asPParser star.
+	^ $# asPParser trim, ppMethod plus, #space asPParser star trim.
 ]
 
 { #category : #accessing }
@@ -55,5 +50,5 @@ ExpressionLogEntry >> ppTimestamp [
 { #category : #accessing }
 ExpressionLogEntry >> start [
 	"Answer the production to start this parser with."
-	^ identifier end.
+	^ ppLogEntry end.
 ]
