@@ -11,16 +11,22 @@ Class {
 }
 
 { #category : #accessing }
-ExpressionLogEntry >> initialize [
+ExpressionLogEntry >> identifier [
 	"comment stating purpose of message"
-	identifier := #blank asPParser star, $s asPParser, $e asPParser, $l asPParser, $f asPParser, #blank asPParser star trim, #space asPParser star trim, #blank asPParser star trim,
+	^ #blank asPParser star, $s asPParser, $e asPParser, $l asPParser, $f asPParser, #blank asPParser star trim, #space asPParser star trim, #blank asPParser star trim,
 		$t asPParser, $i asPParser, $m asPParser, $e asPParser, $s asPParser, $t asPParser, $a asPParser, $m asPParser, $p asPParser, $: asPParser trim, self ppTimestamp, 
-		$s asPParser, $e asPParser, $l asPParser, $e asPParser, $c asPParser, $t asPParser, $o asPParser, $r asPParser, $: asPParser trim, self ppSelector, #blank asPParser star trim, #space asPParser star trim, #blank asPParser star trim,
+		$s asPParser, $e asPParser, $l asPParser, $e asPParser, $c asPParser, $t asPParser, $o asPParser, $r asPParser, $: asPParser trim, self ppSelector,
 		$a asPParser, $r asPParser, $g asPParser, $u asPParser, $m asPParser, $e asPParser, $n asPParser, $t asPParser, $s asPParser, $: asPParser trim, self ppArguments.
 ]
 
 { #category : #accessing }
-ExpressionLogEntry >> parser: aString [
+ExpressionLogEntry >> parse: aString [
+	"comment stating purpose of message"
+	^ identifier parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos+1) asString", '. Caracter: ', (text at:pos ) asString", ' .', msg ].
+]
+
+{ #category : #accessing }
+ExpressionLogEntry >> parserValidator: aString [
 	"comment stating purpose of message"
 	^ identifier parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos+1) asString", '. Caracter: ', (text at:pos ) asString, ' .', msg "].
 ]
@@ -36,7 +42,7 @@ ExpressionLogEntry >> ppSelector [
 	"comment stating purpose of message"
 	| ppMethod |
 	ppMethod := PP2LiteralSequenceNode new.
-	ppMethod := #word asPParser plus, $: asPParser star.
+	ppMethod := #word asPParser plus, $: asPParser star, #blank asPParser star trim, #space asPParser star trim, #blank asPParser star trim.
 	^ $# asPParser trim, ppMethod plus.
 ]
 

@@ -111,20 +111,9 @@ LogEntry >> editable [
 
 { #category : #accessing }
 LogEntry >> editor: aString [
-	| newLog ppTimestamp ppSelector ppMethod ppArguments identifier |
+	| newLog |
 	"comment stating purpose of message"
-	ppMethod := PP2LiteralSequenceNode new.
-	ppMethod := #word asPParser plus, $: asPParser star.
-	ppTimestamp := #digit asPParser plus trim.
-	ppSelector := $# asPParser trim, ppMethod plus.
-	ppArguments := $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).
-	identifier := #blank asPParser star, $s asPParser, $e asPParser, $l asPParser, $f asPParser, #blank asPParser star trim, #space asPParser star trim, #blank asPParser star trim,
-		$t asPParser, $i asPParser, $m asPParser, $e asPParser, $s asPParser, $t asPParser, $a asPParser, $m asPParser, $p asPParser, $: asPParser trim, ppTimestamp, 
-		$s asPParser, $e asPParser, $l asPParser, $e asPParser, $c asPParser, $t asPParser, $o asPParser, $r asPParser, $: asPParser trim, ppSelector, #blank asPParser star trim, #space asPParser star trim, #blank asPParser star trim,
-		$a asPParser, $r asPParser, $g asPParser, $u asPParser, $m asPParser, $e asPParser, $n asPParser, $t asPParser, $s asPParser, $: asPParser trim, ppArguments.
-	
-	identifier parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos+1) asString", '. Caracter: ', (text at:pos ) asString, ' .', msg "].
-
+	ExpressionLogEntry new parse: aString.
 	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
 	newLog source: self source.
