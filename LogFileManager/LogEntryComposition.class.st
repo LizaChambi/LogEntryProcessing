@@ -6,17 +6,10 @@ Class {
 		'ppTimestamp',
 		'ppSelector',
 		'ppArguments',
-		'ppMethod',
-		'args'
+		'ppMethod'
 	],
 	#category : #LogFileManager
 }
-
-{ #category : #accessing }
-LogEntryComposition >> args [
-	"comment stating purpose of message"
-	^ args.
-]
 
 { #category : #accessing }
 LogEntryComposition >> parse: aString [
@@ -33,7 +26,6 @@ LogEntryComposition >> ppArguments [
 { #category : #accessing }
 LogEntryComposition >> ppLogEntry [
 	"comment stating purpose of message"
-	args := 0.
 	^ (#space asPParser star trim, $s asPParser, $e asPParser, $l asPParser, $f asPParser, #space asPParser star trim,
 		$t asPParser, $i asPParser, $m asPParser, $e asPParser, $s asPParser, $t asPParser, $a asPParser, $m asPParser, $p asPParser, $: asPParser trim, ppTimestamp, 
 		$s asPParser, $e asPParser, $l asPParser, $e asPParser, $c asPParser, $t asPParser, $o asPParser, $r asPParser, $: asPParser trim, ppSelector,
@@ -44,8 +36,6 @@ LogEntryComposition >> ppLogEntry [
 { #category : #accessing }
 LogEntryComposition >> ppMethod [
 	"comment stating purpose of message"
-	ppMethod := PP2LiteralSequenceNode new.
-	args := args + 1.
 	^ #word asPParser plus, $: asPParser star.
 ]
 

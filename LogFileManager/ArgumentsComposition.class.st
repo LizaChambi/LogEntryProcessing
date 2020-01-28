@@ -59,7 +59,7 @@ ArgumentsComposition >> ppSymbol [
 ArgumentsComposition >> ppWords [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ #word asPParser plus.
+	^ #word asPParser plus flatten.
 ]
 
 { #category : #accessing }
