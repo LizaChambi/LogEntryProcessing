@@ -1,16 +1,16 @@
 Class {
-	#name : #ExpressionLogEntryTest,
+	#name : #LogEntryCompositionTest,
 	#superclass : #PP2CompositeNodeTest,
 	#category : #LogFileManager
 }
 
 { #category : #accessing }
-ExpressionLogEntryTest >> parserClass [
-	^ ExpressionLogEntry
+LogEntryCompositionTest >> parserClass [
+	^ LogEntryComposition
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPArguments [
+LogEntryCompositionTest >> testPPArguments [
 	"comment stating purpose of message"
 	self parse: '#(4 false #NIL #Boolean_N #AbtRow #() #(''rcv'') #''Scaled class>>abt_X-ml:$1'' #''Lo[String,Obj]'' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
 	baseClass := aClass.
@@ -18,7 +18,7 @@ ExpressionLogEntryTest >> testPPArguments [
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPArgumentsWithSpace [
+LogEntryCompositionTest >> testPPArgumentsWithSpace [
 	"comment stating purpose of message"
 	self parse: '	 #( 4 false #NIL #Boolean_N #AbtRow #() #(''rcv'') #''Scaled class>>abt_X-ml:$1'' #''Lo[String,Obj]'' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
 	baseClass := aClass.
@@ -26,7 +26,7 @@ ExpressionLogEntryTest >> testPPArgumentsWithSpace [
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPLogEntry [
+LogEntryCompositionTest >> testPPLogEntry [
 	"comment stating purpose of message"
 	self parse: 'self 
 	timestamp:0 
@@ -37,37 +37,37 @@ ExpressionLogEntryTest >> testPPLogEntry [
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPSelectorWithAArguments [
+LogEntryCompositionTest >> testPPSelectorWithAArguments [
 	"comment stating purpose of message"
 	self parse: '#method:' rule: #ppSelector.
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPSelectorWithSpace [
+LogEntryCompositionTest >> testPPSelectorWithSpace [
 	"comment stating purpose of message"
 	self parse: ' 	#method:and: 	' rule: #ppSelector.
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPSelectorWithTwoArguments [
+LogEntryCompositionTest >> testPPSelectorWithTwoArguments [
 	"comment stating purpose of message"
 	self parse: '#method:and:' rule: #ppSelector.
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPSelectorWithoutArguments [
+LogEntryCompositionTest >> testPPSelectorWithoutArguments [
 	"comment stating purpose of message"
 	self parse: '#method' rule: #ppSelector.
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPTimestamp [
+LogEntryCompositionTest >> testPPTimestamp [
 	"comment stating purpose of message"
 	self parse: '0' rule: #ppTimestamp.
 ]
 
 { #category : #tests }
-ExpressionLogEntryTest >> testPPTimestampWithBlank [
+LogEntryCompositionTest >> testPPTimestampWithBlank [
 	"comment stating purpose of message"
 	self parse: ' 	0 	' rule: #ppTimestamp.
 ]

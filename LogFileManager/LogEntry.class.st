@@ -113,7 +113,7 @@ LogEntry >> editable [
 LogEntry >> editor: aString [
 	| newLog |
 	"comment stating purpose of message"
-	ExpressionLogEntry new parse: aString.
+	LogEntryComposition new parse: aString.
 	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
 	newLog source: self source.
