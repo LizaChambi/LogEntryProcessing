@@ -29,8 +29,8 @@ LogEntryComposition >> ppLogEntry [
 	^ (#space asPParser star trim, $s asPParser, $e asPParser, $l asPParser, $f asPParser, #space asPParser star trim,
 		$t asPParser, $i asPParser, $m asPParser, $e asPParser, $s asPParser, $t asPParser, $a asPParser, $m asPParser, $p asPParser, $: asPParser trim, ppTimestamp, 
 		$s asPParser, $e asPParser, $l asPParser, $e asPParser, $c asPParser, $t asPParser, $o asPParser, $r asPParser, $: asPParser trim, ppSelector,
-		$a asPParser, $r asPParser, $g asPParser, $u asPParser, $m asPParser, $e asPParser, $n asPParser, $t asPParser, $s asPParser, $: asPParser trim, ppArguments),
-		#space asPParser star trim, $) asPParser plus, #space asPParser star trim, $. asPParser plus trim.
+		$a asPParser, $r asPParser, $g asPParser, $u asPParser, $m asPParser, $e asPParser, $n asPParser, $t asPParser, $s asPParser, $: asPParser trim, ppArguments,
+		#space asPParser star trim, $) asPParser plus, #space asPParser star trim, $. asPParser plus trim) flatten.
 ]
 
 { #category : #accessing }

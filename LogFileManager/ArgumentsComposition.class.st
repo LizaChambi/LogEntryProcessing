@@ -17,8 +17,6 @@ Class {
 ArgumentsComposition >> ppArg [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-
-	" Definir la estructura de los argumentos según cómo empiecen, con #, #word, #digit, etc"
 	^ ppWords / ppStrings / ppSymbol.
 ]
 
@@ -26,7 +24,7 @@ ArgumentsComposition >> ppArg [
 ArgumentsComposition >> ppArguments [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ (ppArg, #space asPParser) star.
+	^ (ppArg, #space asPParser) star flatten.
 ]
 
 { #category : #accessing }
@@ -59,7 +57,7 @@ ArgumentsComposition >> ppSymbol [
 ArgumentsComposition >> ppWords [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ #word asPParser plus flatten.
+	^ #word asPParser plus.
 ]
 
 { #category : #accessing }
