@@ -33,7 +33,7 @@ LogEntryCompositionTest >> testPPLogEntry [
 	selector:#method:and:other: 
 	arguments:#(4 false #NIL #Boolean_N #AbtRow #() #(''rcv'') #''Scaled class>>abt_X-ml:$1'' #''Lo[String,Obj]'' #''BD>>test|BA|4|row'' ''VaS_Ext class'' ''onClass: aClass 
 	baseClass := aClass.
-	^self'' ).' rule: #ppLogEntry.
+	^self'' ). ' rule: #ppLogEntry.
 ]
 
 { #category : #tests }
@@ -69,5 +69,5 @@ LogEntryCompositionTest >> testPPTimestamp [
 { #category : #tests }
 LogEntryCompositionTest >> testPPTimestampWithBlank [
 	"comment stating purpose of message"
-	self parse: ' 	0 	' rule: #ppTimestamp.
+	self parse: ' 		  0 	  	  ' rule: #ppTimestamp.
 ]

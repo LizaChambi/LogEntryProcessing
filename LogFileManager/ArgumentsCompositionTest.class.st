@@ -12,7 +12,7 @@ ArgumentsCompositionTest >> parserClass [
 { #category : #tests }
 ArgumentsCompositionTest >> testPPArguments [
 	"comment stating purpose of instance-side message"
-	self parse: '''VaS_Ext class'' nil #() #''Array[String,Obj]'' #AbtRow 4 ' rule: #ppArguments.
+	self parse: '#(''VaS_Ext class'' nil #() #''Array[String,Obj]'' #AbtRow 4 )' rule: #ppArguments.
 ]
 
 { #category : #tests }

@@ -8,23 +8,30 @@ Class {
 		'ppCharacters',
 		'ppStrings',
 		'ppList',
-		'ppArguments'
+		'ppArguments',
+		'ppSpace'
 	],
 	#category : #LogFileManager
 }
 
 { #category : #accessing }
+ArgumentsComposition >> parse: aString [
+	"comment stating purpose of message"
+	^ ppArguments parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos) asString, $' asString, '.', msg ].
+]
+
+{ #category : #accessing }
 ArgumentsComposition >> ppArg [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ ppWords / ppStrings / ppSymbol.
+	^ (ppWords / ppStrings / ppSymbol) flatten.
 ]
 
 { #category : #accessing }
 ArgumentsComposition >> ppArguments [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ (ppArg, #space asPParser) star flatten.
+	^ (ppSpace, $# asPParser, ppSpace, $( asPParser , ppSpace) flatten, (ppArg trim) star, (ppSpace, $) asPParser, ppSpace) flatten.
 ]
 
 { #category : #accessing }
@@ -38,6 +45,12 @@ ArgumentsComposition >> ppCharacters [
 ArgumentsComposition >> ppList [
 	"comment stating purpose of instance-side message"
 	^ $( asPParser, (ppArg, #space asPParser star trim) star, $) asPParser.
+]
+
+{ #category : #accessing }
+ArgumentsComposition >> ppSpace [
+	"comment stating purpose of instance-side message"
+	^ #space asPParser star trim.
 ]
 
 { #category : #accessing }
