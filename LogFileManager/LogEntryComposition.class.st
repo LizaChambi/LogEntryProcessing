@@ -18,6 +18,17 @@ LogEntryComposition >> parse: aString [
 ]
 
 { #category : #accessing }
+LogEntryComposition >> parseAndFlatten: aString [
+	|collect collectArguments|
+	collect := (self parse: aString) asOrderedCollection.
+	collectArguments := (collect at:7) asOrderedCollection removeIndex:3; removeIndex: 1.
+	collect removeAt:8.
+	collect removeAt:7.
+	collect add: (collectArguments at:1).
+	^ collect.
+]
+
+{ #category : #accessing }
 LogEntryComposition >> ppArguments [
 	"comment stating purpose of message"
 	^ $# asPParser trim, $( asPParser trim, (#any asPParser starLazy: ( $) asPParser trim, $. asPParser trim) ).

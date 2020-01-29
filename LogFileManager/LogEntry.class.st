@@ -111,9 +111,9 @@ LogEntry >> editable [
 
 { #category : #accessing }
 LogEntry >> editor: aString [
-	| newLog |
+	| newLog parsing |
 	"comment stating purpose of message"
-	LogEntryComposition new parse: aString.
+	parsing := LogEntryComposition new parseAndFlatten: aString.
 	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
 	newLog source: self source.

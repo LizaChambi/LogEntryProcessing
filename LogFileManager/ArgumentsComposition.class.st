@@ -31,7 +31,7 @@ ArgumentsComposition >> ppArg [
 ArgumentsComposition >> ppArguments [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ (ppSpace, $# asPParser, ppSpace, $( asPParser , ppSpace) flatten, (ppArg trim) star, (ppSpace, $) asPParser, ppSpace) flatten.
+	^ (ppSpace, $# asPParser, ppSpace, $( asPParser, ppSpace) flatten, (ppArg trim) star, (ppSpace, $) asPParser, ppSpace) flatten.
 ]
 
 { #category : #accessing }
