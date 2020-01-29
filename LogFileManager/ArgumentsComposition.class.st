@@ -17,7 +17,7 @@ Class {
 { #category : #accessing }
 ArgumentsComposition >> parse: aString [
 	"comment stating purpose of message"
-	^ ppArguments parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos) asString, $' asString, '.', msg ].
+	^ ppArguments parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos+1) asString, $' asString, '.', msg ].
 ]
 
 { #category : #accessing }

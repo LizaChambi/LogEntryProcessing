@@ -14,7 +14,7 @@ Class {
 { #category : #accessing }
 LogEntryComposition >> parse: aString [
 	"comment stating purpose of message"
-	^ ppLogEntry parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos) asString, $' asString, '.', msg ].
+	^ ppLogEntry parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos+1) asString, $' asString, '.', msg ].
 ]
 
 { #category : #accessing }

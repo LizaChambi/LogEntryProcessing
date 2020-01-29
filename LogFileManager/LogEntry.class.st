@@ -114,10 +114,13 @@ LogEntry >> editor: aString [
 	| newLog parsing |
 	"comment stating purpose of message"
 	parsing := LogEntryComposition new parseAndFlatten: aString.
-	newLog := LogEntry chunk: aString.
+	self parserValidation: parsing.
+	
+	" - - - - - - "
+	"newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
 	newLog source: self source.
-	self editWithLog: newLog.
+	self editWithLog: newLog."
 ]
 
 { #category : #accessing }
@@ -198,6 +201,18 @@ LogEntry >> isLogEntry [
 { #category : #accessing }
 LogEntry >> isValidLog [
 	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [(self stage notNil) and: [ self source notNil]] ]].
+]
+
+{ #category : #accessing }
+LogEntry >> parserValidation: aCollection [
+	"index 1: self			
+			2: timestamp 	3: aNumber
+			4: selector 		5: aSymbol
+			6: arguments 	7: aCollection "
+	self
+		assert: [ (aCollection at: 5) numArgs = (aCollection at: 7) size ]
+		description: 'Numbers of arguments does not matching with number of arguments the selector'.
+	
 ]
 
 { #category : #conversion }
