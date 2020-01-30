@@ -14,7 +14,7 @@ Class {
 { #category : #accessing }
 LogEntryComposition >> parse: aString [
 	"comment stating purpose of message"
-	^ ppLogEntry parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos+1) asString, $' asString, '.', msg ].
+	^ ppLogEntry parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos) asString, $' asString, '.', msg ].
 ]
 
 { #category : #accessing }
@@ -58,7 +58,7 @@ LogEntryComposition >> ppSelector [
 { #category : #accessing }
 LogEntryComposition >> ppTimestamp [
 	"comment stating purpose of message"
-	^ (#space asPParser star trim, #digit asPParser plus trim, #space asPParser star trim) flatten ==> [:dig | dig trimmed asNumber].
+	^ (#space asPParser star trim, $- asPParser star, #digit asPParser plus trim, #space asPParser star trim) flatten ==> [:dig | dig trimmed asNumber].
 ]
 
 { #category : #accessing }

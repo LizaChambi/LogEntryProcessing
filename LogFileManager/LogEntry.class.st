@@ -212,6 +212,9 @@ LogEntry >> parserValidation: aCollection [
 	self
 		assert: [ (aCollection at: 5) numArgs = (aCollection at: 7) size ]
 		description: 'Numbers of arguments does not matching with number of arguments the selector'.
+	self 
+		assert: [ (aCollection at: 3) asNumber >= 0  ]
+		description: 'Invalid timestamp value: Timestamp value should be >= 0'.
 	
 ]
 

@@ -17,7 +17,7 @@ Class {
 { #category : #accessing }
 ArgumentsComposition >> parse: aString [
 	"comment stating purpose of message"
-	^ ppArguments parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos+1) asString, $' asString, '.', msg ].
+	^ ppArguments parse: aString onError: [ :msg :pos | self error: 'Error at position: ', (pos) asString, '. Character was found: ', $' asString, (aString at:pos) asString, $' asString, '.', msg ].
 ]
 
 { #category : #accessing }
@@ -55,11 +55,12 @@ ArgumentsComposition >> ppSpace [
 
 { #category : #accessing }
 ArgumentsComposition >> ppStrings [
-	| nextArg finalArg |
+	| nextArg finalArgList finalArg |
 	"comment stating purpose of instance-side message"
 	nextArg := $' asPParser, ' ' asPParser, ($# asPParser / #word asPParser / $' asPParser).
+	finalArgList := $' asPParser, $) asPParser, #space asPParser.
 	finalArg := $' asPParser trim end.
-	^ $' asPParser, ppSpace, ( (' ' asPParser negate star, ' ' asPParser) starLazy: (nextArg / finalArg ) ), $' asPParser star.
+	^ $' asPParser, ppSpace, ( ppWords / (' ' asPParser negate star, ' ' asPParser) starLazy: (nextArg / finalArgList / finalArg ) ), $' asPParser star.
 ]
 
 { #category : #accessing }

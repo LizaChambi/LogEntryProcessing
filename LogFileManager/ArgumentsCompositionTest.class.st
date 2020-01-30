@@ -35,17 +35,59 @@ ArgumentsCompositionTest >> testPPArgumentsWithString [
 ]
 
 { #category : #tests }
+ArgumentsCompositionTest >> testPPListEmpty [
+	"comment stating purpose of instance-side message"
+	self parse: '()' rule: #ppList.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPListWith2String [
+	"comment stating purpose of instance-side message"
+	self parse: '(''rcv'' ''VaS_Ext class'' )' rule: #ppList.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPListWithString [
+	"comment stating purpose of instance-side message"
+	self parse: '(''rcv'')' rule: #ppList.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPListWithSymbolListString [
+	"comment stating purpose of instance-side message"
+	self parse: '(#''EsParseNode class'')' rule: #ppList.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPListWithSymbolListStringWithSpace [
+	"comment stating purpose of instance-side message"
+	self parse: '(#(''EsParseNode class'') )' rule: #ppList.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPListWithSymbolListStringWithoutSpace [
+	"comment stating purpose of instance-side message"
+	self parse: '(#(''rcv'') )' rule: #ppList.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPListWithSymbolStringWithSpace [
+	"comment stating purpose of instance-side message"
+	self parse: '(#''EsParseNode class'')' rule: #ppList.
+]
+
+{ #category : #tests }
 ArgumentsCompositionTest >> testPPStringsWithCharactersAndSpaces [
 	"comment stating purpose of instance-side message"
 	self parse: '''onClass: aClass
 	baseClass := aClass.
-	^ self'' ' rule: #ppStrings.
+	^ self''' rule: #ppStrings.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPStringsWithSpaces [
 	"comment stating purpose of instance-side message"
-	self parse: '''VaS_Ext class'' ' rule: #ppStrings.
+	self parse: '''VaS_Ext class''' rule: #ppStrings.
 ]
 
 { #category : #tests }
