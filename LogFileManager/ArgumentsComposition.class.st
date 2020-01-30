@@ -38,7 +38,7 @@ ArgumentsComposition >> ppArguments [
 ArgumentsComposition >> ppCharacters [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ (#word asPParser / $_ asPParser / $> asPParser / $| asPParser / $@ asPParser / $[ asPParser / $] asPParser / $- asPParser / $: asPParser / $= asPParser / $. asPParser / $^ asPParser / $, asPParser / '$' asPParser ) plus.
+	^ (#word asPParser / $_ asPParser / $> asPParser / $| asPParser / $@ asPParser / $[ asPParser / $] asPParser / $- asPParser / $: asPParser / $= asPParser / $. asPParser / $^ asPParser / $, asPParser / '$' asPParser / $/ asPParser ) plus.
 ]
 
 { #category : #accessing }
@@ -55,8 +55,11 @@ ArgumentsComposition >> ppSpace [
 
 { #category : #accessing }
 ArgumentsComposition >> ppStrings [
+	| nextArg finalArg |
 	"comment stating purpose of instance-side message"
-	^ $' asPParser, #space asPParser star, (ppCharacters / #space asPParser) plus, #space asPParser star, $' asPParser.
+	nextArg := $' asPParser, ' ' asPParser, ($# asPParser / #word asPParser / $' asPParser).
+	finalArg := $' asPParser trim end.
+	^ $' asPParser, ppSpace, ( (' ' asPParser negate star, ' ' asPParser) starLazy: (nextArg / finalArg ) ), $' asPParser star.
 ]
 
 { #category : #accessing }
