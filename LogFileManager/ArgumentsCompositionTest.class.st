@@ -25,7 +25,7 @@ ArgumentsCompositionTest >> testPPArguments [
 ArgumentsCompositionTest >> testPPArgumentsWithSelfError [
 	"comment stating purpose of instance-side message"
 	self parse: '#(''or: anObject1 
-	self error: ''method #or: should be implemented by subclasses receiving the message'''' ''Boolean'' #SmtSupportVASTTypingApp )' rule: #ppArguments.
+	self error: ''''method #or: should be implemented by subclasses receiving the message'''''' ''Boolean'' #SmtSupportVASTTypingApp )' rule: #ppArguments.
 ]
 
 { #category : #tests }
@@ -79,21 +79,21 @@ ArgumentsCompositionTest >> testPPListWithSymbolStringWithSpace [
 { #category : #tests }
 ArgumentsCompositionTest >> testPPStringsWithCharactersAndSpaces [
 	"comment stating purpose of instance-side message"
-	self parse: '''onClass: aClass
+	self parse: '#(''onClass: aClass
 	baseClass := aClass.
-	^ self''' rule: #ppStrings.
+	^ self'')' rule: #ppArguments.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPStringsWithSpaces [
 	"comment stating purpose of instance-side message"
-	self parse: '''VaS_Ext class''' rule: #ppStrings.
+	self parse: '#(''VaS_Ext class'')' rule: #ppArguments.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPStringsWithStrings [
 	"comment stating purpose of instance-side message"
-	self parse: '''return compute-block [:message | self model typeNamed: ''Interval['' , (message parent receiver type ifNil: [ ''?'' ] ifNotNil: [ :t | t name ]) , '']'']'' ' rule: #ppStrings.
+	self parse: '#(''return compute-block [:message | self model typeNamed: ''''Interval['''' , (message parent receiver type ifNil: [ ''''?'''' ] ifNotNil: [ :t | t name ]) , '''']'''']'')' rule: #ppArguments.
 ]
 
 { #category : #tests }
@@ -111,13 +111,25 @@ ArgumentsCompositionTest >> testPPSymbolsWithFullList [
 { #category : #tests }
 ArgumentsCompositionTest >> testPPSymbolsWithStrings [
 	"comment stating purpose of instance-side message"
-	self parse: '#''BD>>test|BA|4|row'' ' rule: #ppSymbol.
+	self parse: '#(#''BD>>test|BA|4|row'')' rule: #ppArguments.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPSymbolsWithStringsAndSpace [
 	"comment stating purpose of instance-side message"
-	self parse: '#''Scaled class>> abtXml:$1'' ' rule: #ppSymbol.
+	self parse: '#(#''Scaled class>> abtXml:$1'')' rule: #ppArguments.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPSymbolsWithStringsAndSpaceFinalSpace [
+	"comment stating purpose of instance-side message"
+	self parse: '#(#''Scaled class>> abtXml:$1'' )' rule: #ppArguments.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPSymbolsWithStringsFinalSpace [
+	"comment stating purpose of instance-side message"
+	self parse: '#(#''BD>>test|BA|4|row'' )' rule: #ppArguments.
 ]
 
 { #category : #tests }

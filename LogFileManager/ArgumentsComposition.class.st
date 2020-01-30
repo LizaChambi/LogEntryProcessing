@@ -38,7 +38,7 @@ ArgumentsComposition >> ppArguments [
 ArgumentsComposition >> ppCharacters [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ (#word asPParser / $_ asPParser / $> asPParser / $| asPParser / $@ asPParser / $[ asPParser / $] asPParser / $- asPParser / $: asPParser / $= asPParser / $. asPParser / $^ asPParser / $, asPParser / '$' asPParser / $/ asPParser ) plus.
+	^ (#word asPParser / $_ asPParser / $> asPParser / $| asPParser / $@ asPParser / $[ asPParser / $] asPParser / $- asPParser / $: asPParser / $= asPParser / $. asPParser / $^ asPParser / $, asPParser / $/ asPParser ) plus.
 ]
 
 { #category : #accessing }
@@ -55,12 +55,10 @@ ArgumentsComposition >> ppSpace [
 
 { #category : #accessing }
 ArgumentsComposition >> ppStrings [
-	| nextArg finalArgList finalArg |
+	| stringEnd |
 	"comment stating purpose of instance-side message"
-	nextArg := $' asPParser, ' ' asPParser, ($# asPParser / #word asPParser / $' asPParser).
-	finalArgList := $' asPParser, $) asPParser, #space asPParser.
-	finalArg := $' asPParser trim end.
-	^ $' asPParser, ppSpace, ( ppWords / (' ' asPParser negate star, ' ' asPParser) starLazy: (nextArg / finalArgList / finalArg ) ), $' asPParser star.
+	stringEnd := $' asPParser negate, $' asPParser.
+	^ $' asPParser, ppSpace, ( (#any asPParser) starLazy: ((stringEnd, $) asPParser trim) / (stringEnd, ' ' asPParser)) ), #any asPParser, $' asPParser.
 ]
 
 { #category : #accessing }

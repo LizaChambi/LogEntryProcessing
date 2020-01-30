@@ -76,6 +76,12 @@ LogEntryCompositionTest >> testPPTimestamp [
 ]
 
 { #category : #tests }
+LogEntryCompositionTest >> testPPTimestampNegative [
+	"comment stating purpose of message"
+	self parse: '-1' rule: #ppTimestamp.
+]
+
+{ #category : #tests }
 LogEntryCompositionTest >> testPPTimestampWithBlank [
 	"comment stating purpose of message"
 	self parse: ' 		  0 	  	  ' rule: #ppTimestamp.
