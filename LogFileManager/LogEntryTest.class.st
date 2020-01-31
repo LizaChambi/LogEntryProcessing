@@ -64,43 +64,21 @@ LogEntryTest >> testEditWithLog [
 ]
 
 { #category : #tests }
-LogEntryTest >> testEditWithLogAssertLeftoverArguments [
+LogEntryTest >> testEditorSuccessfully [
 	"comment stating purpose of message"
-	| aLogEntry |
-	aLogEntry := LogEntry timestamp: 0303 selector: #method arguments: #(arg) stage: logEntry stage source: logEntry source.
-	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+	self assert: (logEntry editor: 'self
+	timestamp: 46
+	selector: #doSetTypeNamed:asInMigrationSet:
+	arguments: #(#RootPoolDictionary #false ).') equals: (logEntry timestamp: 46 selector: #doSetTypeNamed:asInMigrationSet: arguments: #(#RootPoolDictionary #false ) stage: logEntry stage source: logEntry source).
 ]
 
 { #category : #tests }
-LogEntryTest >> testEditWithLogAssertMissingArguments [
+LogEntryTest >> testEditorUnsuccessfully [
 	"comment stating purpose of message"
-	| aLogEntry |
-	aLogEntry := LogEntry timestamp: 0303 selector: #method:withArguments: arguments: #(arg) stage: logEntry stage source: logEntry source.
-	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
-]
-
-{ #category : #tests }
-LogEntryTest >> testEditWithLogAssertSelectorEmptyList [
-	"comment stating purpose of message"
-	| aLogEntry |
-	aLogEntry := LogEntry timestamp: 0303 selector: #() arguments: #(arg) stage: logEntry stage source: logEntry source.
-	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
-]
-
-{ #category : #tests }
-LogEntryTest >> testEditWithLogAssertSelectorNoMethod [
-	"comment stating purpose of message"
-	| aLogEntry |
-	aLogEntry := LogEntry timestamp: 0303 selector: 123 arguments: #(arg) stage: logEntry stage source: logEntry source.
-	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
-]
-
-{ #category : #tests }
-LogEntryTest >> testEditWithLogAssertTimestamp [
-	"comment stating purpose of message"
-	| aLogEntry |
-	aLogEntry := LogEntry timestamp: (-13) selector: #method arguments: #(arg) stage: logEntry stage source: logEntry source.
-	self should: [ logEntry editWithLog: aLogEntry ] raise: (AssertionFailure).
+	self should: [ logEntry editor: 'self
+	timestamp: 46
+	selector: #doSetTypeNamed
+	arguments: #(#RootPoolDictionary #false ).'] raise: (AssertionFailure).
 ]
 
 { #category : #tests }
@@ -138,6 +116,39 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 	logStream := ReadLogStream onStream: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
 	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 source: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
 	self assert: (logWithStage2 hasStageErrorOn: logStream).
+]
+
+{ #category : #tests }
+LogEntryTest >> testParserValidationAssertLMissingArguments [
+	"comment stating purpose of message"
+	| parserCollection argCollection|
+	argCollection := OrderedCollection newFrom: #(#String).
+	parserCollection := OrderedCollection newFrom: #('self' 'timestamp: ' 20 'selector: ' #doAssignType:to: 'arguments: ').
+	parserCollection add: argCollection.
+	
+	self should: [ logEntry parserValidation: parserCollection ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
+LogEntryTest >> testParserValidationAssertLeftoverArguments [
+	"comment stating purpose of message"
+	| parserCollection argCollection|
+	argCollection := OrderedCollection newFrom: #(#String).
+	parserCollection := OrderedCollection newFrom: #('self' 'timestamp: ' 20 'selector: ' #doAssignType 'arguments: ').
+	parserCollection add: argCollection.
+	
+	self should: [ logEntry parserValidation: parserCollection ] raise: (AssertionFailure).
+]
+
+{ #category : #tests }
+LogEntryTest >> testParserValidationAssertTimestampNegative [
+	"comment stating purpose of message"
+	| parserCollection argCollection|
+	argCollection := OrderedCollection newFrom: #(#String).
+	parserCollection := OrderedCollection newFrom: #('self' 'timestamp: ' -20 'selector: ' #doAssignType:to: 'arguments: ').
+	parserCollection add: argCollection.
+	
+	self should: [ logEntry parserValidation: parserCollection ] raise: (AssertionFailure).
 ]
 
 { #category : #tests }

@@ -10,12 +10,6 @@ ArgumentsCompositionTest >> parserClass [
 ]
 
 { #category : #tests }
-ArgumentsCompositionTest >> testPPASymbolsWithEmptyList [
-	"comment stating purpose of instance-side message"
-	self parse: '#()' rule: #ppSymbol.
-]
-
-{ #category : #tests }
 ArgumentsCompositionTest >> testPPArguments [
 	"comment stating purpose of instance-side message"
 	self parse: '#(''VaS_Ext class'' nil #() #''Array[String,Obj]'' #AbtRow 4 )' rule: #ppArguments.
@@ -37,43 +31,49 @@ ArgumentsCompositionTest >> testPPArgumentsWithString [
 { #category : #tests }
 ArgumentsCompositionTest >> testPPListEmpty [
 	"comment stating purpose of instance-side message"
-	self parse: '()' rule: #ppList.
+	self parse: '#()' rule: #ppList.
+]
+
+{ #category : #tests }
+ArgumentsCompositionTest >> testPPListFull [
+	"comment stating purpose of instance-side message"
+	self parse: '#(''rcv'' #() nil #''Object class>>abtXmlFromString:$1'' )' rule: #ppList.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPListWith2String [
 	"comment stating purpose of instance-side message"
-	self parse: '(''rcv'' ''VaS_Ext class'' )' rule: #ppList.
+	self parse: '#(''rcv'' ''VaS_Ext class'' )' rule: #ppList.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPListWithString [
 	"comment stating purpose of instance-side message"
-	self parse: '(''rcv'')' rule: #ppList.
+	self parse: '#(''rcv'')' rule: #ppList.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPListWithSymbolListString [
 	"comment stating purpose of instance-side message"
-	self parse: '(#''EsParseNode class'')' rule: #ppList.
+	self parse: '#(#''EsParseNode class'')' rule: #ppList.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPListWithSymbolListStringWithSpace [
 	"comment stating purpose of instance-side message"
-	self parse: '(#(''EsParseNode class'') )' rule: #ppList.
+	self parse: '#(#(''EsParseNode class'') )' rule: #ppList.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPListWithSymbolListStringWithoutSpace [
 	"comment stating purpose of instance-side message"
-	self parse: '(#(''rcv'') )' rule: #ppList.
+	self parse: '#(#(''rcv'') )' rule: #ppList.
 ]
 
 { #category : #tests }
 ArgumentsCompositionTest >> testPPListWithSymbolStringWithSpace [
 	"comment stating purpose of instance-side message"
-	self parse: '(#''EsParseNode class'')' rule: #ppList.
+	self parse: '#(#''EsParseNode class'')' rule: #ppList.
 ]
 
 { #category : #tests }
@@ -100,18 +100,6 @@ ArgumentsCompositionTest >> testPPStringsWithStrings [
 ArgumentsCompositionTest >> testPPSymbolsWithCharacters [
 	"comment stating purpose of instance-side message"
 	self parse: '#Boolean_N' rule: #ppSymbol.
-]
-
-{ #category : #tests }
-ArgumentsCompositionTest >> testPPSymbolsWithFullList [
-	"comment stating purpose of instance-side message"
-	self parse: '#(''rcv'' #() nil )' rule: #ppSymbol.
-]
-
-{ #category : #tests }
-ArgumentsCompositionTest >> testPPSymbolsWithStrings [
-	"comment stating purpose of instance-side message"
-	self parse: '#(#''BD>>test|BA|4|row'')' rule: #ppArguments.
 ]
 
 { #category : #tests }

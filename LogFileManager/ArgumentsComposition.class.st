@@ -24,7 +24,7 @@ ArgumentsComposition >> parse: aString [
 ArgumentsComposition >> ppArg [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ (ppWords / ppStrings / ppSymbol) flatten.
+	^ (ppWords / ppStrings / ppSymbol / ppList) flatten.
 ]
 
 { #category : #accessing }
@@ -44,7 +44,7 @@ ArgumentsComposition >> ppCharacters [
 { #category : #accessing }
 ArgumentsComposition >> ppList [
 	"comment stating purpose of instance-side message"
-	^ $( asPParser, (ppArg, #space asPParser star trim) star, $) asPParser.
+	^ $# asPParser, $( asPParser, (ppArg, #space asPParser star trim) star, $) asPParser.
 ]
 
 { #category : #accessing }
@@ -65,7 +65,7 @@ ArgumentsComposition >> ppStrings [
 ArgumentsComposition >> ppSymbol [
 	"comment stating purpose of instance-side message"
 	"scope: class-variables  &  instance-variables"	
-	^ $# asPParser, ( ppCharacters / ppStrings / ppList).
+	^ $# asPParser, ( ppCharacters / ppStrings ).
 ]
 
 { #category : #accessing }

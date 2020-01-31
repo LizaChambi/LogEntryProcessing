@@ -60,7 +60,7 @@ LogEntry >> arguments [
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	^[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex|^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
+	^[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
 ]
 
 { #category : #tests }
@@ -69,21 +69,12 @@ LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
 	^ ((self convertChunkToLogEntry: aChunk) source: aFileReference).
 ]
 
-{ #category : #accessing }
+{ #category : #editing }
 LogEntry >> editWithLog: aLogEntry [
 	"comment stating purpose of message"
 	self
 		assert: [ aLogEntry isValidLog ]
 		description: 'Invalid log entered: The log is composed with ''self timestamp: aNumber selector: aMethod arguments: anArray'''.
-	self
-		assert: [ aLogEntry timestamp asNumber >= 0 ]
-		description: 'Invalid timestamp value: ''timestamp: (aNumber >= 0)'''.
-	self
-		assert: [ aLogEntry selector isSymbol ]
-		description: 'Selector must have some method.'.
-	self
-		assert: [ aLogEntry hasANumberCorrectArguments]
-		description: 'Numbers of arguments does not matching with number of arguments the selector.'.
 	self
 		assert: [ aLogEntry stage asNumber >= 0 ]
 		description: 'Invalid stage value: ''stage: (aNumber >= 0)'''.
@@ -115,12 +106,10 @@ LogEntry >> editor: aString [
 	"comment stating purpose of message"
 	parsing := LogEntryComposition new parseAndFlatten: aString.
 	self parserValidation: parsing.
-	
-	" - - - - - - "
-	"newLog := LogEntry chunk: aString.
+	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
 	newLog source: self source.
-	self editWithLog: newLog."
+	self editWithLog: newLog.
 ]
 
 { #category : #accessing }
@@ -214,7 +203,7 @@ LogEntry >> parserValidation: aCollection [
 		description: 'Numbers of arguments does not matching with number of arguments the selector'.
 	self 
 		assert: [ (aCollection at: 3) asNumber >= 0  ]
-		description: 'Invalid timestamp value: Timestamp value should be >= 0'.
+		description: 'Invalid timestamp: Timestamp value should be >= 0'.
 	
 ]
 
