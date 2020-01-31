@@ -31,7 +31,7 @@ LogFileManager >> addLog: aLogEntry [
 ]
 
 { #category : #adding }
-LogFileManager >> addNewLog [
+LogFileManager >> addNewStage [
 	"comment stating purpose of message"
 	self addStage: self nextStage.
 ]
@@ -40,16 +40,6 @@ LogFileManager >> addNewLog [
 LogFileManager >> addStage: aNumber [.
 	"comment stating purpose of message"
 	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
-]
-
-{ #category : #adding }
-LogFileManager >> dosLogs [
-	"comment stating purpose of message"
-	|col|
-	col := OrderedCollection new.
-	col add: (LogEntry timestamp: 1212 selector:#soyAlgo arguments:#() stage: 1 source: 'path/stage1.change').
-	col add: (LogEntry timestamp: 555 selector:#soyOtroAlgo: arguments:#(sep) stage: 1 source: 'path/stage1.change').
-	^ col.
 ]
 
 { #category : #adding }
@@ -101,7 +91,7 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
 			rootsExpanded;
-			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 		].
 	(tabulator transmit) to:#Toolbar; from:#Tree;
@@ -135,7 +125,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
 			rootsExpanded;
-			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 		].].
 	tabulator transmit to:#Toolbar; from:#Tree;
@@ -278,7 +268,7 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 	].
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'to deprecate' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
 	| sources |
