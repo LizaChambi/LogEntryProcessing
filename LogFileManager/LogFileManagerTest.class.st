@@ -37,19 +37,10 @@ LogFileManagerTest >> setUp [
 	pathFolder := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/resources'.
 ]
 
-{ #category : #running }
-LogFileManagerTest >> tearDown [
-	"comment stating purpose of message"
-	'OututFile.txt' asFileReference ensureDelete.
-	'sortedLogFiles' asFileReference ensureDelete.
-	'/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' asFileReference ensureDelete.
-	'/home/lizachambi/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' asFileReference ensureDelete.
-]
-
 { #category : #tests }
-LogFileManagerTest >> testAddLog [
+LogFileManagerTest >> testAddLogWithSource [
 	"comment stating purpose of message"
-	logFileManager addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') stage: 0 source: 'path').
+	logFileManager addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') stage: 0 source: nil) withSource: 'path'.
 	self assert: (logFileManager logEntries notEmpty).
 ]
 
@@ -66,7 +57,7 @@ LogFileManagerTest >> testAddStage [
 { #category : #tests }
 LogFileManagerTest >> testExceptionAddLogNil [
 	"comment stating purpose of message"
-	logFileManager addLog: (LogEntry timestamp: nil selector: nil arguments:nil stage: nil source: 'path' ).
+	logFileManager addLog: (LogEntry timestamp: nil selector: nil arguments:nil stage: nil source: nil) withSource: 'path'.
 	self assert: (logFileManager logEntries isEmpty).
 ]
 
@@ -102,9 +93,9 @@ LogFileManagerTest >> testLogsWithStage0 [
 	"comment stating purpose of message"
 	| logStream |
 	logStream := ReadLogStream onStream: path1 asFileReference readStream.
-	logFileManager addLog: log0.
-	logFileManager addLog: log33.
-	logFileManager addLog: log8.
+	logFileManager addLog: log0 withSource: 'path0'.
+	logFileManager addLog: log33 withSource: 'path33'.
+	logFileManager addLog: log8 withSource: 'path8'.
 	self assert: ( (logFileManager logsWithStage:0) size) equals: (2).
 ]
 
@@ -112,7 +103,7 @@ LogFileManagerTest >> testLogsWithStage0 [
 LogFileManagerTest >> testMergeOrderedALogFileFromPath [
 	"comment stating purpose of message"
 	logFileManager mergeOrderedLogFilesFrom: pathFolder withName: 'sortedLogFiles'.
-
+	
 	self assert: (self readFile: 'sortedLogFiles') equals: 'self
 	timestamp: 0
 	selector: #doAddClassNamed:in:superclass:instVarNames:classVarNames:classInstVarNames:
@@ -129,6 +120,7 @@ self
 	arguments: #(''SmtSupportVASTTypingApp'' nil #())
 	stage: 0.
 '.
+	'sortedLogFiles' asFileReference ensureDelete.
 ]
 
 { #category : #tests }
@@ -148,6 +140,7 @@ self
 	arguments: #(''SmtEntireFileReadStream'' #SmtSupportVASTTypingApp ''CfsReadFileStream'' #() #() #())
 	stage: 0.
 '.
+	'sortedLogFiles' asFileReference ensureDelete.
 ]
 
 { #category : #tests }
@@ -169,7 +162,7 @@ LogFileManagerTest >> testOneEntryWithCR [
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
 	self assert: ((result at: 1) arguments) equals: ( #('argument1.argument1 same-as #Integer' 'ByteArray>>do:')).
 	self assert: ((result at: 1) stage) equals: (0).
-	self assert: ((result at: 1) source) equals: (path3).
+	self assert: ((result at: 1) source fullName ) equals: (path3).
 ]
 
 { #category : #tests }
@@ -182,7 +175,7 @@ LogFileManagerTest >> testOneEntryWithoutCR [
 	self assert: ((result at: 1) selector) equals: (#doAddCorrelationRule:to:).
 	self assert: ((result at: 1) arguments) equals: ( #('argument1.argument1 same-as #Integer' 'ByteArray>>do:') ).
 	self assert: ((result at: 1) stage) equals: (0).
-	self assert: ((result at: 1) source) equals: (path2).
+	self assert: ((result at: 1) source fullName) equals: (path2).
 ]
 
 { #category : #tests }
@@ -222,13 +215,20 @@ LogFileManagerTest >> testReportLogState [
 LogFileManagerTest >> testSaveFilesEdited [
 	"Dado 4 logEntries modificados, grabarlos en sus archivos correspondientes."
 	| l1 l2 l3 l4 |
-	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
-	path2 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
-	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
-	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
-	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
-	l4 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: path1.	
-	logFileManager addLog: l1; addLog: l2; addLog: l3; addLog: l4.
+	logFileManager sourceInput: './testManagerFolder/'.
+	logFileManager sourceInput asFileReference ensureCreateDirectory.
+	
+	path1 := logFileManager sourceInput, '/stage0-200-DNU-Setup.changes' .
+	path2 := logFileManager sourceInput, '/stage1-3753505986994.changes' .
+	
+	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: nil.
+	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: nil.
+	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: nil.
+	l4 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: nil.	
+	logFileManager addLog: l1 withSource:path1; 
+	addLog: l2 withSource:path1; 
+	addLog: l3 withSource: path2; 
+	addLog: l4 withSource: path1.
 	
 	logFileManager saveFiles.
 	
@@ -258,50 +258,37 @@ self
 	arguments: #(#SmtGeneratedPools nil #())
 	stage: 1.
 ').	
+	logFileManager sourceInput asFileReference ensureDeleteAll.
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testSaveFilesEditedWithError [
-	"Dado 4 logEntries modificados, grabarlos en sus archivos correspondientes."
-	| l1 l2 l3 l4 |
-	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
-	path2 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
-	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
-	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
-	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
-	l4 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: path1.	
-	logFileManager addLog: l1; addLog: l2; addLog: l3; addLog: l4.
-	
-	logFileManager saveFiles.
-	
-	self should: [l4 editWithLog: (LogEntry timestamp: 3753599495956 selector:  #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 1 source: path1)] raise: Error.
-	
-]
-
-{ #category : #tests }
-LogFileManagerTest >> testSaveFilesInit [
+LogFileManagerTest >> testSaveFilesEditedAndRemoved [
 	"Dado 4 log entries, los graba en sus archivos correspondientes."
-	| l1 l2 l3 l4 |
-	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage0-200-DNU-Setup.changes' .
-	path2 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/operations/stage1-3753505986994.changes' .
-	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
-	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: path1.
-	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
-	l4 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: path1.	
-	logFileManager addLog: l1; addLog: l2; addLog: l3; addLog: l4.
+	| l1 l2 l3 l4|
+	logFileManager sourceInput: './testManagerFolder/'.
+	logFileManager sourceInput asFileReference ensureCreateDirectory.
+	
+	path1 := logFileManager sourceInput, '/stage0-200-DNU-Setup.changes'.
+	path2 := logFileManager sourceInput, '/stage1-3753505986994.changes'.
+	path3 := logFileManager sourceInput, '/stage0-blankFile.changes'.
+	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: nil.
+	l2 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: nil.
+	l3 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: nil.
+	l4 := LogEntry timestamp: 666 selector: #doAddPackageNamed: arguments: #('SmtGeneratedMethodsCallingDNU' ) stage: 0 source: path1.
+	logFileManager addLog: l1 withSource:path1; 
+	addLog: l2 withSource: path2; 
+	addLog: l3 withSource: path1.
+	
+	path1 asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: l4 prettyPrint].
+	path3 asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: '' ].
 	
 	logFileManager saveFiles.
 	
-	self assert: (logFileManager logEntries size) equals: (4).
+	self assert: (logFileManager logEntries size) equals: (3).
 	self assert: (self readFile: path1) equals:('self
 	timestamp: 200
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(''SmtGeneratedMethodsCallingDNU'' nil #())
-	stage: 0.
-self
-	timestamp: 201
-	selector: #doSetPackageNamed:asInMigrationSet:
-	arguments: #(#SmtGeneratedMethodsCallingDNU #true)
 	stage: 0.
 self
 	timestamp: 3753599495956
@@ -315,6 +302,69 @@ self
 	arguments: #(#SmtGeneratedPools nil #())
 	stage: 1.
 ').	
+	self should: [self readFile: path3] raise:(FileDoesNotExistException).	
+	logFileManager sourceInput asFileReference ensureDeleteAll.
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testSaveFilesEditedWithError [
+	"Dado 4 logEntries modificados, grabarlos en sus archivos correspondientes."
+	| l1 l2 l3 l4 |
+	logFileManager sourceInput: './testManagerFolder/'.
+	logFileManager sourceInput asFileReference ensureCreateDirectory.
+	
+	path1 := logFileManager sourceInput, '/stage0-200-DNU-Setup.changes' .
+	path2 := logFileManager sourceInput, '/stage1-3753505986994.changes' .
+	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: nil.
+	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0 source: nil.
+	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
+	l4 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: nil.	
+	logFileManager addLog: l1 withSource: path1; addLog: l2 withSource: path1; 
+	addLog: l3 withSource: path2; addLog: l4 withSource: path1.
+	
+	logFileManager saveFiles.
+	
+	self should: [l4 editWithLog: (LogEntry timestamp: 3753599495956 selector:  #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 1 source: path1)] raise: Error.
+	logFileManager sourceInput asFileReference ensureDeleteAll.
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testSaveFilesNews [
+	"Dado 4 log entries, los graba en sus archivos correspondientes."
+	| l1 l2 l3 |
+	logFileManager sourceInput: './testManagerFolder/'.
+	logFileManager sourceInput asFileReference ensureCreateDirectory.
+	
+	path1 := logFileManager sourceInput, '/stage0-200-DNU-Setup.changes' .
+	path2 := logFileManager sourceInput, '/stage1-3753505986994.changes' .
+	
+	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0 source: path1.
+	l2 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1 source: path2.
+	l3 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 source: path1.
+	logFileManager addLog: l1 withSource: path1; addLog: l2 withSource: path2; 
+	addLog: l3 withSource: path1.
+	
+	logFileManager saveFiles.
+	
+	self assert: (logFileManager logEntries size) equals: (3).
+	self assert: (self readFile: path1) equals:('self
+	timestamp: 200
+	selector: #doAddPackageNamed:in:prereqs:
+	arguments: #(''SmtGeneratedMethodsCallingDNU'' nil #())
+	stage: 0.
+self
+	timestamp: 3753599495956
+	selector: #doAssignType:to:
+	arguments: #(#String #''NeoJSONTest>>testMaps|BA|1|string'')
+	stage: 0.
+').
+	self assert: (self readFile: path2) equals:('self
+	timestamp: 40
+	selector: #doAddPackageNamed:in:prereqs:
+	arguments: #(#SmtGeneratedPools nil #())
+	stage: 1.
+').	
+	logFileManager sourceInput asFileReference ensureDeleteAll.
 ]
 
 { #category : #tests }
@@ -327,7 +377,10 @@ LogFileManagerTest >> testSaveLogsWithSourceFile [
 	log2 := LogEntry timestamp: 8 selector: #doAddClassNamed:in: arguments: #('SmtEntireFileReadStream' #SmtSupportVASTTypingApp) stage: 1 source: path2.
 	log3 := LogEntry timestamp: 25 selector: #doAddCorrelationRule:to: arguments: #('argument1.argument1' 'ByteArray>>do:') stage: 1 source: path1.
 	log4 := LogEntry timestamp: 33 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #() ) stage: 1 source: path2.
-	logFileManager addLog: log1; addLog: log2; addLog: log3; addLog: log4.
+	logFileManager addLog: log1 withSource:path1; 
+	addLog: log2 withSource: path2; 
+	addLog: log3 withSource: path1; 
+	addLog: log4 withSource: path2.
 	logFileManager saveLogsWithSourceFile: path1.
 	
 	self assert: ( self readFile: path1) equals: 'self
@@ -351,7 +404,8 @@ LogFileManagerTest >> testSelectWithCriteria [
 	log33 := LogEntry timestamp: 33 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #() ) stage:0 source: path.
 	log0 := LogEntry timestamp: 0 selector: #doAddClassNamed: arguments: #('DateTime') stage:1 source: '/home/Pharo/resources/stage0-testfile.changes'.
 	log8 := LogEntry timestamp: 8 selector: #doAddClassNamed: arguments: #('SmtEntireFileReadStream') stage: 0 source: path.
-	logFileManager addLog: log33; addLog: log0; addLog: log8.
+	logFileManager addLog: log33 withSource: path; addLog: log0 withSource: '/home/Pharo/resources/stage0-testfile.changes'; 
+	addLog: log8 withSource: path.
 
 	self assert: ( (logFileManager selectWithCriteria: [:each | (each source) = path]) size) equals: (2).
 ]
@@ -359,7 +413,9 @@ LogFileManagerTest >> testSelectWithCriteria [
 { #category : #tests }
 LogFileManagerTest >> testSortLogEntriesByTimestamp [
 	"comment stating purpose of message"
-	logFileManager addLog: (log33); addLog: (log0); addLog: (log8).
+	logFileManager addLog: log33 withSource: '/home/Pharo/resources/stage0-testfile.changes'; 
+	addLog: log0 withSource: '/home/Pharo/resources/stage0-testfile.changes'; 
+	addLog: log8 withSource: '/home/Pharo/resources/stage0-testfile.changes'.
 	
 	self assert: ((logFileManager sortLogEntriesByTimestamp: logFileManager logEntries) first timestamp) equals: (0).
 	self assert: ((logFileManager sortLogEntriesByTimestamp: logFileManager logEntries) second timestamp) equals: (8).
@@ -378,10 +434,11 @@ LogFileManagerTest >> testStages [
 { #category : #tests }
 LogFileManagerTest >> testWriteFilesWithName [
 	"comment stating purpose of message"
-	logFileManager addLog: log33; addLog: log0.
-	logFileManager writeFiles: (logFileManager logEntries) withName: 'OututFile.txt'.
+	logFileManager addLog: log33 withSource: '/home/Pharo/resources/stage0-testfile.changes'; 
+	addLog: log0 withSource: '/home/Pharo/resources/stage0-testfile.changes'.
+	logFileManager writeFiles: (logFileManager logEntries) withName: './OutputFile.txt'.
 	
-	self assert: (self readFile: 'OututFile.txt') equals: ('self
+	self assert: (self readFile: './OututFile.txt') equals: ('self
 	timestamp: 33
 	selector: #doAddPackageNamed:in:prereqs:
 	arguments: #(''SmtSupportVASTTypingApp'' nil #())
@@ -392,13 +449,15 @@ self
 	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'' #() #() #())
 	stage: 1.
 ').
+	'./OutputFile.txt' asFileReference ensureDelete.
 ]
 
 { #category : #tests }
 LogFileManagerTest >> testWritingOutputFilesWithName [
 	"comment stating purpose of message"
-	logFileManager addLog: (log33);addLog: (log0).
-	logFileManager writeFiles: (logFileManager logEntries) withName: 'OututFile.txt'.
+	logFileManager addLog: log33 withSource: '/home/Pharo/resources/stage0-testfile.changes'; 
+	addLog: log0 withSource: '/home/Pharo/resources/stage0-testfile.changes'.
+	logFileManager writeFiles: (logFileManager logEntries) withName: 'OutputFile.txt'.
 	
 	self assert: (self readFile:'OututFile.txt') equals: ('self
 	timestamp: 33
@@ -411,4 +470,5 @@ self
 	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'' #() #() #())
 	stage: 1.
 ').
+	'OutputFile.txt' asFileReference ensureDelete.
 ]

@@ -6,7 +6,7 @@ Class {
 		'selector',
 		'timestamp',
 		'stage',
-		'source'
+		'group'
 	],
 	#category : #LogFileManager
 }
@@ -18,10 +18,9 @@ LogEntry class >> chunk: aChunk [
 
 { #category : #'as yet unclassified' }
 LogEntry class >> readLog: logStream [
-	| print|
-	print := self new convertChunkToLogEntry: logStream next withOriginPath: logStream fileReference fullName.
-	Transcript show: print prettyPrint.
-	^ print.
+	| logString |
+	logString := self new convertChunkToLogEntry: logStream next withGroup: (LogGroup withSource:(logStream fileReference fullName)).
+	^ logString.
 ]
 
 { #category : #'as yet unclassified' }
@@ -48,7 +47,7 @@ LogEntry >> <= aLogEntry [
 { #category : #comparing }
 LogEntry >> = aLogEntry [
 	"comment stating purpose of message"
-	^ (timestamp = aLogEntry timestamp) and: [(arguments = aLogEntry arguments ) and: [(selector = aLogEntry selector) and: [(stage = aLogEntry stage) and: [source = aLogEntry source ]]]].
+	^ (timestamp = aLogEntry timestamp) and: [(arguments = aLogEntry arguments ) and: [(selector = aLogEntry selector) and: [(stage = aLogEntry stage) and: [(self group = aLogEntry group) ]]]].
 ]
 
 { #category : #accessing }
@@ -64,9 +63,9 @@ LogEntry >> convertChunkToLogEntry: aString [
 ]
 
 { #category : #tests }
-LogEntry >> convertChunkToLogEntry: aChunk withOriginPath: aFileReference [
+LogEntry >> convertChunkToLogEntry: aChunk withGroup: aGroup [
 	"comment stating purpose of message"
-	^ ((self convertChunkToLogEntry: aChunk) source: aFileReference).
+	^ ((self convertChunkToLogEntry: aChunk) group: aGroup).
 ]
 
 { #category : #editing }
@@ -87,7 +86,7 @@ LogEntry >> editWithLog: aLogEntry [
 		selector: aLogEntry selector
 		arguments: aLogEntry arguments
 		stage: aLogEntry stage
-		source: aLogEntry source.
+		source: aLogEntry group.
 	^ self
 ]
 
@@ -108,8 +107,20 @@ LogEntry >> editor: aString [
 	self parserValidation: parsing.
 	newLog := LogEntry chunk: aString.
 	newLog stage: self stage.
-	newLog source: self source.
+	newLog group: self group.
 	self editWithLog: newLog.
+]
+
+{ #category : #accessing }
+LogEntry >> group [
+	"comment stating purpose of message"
+	^ group.
+]
+
+{ #category : #tests }
+LogEntry >> group: aLogGroup [
+	"comment stating purpose of message"
+	group:= aLogGroup.
 ]
 
 { #category : #accessing }
@@ -173,7 +184,7 @@ LogEntry >> hasCriteria: aBlock [
 { #category : #accessing }
 LogEntry >> hasPathStageDifferent [
 	"comment stating purpose of message"
-	^ (source asFileReference basename beginsWith: ('stage', stage asString)) not.
+	^ (group asFileReference basename beginsWith: ('stage', stage asString)) not.
 ]
 
 { #category : #conversion }
@@ -189,7 +200,7 @@ LogEntry >> isLogEntry [
 
 { #category : #accessing }
 LogEntry >> isValidLog [
-	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [(self stage notNil) and: [ self source notNil]] ]].
+	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [(self stage notNil) and: [ self group notNil]] ]].
 ]
 
 { #category : #accessing }
@@ -244,13 +255,13 @@ LogEntry >> selector [
 { #category : #accessing }
 LogEntry >> source [
 	"comment stating purpose of message"
-	^ source
+	^ group source.
 ]
 
 { #category : #tests }
 LogEntry >> source: aFileReference [
 	"comment stating purpose of message"
-	source:= aFileReference.
+	^ self shouldBeImplemented "Este método tiene que cambiar el grupo en el que se encuentra por el log"
 ]
 
 { #category : #accessing }
@@ -301,5 +312,5 @@ LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage
 	selector := aString.
 	arguments := aCollection.
 	stage := aStage.
-	source := aPath.
+	group := aPath.
 ]

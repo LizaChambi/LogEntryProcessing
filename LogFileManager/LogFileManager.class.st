@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'report',
-		'logStages'
+		'logStages',
+		'sourceInput'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -21,17 +22,17 @@ LogFileManager class >> readLogFilesFromFolder: aPath [
 ]
 
 { #category : #adding }
-LogFileManager >> addLog: aLogEntry [
+LogFileManager >> addLog: aLogEntry withSource: aPath [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
 		ifTrue: [ 
 			"logEntries add: aLogEntry."
 			self addStage: aLogEntry stage.
-			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aLogEntry source.]
+			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aPath.]
 ]
 
 { #category : #adding }
-LogFileManager >> addNewLog [
+LogFileManager >> addNewStage [
 	"comment stating purpose of message"
 	self addStage: self nextStage.
 ]
@@ -40,16 +41,6 @@ LogFileManager >> addNewLog [
 LogFileManager >> addStage: aNumber [.
 	"comment stating purpose of message"
 	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
-]
-
-{ #category : #adding }
-LogFileManager >> dosLogs [
-	"comment stating purpose of message"
-	|col|
-	col := OrderedCollection new.
-	col add: (LogEntry timestamp: 1212 selector:#soyAlgo arguments:#() stage: 1 source: 'path/stage1.change').
-	col add: (LogEntry timestamp: 555 selector:#soyOtroAlgo: arguments:#(sep) stage: 1 source: 'path/stage1.change').
-	^ col.
 ]
 
 { #category : #adding }
@@ -101,13 +92,13 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
 			rootsExpanded;
-			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 		].
 	(tabulator transmit) to:#Toolbar; from:#Tree;
 		andShow: [ :x | |data| x text 
 			display: [:dataTree | data:= dataTree. '']; 
-			withGhostText: 'Ingrese la dirección de un grupo';
+			withGhostText: 'Input a group path...';
 			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 	].
@@ -135,13 +126,13 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 			maxDepth:2; 
 			rootsExpanded;
-			addAction: (GLMGenericAction new action: [ self addNewLog. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 		].].
 	tabulator transmit to:#Toolbar; from:#Tree;
 		andShow: [ :x | |data| x text 
 			display: [:dataTree | data:= dataTree. '']; 
-			withGhostText: 'Ingrese la dirección de un grupo';
+			withGhostText: 'Input a group path...';
 			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 	].
@@ -219,6 +210,7 @@ LogFileManager >> print [
 LogFileManager >> readLogFilesFromFolder: inputDirectory [
 	"comment stating purpose of message"
 	| filesToRead |
+	sourceInput := inputDirectory.
 	filesToRead := self filesToReadFromFolder: inputDirectory.
 	filesToRead do: [ :file | self readLogsEntries: (self logStream: file)].
 ]
@@ -230,7 +222,7 @@ LogFileManager >> readLogsEntries: logStream [
 	[ logStream atEnd] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		self addLog: logCreated ].
+		self addLog: logCreated withSource: logStream fileReference].
 	^ self logEntries.
 ]
 
@@ -241,17 +233,17 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ].
+		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference].
 	].
 	^ self logEntries.
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> removeLogFiles [
+LogFileManager >> removeOlderLogFiles [
 	"Borrar los archivos que perdieron referencia"
 	| filesToRemove |
-	filesToRemove := (((logStages at:1) groups at:1) source asFileReference parent fullName) asFileReference. "Tomo la referencia de la carpeta"
-	filesToRemove := filesToRemove children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar"
+	"filesToRemove := (((logStages at:1) groups at:1) source asFileReference parent fullName) asFileReference." "Tomo la referencia de la carpeta"
+	filesToRemove := sourceInput asFileReference children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar de la carpeta"
 	filesToRemove do: [:file | file delete]. "Eliminar los archivos enlistados"
 	
 
@@ -278,13 +270,11 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 	].
 ]
 
-{ #category : #'as yet unclassified' }
+{ #category : #'to deprecate' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	| sources |
-	self removeLogFiles.
-	sources := (self logEntries collect: [ :log | log source ]) removeDuplicates.
-	sources do: [ :source | self saveLogsWithSourceFile: source ].
+	self removeOlderLogFiles.
+	logStages do: [ :stage | stage saveStage ].
 	
 
 	
@@ -322,6 +312,20 @@ LogFileManager >> sortLogEntriesByTimestamp: logs [
 LogFileManager >> sortLogsByStage [
 	"comment stating purpose of message"
 	^ self stages collect: [:num | self logsWithStage: num ].
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> sourceInput [
+	"comment stating purpose of message"
+	^ sourceInput
+
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> sourceInput: aPathString [
+	"comment stating purpose of message"
+	sourceInput := aPathString.
+
 ]
 
 { #category : #accessing }

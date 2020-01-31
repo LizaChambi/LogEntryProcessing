@@ -39,11 +39,6 @@ LogGroup >> hasSource: aPath [
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> isGroup [
-	^ true
-]
-
-{ #category : #'as yet unclassified' }
 LogGroup >> logEntries [
 	^ logsEntries.
 ]
@@ -51,6 +46,20 @@ LogGroup >> logEntries [
 { #category : #'as yet unclassified' }
 LogGroup >> print [
 	^ self source.
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> saveGroup [
+	self writeLogsEntries: self sortLogEntriesByTimestamp.
+]
+
+{ #category : #sorting }
+LogGroup >> sortLogEntriesByTimestamp [
+	"Sort the log entries by timestamp"
+	|sortedEntries|
+	sortedEntries := SortedCollection sortBlock: [:log1 :log2 | log1 timestamp <= log2 timestamp ].
+	sortedEntries addAll: logsEntries.
+	^ sortedEntries.
 ]
 
 { #category : #'as yet unclassified' }
@@ -63,4 +72,12 @@ LogGroup >> source: aPath logs: anArray [
 	"comment stating purpose of message"
 	source:= aPath.
 	logsEntries:= anArray.
+]
+
+{ #category : #writing }
+LogGroup >> writeLogsEntries: aCollection [
+	"Write a file with the log entries with the given name"
+	| text |	
+	text := String streamContents: [:t | aCollection do: [:log | t nextPutAll: log prettyPrint]].
+	source asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: text ].
 ]
