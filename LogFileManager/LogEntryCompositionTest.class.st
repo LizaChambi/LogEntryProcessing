@@ -86,3 +86,19 @@ LogEntryCompositionTest >> testPPTimestampWithBlank [
 	"comment stating purpose of message"
 	self parse: ' 		  0 	  	  ' rule: #ppTimestamp.
 ]
+
+{ #category : #tests }
+LogEntryCompositionTest >> testParseAndFlatten [
+	"comment stating purpose of message"
+	| parserCollection argCollection |
+	argCollection := OrderedCollection newFrom: #('#SmtGeneratedVaUnitTestsStubs' 'nil' '#()').
+	parserCollection := OrderedCollection newFrom: #('self' 'timestamp: ' 20 'selector: ' #doAddPackageNamed:in:prereqs: 'arguments: ').
+	parserCollection add: argCollection.
+	
+	parser := LogEntryComposition new parseAndFlatten: 'self
+	timestamp: 20
+	selector: #doAddPackageNamed:in:prereqs:
+	arguments: #(#SmtGeneratedVaUnitTestsStubs nil #() ).'.
+	
+	self assert: (parser) equals: (parserCollection).
+]
