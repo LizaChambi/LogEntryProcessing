@@ -52,6 +52,8 @@ LogGroup >> print [
 LogGroup >> saveGroup [
 	" Suponiendo que los archivos ya fueron removidos de la carpeta anteriormente en el LogFileManager>>#saveFile: "
 	self writeLogsEntries: self sortLogEntriesByTimestamp.
+	" Falta llamar a este método desde Stage>>#saveStage"
+	" Falta crear Stage>>#saveStage"
 ]
 
 { #category : #sorting }
