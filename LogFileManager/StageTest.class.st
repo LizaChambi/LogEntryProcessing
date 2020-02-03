@@ -7,6 +7,12 @@ Class {
 	#category : #'LogFileManager-Test'
 }
 
+{ #category : #tests }
+StageTest >> readFile: aPath [
+	"comment stating purpose of message"
+	^ aPath asFileReference readStream upToEnd replaceAll: Character lf with: Character cr.
+]
+
 { #category : #running }
 StageTest >> setUp [
 	stage := Stage new:0.
@@ -65,4 +71,41 @@ StageTest >> testLogEntries [
 StageTest >> testPrint [
 	"comment stating purpose of message"
 	self assert: (stage print) equals: ('Stage 0').
+]
+
+{ #category : #tests }
+StageTest >> testSaveStage [
+	"comment stating purpose of message"
+	| log1 log2 log3 sourceFolder |
+	sourceFolder := './testFolder/'.
+	sourceFolder asFileReference ensureCreateDirectory.
+
+	log1 := LogEntry timestamp: 0 selector: #method arguments: #() stage: 0 source: (sourceFolder, 'stage0-testFile1.changes').
+	log2 := LogEntry timestamp: 56 selector: #method: arguments: #(false) stage: 1 source: (sourceFolder, 'stage1-testFile2.changes').
+	log3 := LogEntry timestamp: 34 selector: #method:and: arguments: #(1 nil) stage: 1 source: (sourceFolder, 'stage1-testFile2.changes').
+	
+	stage addLog: log1 withSource: (sourceFolder, 'stage0-testFile1.changes').
+	stage addLog: log2 withSource: (sourceFolder, 'stage1-testFile2.changes').
+	stage addLog: log3 withSource: (sourceFolder, 'stage1-testFile2.changes').
+	
+	stage saveStage.
+	
+	self assert: (self readFile: (sourceFolder, 'stage0-testFile1.changes')) equals: ('self
+	timestamp: 0
+	selector: #method
+	arguments: #()
+	stage: 0.
+').
+	self assert: (self readFile: (sourceFolder, 'stage1-testFile2.changes')) equals: ('self
+	timestamp: 34
+	selector: #method:and:
+	arguments: #(1 nil)
+	stage: 1.
+self
+	timestamp: 56
+	selector: #method:
+	arguments: #(false)
+	stage: 1.
+').
+	sourceFolder asFileReference ensureDeleteAll.
 ]

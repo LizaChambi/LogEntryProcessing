@@ -50,7 +50,9 @@ LogGroup >> print [
 
 { #category : #'as yet unclassified' }
 LogGroup >> saveGroup [
-	" Suponiendo que los archivos ya fueron removidos de la carpeta anteriormente en el LogFileManager>>#saveFile: "
+	"source asFileReference absolutePath parent asFileReference ensureDeleteAll." "Remove all older files from source folder"
+	"	* Esta última linea no puede estar aquí, ya que CADA grupo va a limpiar el contenido de la carpeta, entonces solo quedará guardado el último grupo que se guardó en la carpeta.
+		* Esta última linea se tiene que hacer en LogFile Manager (por una única vez) ya que él tiene la referencia de la carpeta que se leyó originalmente, LogGroup solo conoce el path de su archivo leido, la cual pudo editarse y ser diferente a la de origin."
 	self writeLogsEntries: self sortLogEntriesByTimestamp.
 	" Falta llamar a este método desde Stage>>#saveStage"
 	" Falta crear Stage>>#saveStage"

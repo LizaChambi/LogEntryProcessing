@@ -64,6 +64,12 @@ Stage >> print [
 ]
 
 { #category : #'as yet unclassified' }
+Stage >> saveStage [
+	"comment stating purpose of instance-side message"
+	groups do: [ :group | group saveGroup ].
+]
+
+{ #category : #'as yet unclassified' }
 Stage >> searchGroup: aPath [
 	^ groups detect: [ :group | group hasSource: aPath].
 ]
