@@ -18,7 +18,7 @@ LogGroupTest >> readFile: aPath [
 { #category : #running }
 LogGroupTest >> setUp [
 	saveFolder := './testFolder/stage0-testFile.changes'.
-	saveFolder asFileReference absolutePath parent asFileReference ensureCreateDirectory.
+	saveFolder asFileReference parent fullName asFileReference ensureCreateDirectory.
 	group  := LogGroup withSource: saveFolder.
 
 ]
@@ -26,7 +26,7 @@ LogGroupTest >> setUp [
 { #category : #running }
 LogGroupTest >> tearDown [
 	"comment stating purpose of message"
-	saveFolder asFileReference absolutePath parent asFileReference ensureDeleteAll.
+	saveFolder asFileReference parent fullName asFileReference ensureDeleteAll.
 ]
 
 { #category : #tests }

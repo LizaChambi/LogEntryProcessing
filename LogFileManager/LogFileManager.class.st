@@ -3,7 +3,8 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'report',
-		'logStages'
+		'logStages',
+		'sourceInput'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -209,6 +210,7 @@ LogFileManager >> print [
 LogFileManager >> readLogFilesFromFolder: inputDirectory [
 	"comment stating purpose of message"
 	| filesToRead |
+	sourceInput := inputDirectory.
 	filesToRead := self filesToReadFromFolder: inputDirectory.
 	filesToRead do: [ :file | self readLogsEntries: (self logStream: file)].
 ]
@@ -237,11 +239,11 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> removeLogFiles [
+LogFileManager >> removeOlderLogFiles [
 	"Borrar los archivos que perdieron referencia"
 	| filesToRemove |
-	filesToRemove := (((logStages at:1) groups at:1) source asFileReference parent fullName) asFileReference. "Tomo la referencia de la carpeta"
-	filesToRemove := filesToRemove children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar"
+	"filesToRemove := (((logStages at:1) groups at:1) source asFileReference parent fullName) asFileReference." "Tomo la referencia de la carpeta"
+	filesToRemove := sourceInput asFileReference children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar de la carpeta"
 	filesToRemove do: [:file | file delete]. "Eliminar los archivos enlistados"
 	
 
@@ -271,10 +273,10 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 { #category : #'to deprecate' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	| sources |
-	self removeLogFiles.
-	sources := (self logEntries collect: [ :log | log source ]) removeDuplicates.
-	sources do: [ :source | self saveLogsWithSourceFile: source ].
+	self removeOlderLogFiles.
+	logStages do: [ :stage | stage saveStage ].
+	"sources := (self logEntries collect: [ :log | log source ]) removeDuplicates.
+	sources do: [ :source | self saveLogsWithSourceFile: source ]."
 	
 
 	
@@ -312,6 +314,20 @@ LogFileManager >> sortLogEntriesByTimestamp: logs [
 LogFileManager >> sortLogsByStage [
 	"comment stating purpose of message"
 	^ self stages collect: [:num | self logsWithStage: num ].
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> sourceInput [
+	"comment stating purpose of message"
+	^ sourceInput
+
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> sourceInput: aPathString [
+	"comment stating purpose of message"
+	sourceInput := aPathString.
+
 ]
 
 { #category : #accessing }
