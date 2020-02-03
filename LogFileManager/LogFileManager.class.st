@@ -98,7 +98,7 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 	(tabulator transmit) to:#Toolbar; from:#Tree;
 		andShow: [ :x | |data| x text 
 			display: [:dataTree | data:= dataTree. '']; 
-			withGhostText: 'Ingrese la dirección de un grupo';
+			withGhostText: 'Input a group path...';
 			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 	].
@@ -132,7 +132,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 	tabulator transmit to:#Toolbar; from:#Tree;
 		andShow: [ :x | |data| x text 
 			display: [:dataTree | data:= dataTree. '']; 
-			withGhostText: 'Ingrese la dirección de un grupo';
+			withGhostText: 'Input a group path...';
 			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 	].
@@ -275,8 +275,6 @@ LogFileManager >> saveFiles [
 	"comment stating purpose of message"
 	self removeOlderLogFiles.
 	logStages do: [ :stage | stage saveStage ].
-	"sources := (self logEntries collect: [ :log | log source ]) removeDuplicates.
-	sources do: [ :source | self saveLogsWithSourceFile: source ]."
 	
 
 	
