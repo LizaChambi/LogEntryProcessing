@@ -136,19 +136,10 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			].
 		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
 			andShow: [ :comp4 | comp4 fastList
-						display: [ :each | each logEntries ]
+				display: [ :each | each logEntries ];
+				selectionAct: [:list | list selection inspect. composite update ] 
+					icon: GLMUIThemeExtraIcons glamorousInspect entitled: ' Inspect '.
 		].
-		
-	"
-	(tabulator transmit) to:#NewGroup; from:#Tree;
-		andShow: [ :x | |data| x text 
-			display: [:dataTree | data:= dataTree. '']; 
-			withGhostText: 'Input a group path...';
-			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
-				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
-	]."
-	" (tabulator transmit) to:#Inspect; from:#Tree;
-		andShow: [ :x | x list dynamicActionsOnSelection: [:text | OrderedCollection with: (GLMGenericAction new title: 'Print selection'; action: [text selectedText Smalltalk tools inspector]; yourself) ] ]."
 ]
 
 { #category : #'as yet unclassified' }
