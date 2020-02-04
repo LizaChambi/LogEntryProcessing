@@ -109,6 +109,52 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 ]
 
 { #category : #'as yet unclassified' }
+LogFileManager >> gtInspectorTreeLogFiles3: composite [
+	<gtInspectorPresentationOrder: 0>
+	|tabulator finder|
+	tabulator := GLMTabulator new.
+	tabulator title: 'Administrator'.
+	tabulator column: #LogEntriesPanel.
+	(tabulator transmit) to:#LogEntriesPanel;
+		andShow: [ :comp | |tabulate| tabulate:= comp tabulator. 
+			tabulate row:#TreePanel; row:#GroupPanel size:60.
+			(tabulate transmit) to: #TreePanel;
+			andShow: [ :comp2 | comp2 fastTreeTable 
+				display: [:each | {each}];
+				children: [ :x | x groups];
+				column: 'Stages' evaluated: [:each | each print ] width: 1000;
+				selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ]
+					icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
+				maxDepth:2; 
+				rootsExpanded;
+				addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; 
+					icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+				addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; 
+					icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
+			].
+			(tabulate transmit) to: #GroupPanel; from: #TreePanel;
+			andShow: [ :comp3 | | data | comp3 text 
+				display: [ :objModel | data := objModel. '' ];
+				withGhostText: 'Input a group path...';
+				addAction: (GLMGenericAction new action: [:textInput | (data class = Stage) ifTrue: [data addGroup: textInput text asString. composite update.] ]; 
+					icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
+			].
+		].
+	"
+	(tabulator transmit) to:#NewGroup; from:#Tree;
+		andShow: [ :x | |data| x text 
+			display: [:dataTree | data:= dataTree. '']; 
+			withGhostText: 'Input a group path...';
+			addAction: (GLMGenericAction new action: [:path | (data class = Stage) ifTrue: [data addGroup: path text. composite update.] ]; 
+				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
+	]."
+	" (tabulator transmit) to:#Inspect; from:#Tree;
+		andShow: [ :x | x list dynamicActionsOnSelection: [:text | OrderedCollection with: (GLMGenericAction new title: 'Print selection'; action: [text selectedText Smalltalk tools inspector]; yourself) ] ]."
+
+	composite custom: tabulator.
+]
+
+{ #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles: composite [
 	<gtInspectorPresentationOrder: 1>
 	|tabulator pager|
@@ -222,7 +268,7 @@ LogFileManager >> readLogsEntries: logStream [
 	[ logStream atEnd] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		self addLog: logCreated withSource: logStream fileReference].
+		self addLog: logCreated withSource: logStream fileReference fullName].
 	^ self logEntries.
 ]
 
@@ -233,7 +279,7 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference].
+		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference fullName].
 	].
 	^ self logEntries.
 ]

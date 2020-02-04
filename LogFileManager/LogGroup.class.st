@@ -45,7 +45,7 @@ LogGroup >> logEntries [
 
 { #category : #'as yet unclassified' }
 LogGroup >> print [
-	^ self source.
+	^ source asFileReference basename.
 ]
 
 { #category : #'as yet unclassified' }
