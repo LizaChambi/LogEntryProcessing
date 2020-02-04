@@ -184,7 +184,7 @@ LogEntry >> hasCriteria: aBlock [
 { #category : #accessing }
 LogEntry >> hasPathStageDifferent [
 	"comment stating purpose of message"
-	^ (group asFileReference basename beginsWith: ('stage', stage asString)) not.
+	^ (self source asFileReference basename beginsWith: ('stage', stage asString)) not.
 ]
 
 { #category : #conversion }

@@ -114,7 +114,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	|tabulator |
 	tabulator := composite tabulator.
 	tabulator title: 'Administrator'.
-	tabulator column: [: c | c row: #TreePanel; row:#GroupPanel size:60]; column: #InspectPanel.
+	tabulator column: [: c | c row: #TreePanel; row:#GroupPanel size:55]; column: #InspectPanel.
 		(tabulator transmit) to: #TreePanel;
 			andShow: [ :comp2 | comp2 fastTreeTable 
 				display: [:each | {each}];
@@ -125,7 +125,9 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 				addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; 
 					icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 				addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; 
-					icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
+					icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+				addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; 
+					icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle).
 			].
 		(tabulator transmit) from: #TreePanel; to: #GroupPanel;
 			andShow: [ :comp3 | | data | comp3 text 
@@ -136,9 +138,9 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			].
 		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
 			andShow: [ :comp4 | comp4 fastList
-				display: [ :each | each logEntries ];
-				selectionAct: [:list | list selection inspect. composite update ] 
-					icon: GLMUIThemeExtraIcons glamorousInspect entitled: ' Inspect '.
+				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2 ]];
+				selectionAct: [:list | list selection inspect ] 
+					icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect'.
 		].
 ]
 
