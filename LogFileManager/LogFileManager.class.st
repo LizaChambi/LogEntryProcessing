@@ -22,13 +22,13 @@ LogFileManager class >> readLogFilesFromFolder: aPath [
 ]
 
 { #category : #adding }
-LogFileManager >> addLog: aLogEntry [
+LogFileManager >> addLog: aLogEntry withSource: aPath [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
 		ifTrue: [ 
 			"logEntries add: aLogEntry."
 			self addStage: aLogEntry stage.
-			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aLogEntry source.]
+			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aPath.]
 ]
 
 { #category : #adding }
@@ -222,7 +222,7 @@ LogFileManager >> readLogsEntries: logStream [
 	[ logStream atEnd] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		self addLog: logCreated ].
+		self addLog: logCreated withSource: logStream fileReference].
 	^ self logEntries.
 ]
 
@@ -233,7 +233,7 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated ].
+		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference].
 	].
 	^ self logEntries.
 ]

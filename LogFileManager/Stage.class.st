@@ -18,14 +18,19 @@ Stage class >> new: aNumber [
 { #category : #'as yet unclassified' }
 Stage >> addGroup: aPath [
 	"comment stating purpose of message"
-	(groups anySatisfy: [ :group | group hasSource: aPath]) ifFalse:[groups add: (LogGroup withSource: aPath)].
+	(groups anySatisfy: [ :group | group hasSource: aPath]) 
+		ifTrue: [ ^ self searchGroup: aPath ]
+		ifFalse:[ | newGroup | newGroup := LogGroup withSource: aPath. 
+			groups add: newGroup. 
+			^ newGroup].
 ]
 
 { #category : #'as yet unclassified' }
 Stage >> addLog: aLogEntry withSource: aPath [
 	"comment stating purpose of message"
-	self addGroup: aPath.
-	(self searchGroup: aPath) addLog: aLogEntry.
+	| group |
+	group := self addGroup: aPath.
+	group addLog: (aLogEntry group: group).
 ]
 
 { #category : #'as yet unclassified' }

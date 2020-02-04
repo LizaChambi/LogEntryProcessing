@@ -37,13 +37,19 @@ LogEntryTest >> testConvertChunkToLogEntryWithDot [
 ]
 
 { #category : #tests }
-LogEntryTest >> testConvertChunkToLogEntryWithOriginPath [
+LogEntryTest >> testConvertChunkToLogEntryWithGroup [
 	"comment stating purpose of message"
+	| path group |
+	path := './stage0-testfile.changes'.
+	group := LogGroup withSource: path.
+	
 	self assert: (logEntry convertChunkToLogEntry: 'self
 	timestamp: 3721902053120
 	selector: #doAddCorrelationRule:to:
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
-	stage: 0.' withOriginPath: '/home/lizachambi/Pharo/stage0-testfile.changes' ) equals: (logEntry timestamp: 0 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #()) stage: 0 source: '/home/lizachambi/Pharo/stage0-testfile.changes' asFileReference).
+	stage: 0.' withGroup: group) equals: (logEntry timestamp: 0 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #()) stage: 0 source: group).
+	
+	path asFileReference ensureDelete.
 ]
 
 { #category : #tests }
@@ -59,8 +65,8 @@ LogEntryTest >> testConvertChunkToLogEntryWrong [
 LogEntryTest >> testEditWithLog [
 	"comment stating purpose of message"
 	| aLogEntry |
-	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: logEntry stage source: logEntry source.
-	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: 0 source: 'path').
+	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: logEntry stage source: logEntry group.
+	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: 0 source: logEntry group).
 ]
 
 { #category : #tests }
@@ -69,7 +75,7 @@ LogEntryTest >> testEditorSuccessfully [
 	self assert: (logEntry editor: 'self
 	timestamp: 46
 	selector: #doSetTypeNamed:asInMigrationSet:
-	arguments: #(#RootPoolDictionary #false ).') equals: (logEntry timestamp: 46 selector: #doSetTypeNamed:asInMigrationSet: arguments: #(#RootPoolDictionary #false ) stage: logEntry stage source: logEntry source).
+	arguments: #(#RootPoolDictionary #false ).') equals: (logEntry timestamp: 46 selector: #doSetTypeNamed:asInMigrationSet: arguments: #(#RootPoolDictionary #false ) stage: logEntry stage source: logEntry group).
 ]
 
 { #category : #tests }
