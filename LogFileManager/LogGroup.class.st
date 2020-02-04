@@ -20,6 +20,21 @@ LogGroup >> addLog: aLogEntry [
 	logsEntries add: aLogEntry.
 ]
 
+{ #category : #adding }
+LogGroup >> addNewLogEntry [
+	self addLog: (LogEntry timestamp: 0 selector: #method: arguments: #(arguments ) stage: (self probableStage) group: self).
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> failuresReport [
+	| failures |
+	" FALTA TESTEAR"
+	failures := OrderedCollection new.
+	failures addAll: (self logsWithRepeatedTimestamp do: [ :log | ReportLogError description: 'Timestamp repeated' nameFile: source fileReference basename logTimestamp: log timestamp ] ).
+	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: source)].
+	^ failures.
+]
+
 { #category : #'as yet unclassified' }
 LogGroup >> groups [
 	^ OrderedCollection new.
@@ -44,8 +59,32 @@ LogGroup >> logEntries [
 ]
 
 { #category : #'as yet unclassified' }
+LogGroup >> logsWithRepeatedTimestamp [
+	| result |
+	" FALTA TESTEAR "
+	result := OrderedCollection new.
+	logsEntries collect: [ :log | (logsEntries count: [ :otherLog | otherLog timestamp = log timestamp]) > 1].
+	^ result
+]
+
+{ #category : #'as yet unclassified' }
 LogGroup >> print [
-	^ self source.
+	^ source asFileReference basename.
+]
+
+{ #category : #adding }
+LogGroup >> probableStage [
+	| probableStages |
+	probableStages := (logsEntries collect: [ :log | log stage ]) removeDuplicates.
+	(probableStages size = 1)
+		ifTrue: [ ^ probableStages at:1 ]
+		ifFalse: [ ^ (probableStages do: [ :stage | stage -> (logsEntries count: [:log | log stage = stage] ) ]) maxValue: [:assoc | assoc value] ].
+]
+
+{ #category : #removing }
+LogGroup >> removeLogEntry: aLogEntry [
+	" FALTA TESTEAR"
+	logsEntries remove: aLogEntry.
 ]
 
 { #category : #'as yet unclassified' }

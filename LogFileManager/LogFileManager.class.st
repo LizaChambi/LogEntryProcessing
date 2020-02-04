@@ -2,9 +2,9 @@ Class {
 	#name : #LogFileManager,
 	#superclass : #Object,
 	#instVars : [
-		'report',
 		'logStages',
-		'sourceInput'
+		'sourceInput',
+		'failures'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -69,11 +69,11 @@ LogFileManager >> groups [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> gtInspectorReportStages: composite [
+LogFileManager >> gtInspectorBugsReport: composite [
 	<gtInspectorPresentationOrder: 2>
 	composite fastList
-		title: 'Warning Report';
-		display: [:each | (each report isEmpty ) ifTrue: ( #('No reports') ) ifFalse: [each report]].
+		title: 'Failures';
+		display: [:each | (each report isEmpty ) ifTrue: ( #('No failures.') ) ifFalse: [each report]].
 ]
 
 { #category : #'as yet unclassified' }
@@ -106,6 +106,44 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 		andShow: [ :x | x list dynamicActionsOnSelection: [:text | OrderedCollection with: (GLMGenericAction new title: 'Print selection'; action: [text selectedText Smalltalk tools inspector]; yourself) ] ]."
 
 	composite custom: tabulator.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> gtInspectorTreeLogFiles3: composite [
+	<gtInspectorPresentationOrder: 0>
+	|tabulator |
+	tabulator := composite tabulator.
+	tabulator title: 'Administrator'.
+	tabulator column: [: c | c row: #TreePanel; row:#GroupPanel size:55]; column: #InspectPanel.
+	(tabulator transmit) to: #TreePanel;
+		andShow: [ :comp2 | comp2 fastTreeTable 
+			display: [:each | {each}];
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each print ] width: 1000;
+			maxDepth:2; 
+			allExpanded;
+			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. self refreshFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
+			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
+				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
+				"El selectionAct sí funciona en las estructuras de aŕbol"
+			selectionAct: [ :tree | self removeLogGroup: (tree selection). composite update ] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup];
+			selectionAct: [ :tree | self removeStage: (tree selection). composite update ] entitled: 'Remove stage' enabledWhen: [ :presentation | presentation selection class = Stage]
+			].
+		(tabulator transmit) from: #TreePanel; to: #GroupPanel;
+			andShow: [ :comp3 | | data | comp3 text 
+				display: [ :objModel | data := objModel. '' ];
+				withGhostText: 'Input a group path...';
+				addAction: (GLMGenericAction new action: [:textInput | (data class = Stage) ifTrue: [data addGroup: textInput text asString. composite update.] ]; 
+					icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
+			].
+		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
+			andShow: [ :comp4 | comp4 fastList
+				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ]];
+				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
+				act: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove'.
+				].
 ]
 
 { #category : #'as yet unclassified' }
@@ -150,7 +188,7 @@ LogFileManager >> hasTimestampRepeatedInGroup: aLogEntry [
 LogFileManager >> initialize [
 	"comment stating purpose of message"
 	logStages := OrderedCollection new.
-	report  := OrderedCollection new.
+	failures  := OrderedCollection new.
 ]
 
 { #category : #accessing }
@@ -222,7 +260,7 @@ LogFileManager >> readLogsEntries: logStream [
 	[ logStream atEnd] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		self addLog: logCreated withSource: logStream fileReference].
+		self addLog: logCreated withSource: logStream fileReference fullName].
 	^ self logEntries.
 ]
 
@@ -233,9 +271,28 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	[ logStream atEnd ] whileFalse: [
 		logCreated := LogEntry readLog: logStream.
 		self reportLogErrors: logCreated onStream: logStream.
-		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference].
+		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference fullName].
 	].
 	^ self logEntries.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> refreshFiles [
+	"comment stating purpose of instance-side message"
+	logStages removeAll.
+	self readLogFilesFromFolder: sourceInput.
+]
+
+{ #category : #adding }
+LogFileManager >> removeLogEntry: aLogEntry [ 
+	"comment stating purpose of message"
+	aLogEntry group removeLogEntry: aLogEntry.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> removeLogGroup: aLogGroup [ 
+	logStages do: [ :stage | stage removeLogGroup: aLogGroup ].
+	
 ]
 
 { #category : #'as yet unclassified' }
@@ -252,34 +309,36 @@ LogFileManager >> removeOlderLogFiles [
 	
 ]
 
+{ #category : #removing }
+LogFileManager >> removeStage: aStage [
+	logStages removeAllSuchThat: [ :stage | stage = aStage].
+]
+
 { #category : #accessing }
 LogFileManager >> report [
 	"comment stating purpose of message"
-	^ report.
+	^ failures.
 ]
 
 { #category : #reading }
 LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
+	"Con el método #updateFailures NO se puede cargar las inconsistencias porque solo el ReadLogStream conoce la posición de lectura actual."
 	(aLogEntry isValidLog) ifTrue:
-	[ (aLogEntry hasStageErrorOn: aStream) 
-			ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
+	[ (aLogEntry hasStageErrorOn: aStream fileReference) 
+			ifTrue: [failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
 		(self hasTimestampRepeatedInGroup: aLogEntry) 
-			ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position) ].
+			ifTrue: [ failures add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position) ].
 		(aLogEntry stage > 2) 
-			ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
+			ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
 	].
 ]
 
 { #category : #'to deprecate' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	self removeOlderLogFiles.
-	logStages do: [ :stage | stage saveStage ].
-	
-
-	
-	
-	
+	(failures isEmpty) 
+		ifTrue: [ self removeOlderLogFiles. logStages do: [ :stage | stage saveStage ]. ]
+		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ]. "Reemplazarlo por un mensaje de advertencia al usuario"
 ]
 
 { #category : #'as yet unclassified' }
@@ -332,6 +391,13 @@ LogFileManager >> sourceInput: aPathString [
 LogFileManager >> stages [
 	"comment stating purpose of message"
 	^ logStages.
+]
+
+{ #category : #'to deprecate' }
+LogFileManager >> updateFailures [
+	" FALTA TESTEAR"
+	failures removeAll.
+	logStages collect: [ :stage | failures addAll: stage failuresReport ].
 ]
 
 { #category : #'as yet unclassified' }

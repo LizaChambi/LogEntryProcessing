@@ -32,8 +32,8 @@ LogGroupTest >> tearDown [
 { #category : #tests }
 LogGroupTest >> testSaveGroup [
 	| log1 log2 |
-	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 source: saveFolder.
-	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 source: saveFolder.
+	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: saveFolder.
+	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: saveFolder.
 	group addLog: log1; addLog: log2.
 	group saveGroup.
 	self assert: (self readFile: saveFolder) equals: ('self
@@ -52,8 +52,8 @@ self
 { #category : #tests }
 LogGroupTest >> testSortLogEntriesByTimestamp [
 	| log1 log2 sortedCollection |
-	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 source: saveFolder.
-	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 source: saveFolder.
+	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: saveFolder.
+	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: saveFolder.
 	group addLog: log1; addLog: log2.
 	sortedCollection := group sortLogEntriesByTimestamp.
 	self assert: (sortedCollection at:1) equals: (log2).
@@ -64,7 +64,7 @@ LogGroupTest >> testSortLogEntriesByTimestamp [
 { #category : #tests }
 LogGroupTest >> testWriteLogsEntries [
 	| log1 |
-	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 source: saveFolder.
+	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: saveFolder.
 	group addLog: log1.
 	group writeLogsEntries: group logEntries.
 	self assert: (self readFile: saveFolder) equals: ('self

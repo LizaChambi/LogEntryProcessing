@@ -34,6 +34,14 @@ Stage >> addLog: aLogEntry withSource: aPath [
 ]
 
 { #category : #'as yet unclassified' }
+Stage >> failuresReport [
+	| failures |
+	failures := OrderedCollection new.
+	groups do:[:group | failures addAll: (group failuresReport)].
+	^ failures
+]
+
+{ #category : #'as yet unclassified' }
 Stage >> groups [
 	"comment stating purpose of message"
 	^ groups.
@@ -66,6 +74,11 @@ Stage >> logEntries [
 Stage >> print [
 	"comment stating purpose of message"
 	^ 'Stage ', stage asString.
+]
+
+{ #category : #removing }
+Stage >> removeLogGroup: aLogGroup [
+	groups removeAllSuchThat: [ :group | group = aLogGroup].
 ]
 
 { #category : #'as yet unclassified' }

@@ -19,7 +19,7 @@ LogEntry class >> chunk: aChunk [
 { #category : #'as yet unclassified' }
 LogEntry class >> readLog: logStream [
 	| logString |
-	logString := self new convertChunkToLogEntry: logStream next withGroup: (LogGroup withSource:(logStream fileReference fullName)).
+	logString := self new convertChunkToLogEntry: (logStream next) withGroup: (LogGroup withSource:(logStream fileReference fullName)).
 	^ logString.
 ]
 
@@ -34,8 +34,8 @@ LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection 
 ]
 
 { #category : #'as yet unclassified' }
-LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath [
-	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage source: aPath asString.
+LogEntry class >> timestamp: anInteger selector: aString arguments: aCollection stage: aStage group: aGroup [
+	^ self new timestamp: anInteger selector: aString arguments: aCollection stage: aStage group: aGroup.
 ]
 
 { #category : #comparing }
@@ -59,7 +59,7 @@ LogEntry >> arguments [
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	^[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil source: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
+	^[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil group: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
 ]
 
 { #category : #tests }
@@ -86,7 +86,7 @@ LogEntry >> editWithLog: aLogEntry [
 		selector: aLogEntry selector
 		arguments: aLogEntry arguments
 		stage: aLogEntry stage
-		source: aLogEntry group.
+		group: aLogEntry group.
 	^ self
 ]
 
@@ -111,6 +111,17 @@ LogEntry >> editor: aString [
 	self editWithLog: newLog.
 ]
 
+{ #category : #'as yet unclassified' }
+LogEntry >> failuresInGroup: aPathString [
+	| failures |
+	failures := OrderedCollection new.
+	(self hasStageErrorOn: aPathString asFileReference)
+		ifTrue: [ failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aPathString asFileReference basename logTimestamp: timestamp) ].
+	(stage > 2)
+		ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aPathString asFileReference basename logTimestamp: timestamp) ].
+	^ failures.
+]
+
 { #category : #accessing }
 LogEntry >> group [
 	"comment stating purpose of message"
@@ -126,18 +137,10 @@ LogEntry >> group: aLogGroup [
 { #category : #accessing }
 LogEntry >> gtInspectorEditLogEntry: composite [
 	<gtInspectorPresentationOrder: 5>
-| browser morph |
-   morph := StringMorph new.
-   browser := composite tabulator title: 'LogEditor'.
-   browser
-   		row: #edit.
-   browser transmit
-      to: #edit;
-      andShow: [ :a | a pharoScript 
-			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editor: text text. composite update];
-			display: [ :log | log editable ]
-		].
- 	^ browser.
+	composite  pharoScript 
+		title: 'Editor';
+		selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editor: text text. composite update];
+		display: [ :log | log editable ].
 ]
 
 { #category : #accessing }
@@ -184,13 +187,13 @@ LogEntry >> hasCriteria: aBlock [
 { #category : #accessing }
 LogEntry >> hasPathStageDifferent [
 	"comment stating purpose of message"
-	^ (group asFileReference basename beginsWith: ('stage', stage asString)) not.
+	^ (self source asFileReference basename beginsWith: ('stage', stage asString)) not.
 ]
 
 { #category : #conversion }
-LogEntry >> hasStageErrorOn: aLogStream [
+LogEntry >> hasStageErrorOn: aFileReference [
 	"comment stating purpose of message"
-	^ (aLogStream fileReference basename beginsWith: ('stage', self stage asString)) not.
+	^ (aFileReference basename beginsWith: ('stage', self stage asString)) not.
 ]
 
 { #category : #accessing }
@@ -200,7 +203,7 @@ LogEntry >> isLogEntry [
 
 { #category : #accessing }
 LogEntry >> isValidLog [
-	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [(self stage notNil) and: [ self group notNil]] ]].
+	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [self stage notNil] ]].
 ]
 
 { #category : #accessing }
@@ -255,13 +258,7 @@ LogEntry >> selector [
 { #category : #accessing }
 LogEntry >> source [
 	"comment stating purpose of message"
-	^ group source.
-]
-
-{ #category : #tests }
-LogEntry >> source: aFileReference [
-	"comment stating purpose of message"
-	^ self shouldBeImplemented "Este método tiene que cambiar el grupo en el que se encuentra por el log"
+	^ (group source).
 ]
 
 { #category : #accessing }
@@ -306,11 +303,11 @@ LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage
 ]
 
 { #category : #initialization }
-LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage:aStage source: aPath [
+LogEntry >> timestamp: aTimestamp selector: aString arguments: aCollection stage:aStage group: aGroup [
 	"comment stating purpose of message"
 	timestamp:= aTimestamp.
 	selector := aString.
 	arguments := aCollection.
 	stage := aStage.
-	group := aPath.
+	group := aGroup.
 ]

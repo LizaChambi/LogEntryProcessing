@@ -41,7 +41,7 @@ StageTest >> testAddGroupExist [
 StageTest >> testAddLogWithSource [
 	"comment stating purpose of message"
 	| log1 |
-	log1 := LogEntry timestamp: 0303456 selector: #()  arguments: #(ninguno:) stage: 0 source: 'path'.
+	log1 := LogEntry timestamp: 0303456 selector: #()  arguments: #(ninguno:) stage: 0 group: 'path'.
 	stage addLog: log1 withSource: 'path'.
 	self assert: (stage stage) equals:(0).
 	self assert: (stage groups first source) equals:('path').
@@ -53,9 +53,9 @@ StageTest >> testAddLogWithSource [
 StageTest >> testLogEntries [
 	"comment stating purpose of message"
 	| log1 log2 log3 |
-	log1 := LogEntry timestamp: 030 selector: #() arguments: #() stage: 0 source: 'path1'.
-	log2 := LogEntry timestamp: 03034 selector: #() arguments: #() stage: 1 source: 'path2'.
-	log3 := LogEntry timestamp: 0303456 selector: #() arguments: #() stage: 1 source: 'path2'.
+	log1 := LogEntry timestamp: 030 selector: #() arguments: #() stage: 0 group: 'path1'.
+	log2 := LogEntry timestamp: 03034 selector: #() arguments: #() stage: 1 group: 'path2'.
+	log3 := LogEntry timestamp: 0303456 selector: #() arguments: #() stage: 1 group: 'path2'.
 	
 	stage addLog: log1 withSource: 'path1'.
 	stage addLog: log2 withSource: 'path2'.
@@ -80,9 +80,9 @@ StageTest >> testSaveStage [
 	sourceFolder := './testFolder/'.
 	sourceFolder asFileReference ensureCreateDirectory.
 
-	log1 := LogEntry timestamp: 0 selector: #method arguments: #() stage: 0 source: (sourceFolder, 'stage0-testFile1.changes').
-	log2 := LogEntry timestamp: 56 selector: #method: arguments: #(false) stage: 1 source: (sourceFolder, 'stage1-testFile2.changes').
-	log3 := LogEntry timestamp: 34 selector: #method:and: arguments: #(1 nil) stage: 1 source: (sourceFolder, 'stage1-testFile2.changes').
+	log1 := LogEntry timestamp: 0 selector: #method arguments: #() stage: 0 group: (sourceFolder, 'stage0-testFile1.changes').
+	log2 := LogEntry timestamp: 56 selector: #method: arguments: #(false) stage: 1 group: (sourceFolder, 'stage1-testFile2.changes').
+	log3 := LogEntry timestamp: 34 selector: #method:and: arguments: #(1 nil) stage: 1 group: (sourceFolder, 'stage1-testFile2.changes').
 	
 	stage addLog: log1 withSource: (sourceFolder, 'stage0-testFile1.changes').
 	stage addLog: log2 withSource: (sourceFolder, 'stage1-testFile2.changes').

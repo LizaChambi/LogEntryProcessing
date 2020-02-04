@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'description',
 		'nameFile',
-		'line'
+		'line',
+		'logWithTimestamp'
 	],
 	#category : #LogFileManager
 }
@@ -13,6 +14,12 @@ Class {
 ReportLogError class >> description: aString nameFile: aPath line: aNumber [
 	"comment stating purpose of message"
 	^ (self new) description: aString nameFile: aPath line: aNumber.
+]
+
+{ #category : #'as yet unclassified' }
+ReportLogError class >> description: aString nameFile: aNameFileString logTimestamp: aNumber [
+	"comment stating purpose of class-side message"
+	^ self new description: aString nameFile: aNameFileString logTimestamp: aNumber.
 ]
 
 { #category : #'as yet unclassified' }
@@ -27,6 +34,14 @@ ReportLogError >> description: aString nameFile: aPath line: aNumber [
 	description := aString.
 	nameFile := aPath.
 	line:= aNumber.
+]
+
+{ #category : #'as yet unclassified' }
+ReportLogError >> description: aString nameFile: aNameFileString logTimestamp: aNumber [.
+	"comment stating purpose of message"
+	description := aString.
+	nameFile := aNameFileString.
+	logWithTimestamp:= aNumber.
 ]
 
 { #category : #'as yet unclassified' }
