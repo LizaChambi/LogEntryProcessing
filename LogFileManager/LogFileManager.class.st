@@ -111,20 +111,15 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 { #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	<gtInspectorPresentationOrder: 0>
-	|tabulator finder|
-	tabulator := GLMTabulator new.
+	|tabulator |
+	tabulator := composite tabulator.
 	tabulator title: 'Administrator'.
-	tabulator column: #LogEntriesPanel.
-	(tabulator transmit) to:#LogEntriesPanel;
-		andShow: [ :comp | |tabulate| tabulate:= comp tabulator. 
-			tabulate row:#TreePanel; row:#GroupPanel size:60.
-			(tabulate transmit) to: #TreePanel;
+	tabulator column: [: c | c row: #TreePanel; row:#GroupPanel size:60]; column: #InspectPanel.
+		(tabulator transmit) to: #TreePanel;
 			andShow: [ :comp2 | comp2 fastTreeTable 
 				display: [:each | {each}];
 				children: [ :x | x groups];
 				column: 'Stages' evaluated: [:each | each print ] width: 1000;
-				selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ]
-					icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
 				maxDepth:2; 
 				rootsExpanded;
 				addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; 
@@ -132,14 +127,18 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 				addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; 
 					icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle).
 			].
-			(tabulate transmit) to: #GroupPanel; from: #TreePanel;
+		(tabulator transmit) from: #TreePanel; to: #GroupPanel;
 			andShow: [ :comp3 | | data | comp3 text 
 				display: [ :objModel | data := objModel. '' ];
 				withGhostText: 'Input a group path...';
 				addAction: (GLMGenericAction new action: [:textInput | (data class = Stage) ifTrue: [data addGroup: textInput text asString. composite update.] ]; 
 					icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 			].
+		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
+			andShow: [ :comp4 | comp4 fastList
+						display: [ :each | each logEntries ]
 		].
+		
 	"
 	(tabulator transmit) to:#NewGroup; from:#Tree;
 		andShow: [ :x | |data| x text 
@@ -150,8 +149,6 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	]."
 	" (tabulator transmit) to:#Inspect; from:#Tree;
 		andShow: [ :x | x list dynamicActionsOnSelection: [:text | OrderedCollection with: (GLMGenericAction new title: 'Print selection'; action: [text selectedText Smalltalk tools inspector]; yourself) ] ]."
-
-	composite custom: tabulator.
 ]
 
 { #category : #'as yet unclassified' }
