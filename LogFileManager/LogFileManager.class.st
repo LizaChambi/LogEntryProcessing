@@ -138,8 +138,8 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
 			andShow: [ :comp4 | comp4 fastList
 				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2 ]];
-				selectionAct: [:list | list selection inspect ] 
-					icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect'.
+				selectionAct: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect'.
+
 		].
 ]
 

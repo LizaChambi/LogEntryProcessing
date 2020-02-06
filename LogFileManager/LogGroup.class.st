@@ -22,9 +22,7 @@ LogGroup >> addLog: aLogEntry [
 
 { #category : #adding }
 LogGroup >> addNewLogEntry [
-	| newLE |
-	newLE := LogEntry timestamp: 0 selector: #method: arguments: #(arguments) stage: self probableStage group: self.
-	self addLog: newLE.
+	self addLog: (LogEntry timestamp: 0 selector: #method: arguments: #(arguments ) stage: (self probableStage) group: self).
 ]
 
 { #category : #'as yet unclassified' }
