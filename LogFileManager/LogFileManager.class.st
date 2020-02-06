@@ -138,8 +138,8 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
 			andShow: [ :comp4 | comp4 fastList
 				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2 ]];
-				selectionAct: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect'.
-
+				selectionAct: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
+				selectionAct: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove'.
 		].
 ]
 
@@ -271,6 +271,12 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference fullName].
 	].
 	^ self logEntries.
+]
+
+{ #category : #adding }
+LogFileManager >> removeLogEntry: aLogEntry [ 
+	"comment stating purpose of message"
+	aLogEntry group removeLogEntry: aLogEntry.
 ]
 
 { #category : #'as yet unclassified' }

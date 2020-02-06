@@ -62,6 +62,11 @@ LogGroup >> probableStage [
 		ifFalse: [ ^ (probableStages do: [ :stage | stage -> (logsEntries count: [:log | log stage = stage] ) ]) maxValue: [:assoc | assoc value] ].
 ]
 
+{ #category : #removing }
+LogGroup >> removeLogEntry: aLogEntry [
+	logsEntries remove: aLogEntry.
+]
+
 { #category : #'as yet unclassified' }
 LogGroup >> saveGroup [
 	self writeLogsEntries: self sortLogEntriesByTimestamp.
