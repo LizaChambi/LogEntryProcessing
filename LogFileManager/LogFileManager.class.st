@@ -111,7 +111,7 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 { #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	<gtInspectorPresentationOrder: 0>
-	|tabulator |
+	|tabulator data1 |
 	tabulator := composite tabulator.
 	tabulator title: 'Administrator'.
 	tabulator column: [: c | c row: #TreePanel; row:#GroupPanel size:55]; column: #InspectPanel.
@@ -137,10 +137,10 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			].
 		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
 			andShow: [ :comp4 | comp4 fastList
-				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2 ]];
-				selectionAct: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
-				selectionAct: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove'.
-		].
+				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ] ];
+				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
+				act: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove'.
+				].
 ]
 
 { #category : #'as yet unclassified' }
