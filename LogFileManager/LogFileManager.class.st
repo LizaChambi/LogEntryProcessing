@@ -115,19 +115,18 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	tabulator := composite tabulator.
 	tabulator title: 'Administrator'.
 	tabulator column: [: c | c row: #TreePanel; row:#GroupPanel size:55]; column: #InspectPanel.
-		(tabulator transmit) to: #TreePanel;
-			andShow: [ :comp2 | comp2 fastTreeTable 
-				display: [:each | {each}];
-				children: [ :x | x groups];
-				column: 'Stages' evaluated: [:each | each print ] width: 1000;
-				maxDepth:2; 
-				rootsExpanded;
-				addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; 
-					icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
-				addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; 
-					icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
-				addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; 
-					icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle).
+	(tabulator transmit) to: #TreePanel;
+		andShow: [ :comp2 | comp2 fastTreeTable 
+			display: [:each | {each}];
+			children: [ :x | x groups];
+			column: 'Stages' evaluated: [:each | each print ] width: 1000;
+			maxDepth:2; 
+			rootsExpanded;
+			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
+			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
+			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
+				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle).
 			].
 		(tabulator transmit) from: #TreePanel; to: #GroupPanel;
 			andShow: [ :comp3 | | data | comp3 text 

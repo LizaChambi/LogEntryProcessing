@@ -20,6 +20,13 @@ LogGroup >> addLog: aLogEntry [
 	logsEntries add: aLogEntry.
 ]
 
+{ #category : #adding }
+LogGroup >> addNewLogEntry [
+	| newLE |
+	newLE := LogEntry timestamp: 0 selector: #method: arguments: #(arguments) stage: self probableStage group: self.
+	self addLog: newLE.
+]
+
 { #category : #'as yet unclassified' }
 LogGroup >> groups [
 	^ OrderedCollection new.
@@ -46,6 +53,15 @@ LogGroup >> logEntries [
 { #category : #'as yet unclassified' }
 LogGroup >> print [
 	^ source asFileReference basename.
+]
+
+{ #category : #adding }
+LogGroup >> probableStage [
+	| probableStages |
+	probableStages := (logsEntries collect: [ :log | log stage ]) removeDuplicates.
+	(probableStages size = 1)
+		ifTrue: [ ^ probableStages at:1 ]
+		ifFalse: [ ^ (probableStages do: [ :stage | stage -> (logsEntries count: [:log | log stage = stage] ) ]) maxValue: [:assoc | assoc value] ].
 ]
 
 { #category : #'as yet unclassified' }

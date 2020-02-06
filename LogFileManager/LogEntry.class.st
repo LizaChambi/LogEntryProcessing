@@ -126,18 +126,10 @@ LogEntry >> group: aLogGroup [
 { #category : #accessing }
 LogEntry >> gtInspectorEditLogEntry: composite [
 	<gtInspectorPresentationOrder: 5>
-| browser morph |
-   morph := StringMorph new.
-   browser := composite tabulator title: 'LogEditor'.
-   browser
-   		row: #edit.
-   browser transmit
-      to: #edit;
-      andShow: [ :a | a pharoScript 
-			selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editor: text text. composite update];
-			display: [ :log | log editable ]
-		].
- 	^ browser.
+	composite  pharoScript 
+		title: 'Editor';
+		selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editor: text text. composite update];
+		display: [ :log | log editable ].
 ]
 
 { #category : #accessing }
