@@ -121,13 +121,15 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			children: [ :x | x groups];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			maxDepth:2; 
-			rootsExpanded;
+			allExpanded;
 			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
 			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. self refreshFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
-			selectionAct: [ :tree | self removeLogGroup: (tree selection). composite update] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup].
+				"El selectionAct sí funciona en las estructuras de aŕbol"
+			selectionAct: [ :tree | self removeLogGroup: (tree selection). composite update ] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup];
+			selectionAct: [ :tree | self removeStage: (tree selection). composite update ] entitled: 'Remove stage' enabledWhen: [ :presentation | presentation selection class = Stage]
 			].
 		(tabulator transmit) from: #TreePanel; to: #GroupPanel;
 			andShow: [ :comp3 | | data | comp3 text 
@@ -289,7 +291,6 @@ LogFileManager >> removeLogEntry: aLogEntry [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> removeLogGroup: aLogGroup [ 
-	Transcript show: aLogGroup source.
 	logStages do: [ :stage | stage removeLogGroup: aLogGroup ].
 	
 ]
@@ -306,6 +307,11 @@ LogFileManager >> removeOlderLogFiles [
 	
 	
 	
+]
+
+{ #category : #removing }
+LogFileManager >> removeStage: aStage [
+	logStages removeAllSuchThat: [ :stage | stage = aStage].
 ]
 
 { #category : #accessing }
@@ -332,7 +338,7 @@ LogFileManager >> saveFiles [
 	"comment stating purpose of message"
 	(failures isEmpty) 
 		ifTrue: [ self removeOlderLogFiles. logStages do: [ :stage | stage saveStage ]. ]
-		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ]. "Reemplazarlo por un mensaje de adevertencia al usuario"
+		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ]. "Reemplazarlo por un mensaje de advertencia al usuario"
 ]
 
 { #category : #'as yet unclassified' }
