@@ -2,9 +2,9 @@ Class {
 	#name : #LogFileManager,
 	#superclass : #Object,
 	#instVars : [
-		'report',
 		'logStages',
-		'sourceInput'
+		'sourceInput',
+		'failures'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -69,11 +69,11 @@ LogFileManager >> groups [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> gtInspectorReportStages: composite [
+LogFileManager >> gtInspectorBugsReport: composite [
 	<gtInspectorPresentationOrder: 2>
 	composite fastList
-		title: 'Warning Report';
-		display: [:each | (each report isEmpty ) ifTrue: ( #('No reports') ) ifFalse: [each report]].
+		title: 'Failures';
+		display: [:each | (each report isEmpty ) ifTrue: ( #('No failures.') ) ifFalse: [each report]].
 ]
 
 { #category : #'as yet unclassified' }
@@ -186,7 +186,7 @@ LogFileManager >> hasTimestampRepeatedInGroup: aLogEntry [
 LogFileManager >> initialize [
 	"comment stating purpose of message"
 	logStages := OrderedCollection new.
-	report  := OrderedCollection new.
+	failures  := OrderedCollection new.
 ]
 
 { #category : #accessing }
@@ -303,31 +303,27 @@ LogFileManager >> removeOlderLogFiles [
 { #category : #accessing }
 LogFileManager >> report [
 	"comment stating purpose of message"
-	^ report.
+	^ failures.
 ]
 
 { #category : #reading }
 LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 	(aLogEntry isValidLog) ifTrue:
 	[ (aLogEntry hasStageErrorOn: aStream) 
-			ifTrue: [report add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
+			ifTrue: [failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
 		(self hasTimestampRepeatedInGroup: aLogEntry) 
-			ifTrue: [ report add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position) ].
+			ifTrue: [ failures add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position) ].
 		(aLogEntry stage > 2) 
-			ifTrue: [ report add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
+			ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
 	].
 ]
 
 { #category : #'to deprecate' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	self removeOlderLogFiles.
-	logStages do: [ :stage | stage saveStage ].
-	
-
-	
-	
-	
+	(failures isEmpty) 
+		ifTrue: [ self removeOlderLogFiles. logStages do: [ :stage | stage saveStage ]. ]
+		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ]. "Reemplazarlo por un mensaje de adevertencia al usuario"
 ]
 
 { #category : #'as yet unclassified' }
