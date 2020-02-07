@@ -51,6 +51,12 @@ ReportLogError >> line [
 ]
 
 { #category : #'as yet unclassified' }
+ReportLogError >> logWithTimestamp [
+	"comment stating purpose of message"
+	^ logWithTimestamp
+]
+
+{ #category : #'as yet unclassified' }
 ReportLogError >> nameFile [
 	"comment stating purpose of message"
 	^ nameFile.

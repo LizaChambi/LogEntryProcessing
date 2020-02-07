@@ -26,18 +26,17 @@ LogGroup >> addNewLogEntry [
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> failuresReport [
-	| failures |
-	" FALTA TESTEAR"
-	failures := OrderedCollection new.
-	failures addAll: (self logsWithRepeatedTimestamp do: [ :log | ReportLogError description: 'Timestamp repeated' nameFile: source fileReference basename logTimestamp: log timestamp ] ).
-	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: source)].
-	^ failures.
+LogGroup >> childrens [
+	^ OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> groups [
-	^ OrderedCollection new.
+LogGroup >> failuresReport [
+	| failures |
+	failures := OrderedCollection new.
+	failures addAll: (self logsWithRepeatedTimestamp collect: [ :log | ReportLogError description: 'Timestamp repeated.' nameFile: source asFileReference basename logTimestamp: log timestamp ] ).
+	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: source)].
+	^ failures.
 ]
 
 { #category : #'as yet unclassified' }
@@ -60,11 +59,8 @@ LogGroup >> logEntries [
 
 { #category : #'as yet unclassified' }
 LogGroup >> logsWithRepeatedTimestamp [
-	| result |
-	" FALTA TESTEAR "
-	result := OrderedCollection new.
-	logsEntries collect: [ :log | (logsEntries count: [ :otherLog | otherLog timestamp = log timestamp]) > 1].
-	^ result
+	^ logsEntries select: [ :log | (logsEntries count: [ :otherLog | otherLog timestamp = log timestamp]) > 1].
+
 ]
 
 { #category : #'as yet unclassified' }
@@ -83,8 +79,7 @@ LogGroup >> probableStage [
 
 { #category : #removing }
 LogGroup >> removeLogEntry: aLogEntry [
-	" FALTA TESTEAR"
-	logsEntries remove: aLogEntry.
+	logsEntries removeAllSuchThat: [ :log | log = aLogEntry].
 ]
 
 { #category : #'as yet unclassified' }

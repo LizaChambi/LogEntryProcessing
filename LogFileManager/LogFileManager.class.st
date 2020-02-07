@@ -43,6 +43,12 @@ LogFileManager >> addStage: aNumber [.
 	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
 ]
 
+{ #category : #accessing }
+LogFileManager >> childrens [
+	"comment stating purpose of message"
+	^ self stages sort: [:stage1 :stage2 | stage1 stage < stage2 stage].
+]
+
 { #category : #adding }
 LogFileManager >> existStage: aNumber [
 	"comment stating purpose of message"
@@ -60,12 +66,6 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 LogFileManager >> findStage: aNumber [
 	"comment stating purpose of message"
 	^ logStages detect: [ :stage | stage hasStage: aNumber ]. 
-]
-
-{ #category : #accessing }
-LogFileManager >> groups [
-	"comment stating purpose of message"
-	^ self stages sort: [:stage1 :stage2 | stage1 stage < stage2 stage].
 ]
 
 { #category : #'as yet unclassified' }
@@ -86,7 +86,7 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 	(tabulator transmit) to:#Tree;
 		andShow: [ :cp | cp fastTreeTable
 			display: [:each | {each}];
-			children: [ :x | x groups];
+			children: [ :x | x childrens];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] 
 				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
@@ -118,7 +118,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	(tabulator transmit) to: #TreePanel;
 		andShow: [ :comp2 | comp2 fastTreeTable 
 			display: [:each | {each}];
-			children: [ :x | x groups];
+			children: [ :x | x childrens];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			maxDepth:2; 
 			allExpanded;
@@ -142,8 +142,26 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			andShow: [ :comp4 | comp4 fastList
 				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ]];
 				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
-				act: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove'.
-				].
+				act: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove';
+				
+				"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
+				" SPAWN EXAMPLE "
+				selectionSpawn: [:listPresentation | |tmpBrowser|
+					tmpBrowser := GLMTabulator new row: #one; initialExtent: 400@200 ; title: 'Error:' ;yourself.
+					tmpBrowser transmit to: #one ; 
+						andShow: [:b | b text
+							format: [ :x | ('Error message' asText) 
+								makeColor: Color blue from: 2 to: 4; 
+								makeColor: Color red from: 4 to: 5; "notice overlap"
+								addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 36)) from: 1 to: 1; 
+								"ignored addAttibute:() when font family cannot be found"
+								yourself]
+						].
+					tmpBrowser startOn: listPresentation selection
+				] entitled: 'Open browser'.
+			"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
+			
+			]. 
 ]
 
 { #category : #'as yet unclassified' }
@@ -158,7 +176,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 		"andShow: [ :cp | cp fastTreeTable"
 		andShow: [ :cp | cp pager show: [ :algo | algo fastTreeTable  
 			display: [:each | {each}];
-			children: [ :x | x groups];
+			children: [ :x | x childrens];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] 
 				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
@@ -179,9 +197,15 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 ]
 
 { #category : #reading }
+LogFileManager >> hasTimestampRepeated: aLogEntry inGroup: aSource [
+	"Read a log file and add them as LogEntry files to the log entries"
+	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group source = aSource] ].
+]
+
+{ #category : #reading }
 LogFileManager >> hasTimestampRepeatedInGroup: aLogEntry [
 	"Read a log file and add them as LogEntry files to the log entries"
-	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group = aLogEntry group ] ].
+	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group source = aLogEntry group source] ].
 ]
 
 { #category : #initialization }
@@ -285,12 +309,11 @@ LogFileManager >> refreshFiles [
 
 { #category : #adding }
 LogFileManager >> removeLogEntry: aLogEntry [ 
-	"comment stating purpose of message"
 	aLogEntry group removeLogEntry: aLogEntry.
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> removeLogGroup: aLogGroup [ 
+LogFileManager >> removeLogGroup: aLogGroup [
 	logStages do: [ :stage | stage removeLogGroup: aLogGroup ].
 	
 ]
@@ -326,7 +349,7 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 	(aLogEntry isValidLog) ifTrue:
 	[ (aLogEntry hasStageErrorOn: aStream fileReference) 
 			ifTrue: [failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
-		(self hasTimestampRepeatedInGroup: aLogEntry) 
+		(self hasTimestampRepeated: aLogEntry inGroup: aStream fileReference fullName) 
 			ifTrue: [ failures add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position) ].
 		(aLogEntry stage > 2) 
 			ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
@@ -395,7 +418,6 @@ LogFileManager >> stages [
 
 { #category : #'to deprecate' }
 LogFileManager >> updateFailures [
-	" FALTA TESTEAR"
 	failures removeAll.
 	logStages collect: [ :stage | failures addAll: stage failuresReport ].
 ]

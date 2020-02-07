@@ -55,6 +55,17 @@ LogFileManagerTest >> testAddStage [
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testChildrens [
+	"comment stating purpose of message"
+	logFileManager addStage: 1.
+	logFileManager addStage: 2.
+	logFileManager addStage: 0.
+	self assert: ((logFileManager childrens at:1) stage) equals: (0).
+	self assert: ((logFileManager childrens at:2) stage) equals: (1).
+	self assert: ((logFileManager childrens at:3) stage) equals: (2).
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testExceptionAddLogNil [
 	"comment stating purpose of message"
 	logFileManager addLog: (LogEntry timestamp: nil selector: nil arguments:nil stage: nil group: nil) withSource: 'path'.
@@ -75,17 +86,6 @@ LogFileManagerTest >> testFindStageException [
 	logFileManager addStage: 0; addStage: 1.
 	self should: [(logFileManager findStage:3) stage ] raise: (Error).
 	
-]
-
-{ #category : #tests }
-LogFileManagerTest >> testGroups [
-	"comment stating purpose of message"
-	logFileManager addStage: 1.
-	logFileManager addStage: 2.
-	logFileManager addStage: 0.
-	self assert: ((logFileManager groups at:1) stage) equals: (0).
-	self assert: ((logFileManager groups at:2) stage) equals: (1).
-	self assert: ((logFileManager groups at:3) stage) equals: (2).
 ]
 
 { #category : #tests }
@@ -201,6 +201,50 @@ LogFileManagerTest >> testReadLogsEntriesWithCriteriaTimestamp0 [
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testRemoveLogEntry [
+	"comment stating purpose of message"
+	logFileManager addLog: log0 withSource: 'path1/stage1-algo1.changes'.
+	logFileManager addLog: log8 withSource: 'path2/stage0-algo2.changes'.
+	logFileManager removeLogEntry: (log0).
+	self assert: (logFileManager logEntries size) equals: (1).
+	self assert: ((logFileManager logEntries at:1) timestamp) equals: (log8 timestamp).
+	self assert: ((logFileManager logEntries at:1) selector) equals: (log8 selector).
+	self assert: ((logFileManager logEntries at:1) arguments) equals: (log8 arguments).
+	self assert: ((logFileManager logEntries at:1) stage) equals: (log8 stage).
+	self assert: ((logFileManager logEntries at:1) source) equals: ('path2/stage0-algo2.changes').
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testRemoveLogGroup [
+	| group1 result |
+	result := OrderedCollection new.
+	logFileManager addLog: log0 withSource: 'path1/stage1-algo1.changes'.
+	logFileManager addLog: log8 withSource: 'path2/stage0-algo2.changes'.
+	group1 := (logFileManager stages at:1 ) groups at:1.
+	
+	logFileManager removeLogGroup: group1.
+	
+	logFileManager stages do: [ :stage | result addAll: stage groups ].
+	self assert: (result size) equals: (1).
+	self assert: ((result at:1) source) equals: ('path2/stage0-algo2.changes').
+	self assert: ((result at:1) logEntries size) equals: (1).
+	self assert: (((result at:1) logEntries at:1) timestamp) equals: (8).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testRemoveStage [
+	| aStage |
+	logFileManager addLog: log0 withSource: 'path1/stage1-algo1.changes'.
+	logFileManager addLog: log8 withSource: 'path2/stage0-algo2.changes'.
+	aStage := logFileManager stages at:1.
+	
+	logFileManager removeStage: aStage.
+	
+	self assert: (logFileManager stages size) equals: (1).
+	self assert: ((logFileManager stages at:1) stage) equals: (0).
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testReportLogState [
 	"comment stating purpose of message"
 	| logStream |
@@ -208,7 +252,35 @@ LogFileManagerTest >> testReportLogState [
 	logFileManager reportLogErrors: log0 onStream: logStream.
 	self assert: ( logFileManager report size) equals: (1).
 	self assert: ( (logFileManager report at:1) nameFile) equals: ('stage0-testfile.changes').
+	self assert: ( (logFileManager report at:1) description) equals: ('Log stage does not match the file name.').
 	self assert: ( (logFileManager report at:1) line) equals: (0).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testReportLogStateInvalid [
+	"comment stating purpose of message"
+	| logStream logE |
+	logE := log0 stage: 5.
+	logStream := ReadLogStream onStream: path2 asFileReference readStream.
+	logFileManager reportLogErrors: logE onStream: logStream.
+	self assert: ( logFileManager report size) equals: (2).
+	self assert: ( (logFileManager report at:1) nameFile) equals: ('stage0-testfile.changes').
+	self assert: ( (logFileManager report at:1) description) equals: ('Log stage does not match the file name.').
+	self assert: ( (logFileManager report at:2) nameFile) equals: ('stage0-testfile.changes').
+	self assert: ( (logFileManager report at:2) description) equals: ('Stage invalid.').
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testReportTimestampRepeated [
+	"comment stating purpose of message"
+	| logStream |
+	logStream := ReadLogStream onStream: path2 asFileReference readStream.
+	logFileManager reportLogErrors: (log33 timestamp:0) onStream: logStream.
+	logFileManager addLog: (log33 timestamp:0) withSource: path2.
+	logFileManager reportLogErrors: (log8 timestamp:0) onStream: logStream.
+	self assert: ( logFileManager report size) equals: (1).
+	self assert: ( (logFileManager report at:1) nameFile) equals: ('stage0-testfile.changes').
+	self assert: ( (logFileManager report at:1) description) equals: ('Timestamp repeated').
 ]
 
 { #category : #tests }
@@ -429,6 +501,54 @@ LogFileManagerTest >> testStages [
 	logFileManager addStage: 2.
 	logFileManager addStage: 0.
 	self assert: (logFileManager stages size ) equals: (3).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testUpdatesFailureWithStateInvalid [
+	"comment stating purpose of message"
+	| logStream logE |
+	logE := log0 stage: 5.
+	logStream := ReadLogStream onStream: path2 asFileReference readStream.
+	logFileManager reportLogErrors: logE onStream: logStream.
+	logFileManager addLog: logE withSource: path2. 
+	self assert: ( logFileManager report size) equals: (2).
+	
+	logE stage:2.
+	logFileManager updateFailures.
+	
+	self assert: ( logFileManager report size) equals: (1).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testUpdatesFailuresWithNameAndStateNotMatching [
+	| logStream |
+	logStream := ReadLogStream onStream: path2 asFileReference readStream. "Path with name stage 0"
+	logFileManager reportLogErrors: log0 onStream: logStream. "LogEntry with stage 1"
+	self assert: ( logFileManager report size) equals: (1).
+	
+	log0 stage: 0.
+	logFileManager updateFailures.
+	
+	self assert: ( logFileManager report size) equals: (0).
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testUpdatesFailuresWithTimestampRepeated [
+	"comment stating purpose of message"
+	| logStream log1 log2 |
+	log1 := log33 timestamp:0.
+	log2 := log8 timestamp:0.
+	logStream := ReadLogStream onStream: path2 asFileReference readStream.
+	logFileManager reportLogErrors: log1 onStream: logStream.
+	logFileManager addLog: log1 withSource: path2.
+	logFileManager reportLogErrors: log2 onStream: logStream.
+	logFileManager addLog: log2 withSource: path2.
+	self assert: ( logFileManager report size) equals: (1).
+	
+	log1 timestamp: 11111111.
+	logFileManager updateFailures.
+	
+	self assert: ( logFileManager report size) equals: (0).
 ]
 
 { #category : #tests }
