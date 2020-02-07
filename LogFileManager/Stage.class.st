@@ -70,7 +70,7 @@ Stage >> print [
 
 { #category : #removing }
 Stage >> removeLogGroup: aLogGroup [
-	groups remove: aLogGroup.
+	groups removeAllSuchThat: [ :group | group = aLogGroup]
 ]
 
 { #category : #'as yet unclassified' }

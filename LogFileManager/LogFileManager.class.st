@@ -127,7 +127,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
-			selectionAct: [ :tree | self removeLogGroup: tree selection. composite update] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup].
+			selectionAct: [ :tree | self removeLogGroup: (tree selection). composite update] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup].
 			].
 		(tabulator transmit) from: #TreePanel; to: #GroupPanel;
 			andShow: [ :comp3 | | data | comp3 text 
@@ -138,7 +138,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			].
 		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
 			andShow: [ :comp4 | comp4 fastList
-				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ] ];
+				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ]];
 				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
 				act: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove'.
 				].
@@ -282,6 +282,7 @@ LogFileManager >> removeLogEntry: aLogEntry [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> removeLogGroup: aLogGroup [ 
+	Transcript show: aLogGroup source.
 	logStages do: [ :stage | stage removeLogGroup: aLogGroup ].
 	
 ]
