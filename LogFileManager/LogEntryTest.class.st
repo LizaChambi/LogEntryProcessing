@@ -112,18 +112,18 @@ LogEntryTest >> testHasCriteriaWithoutArgumentsError [
 { #category : #tests }
 LogEntryTest >> testHasNoStageErrorOnLogStream [
 	"comment stating purpose of message"
-	| logStream |
-	logStream := ReadLogStream onStream: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
-	self assert: ( (logEntry hasStageErrorOn: logStream) not).
+	| fileRef |
+	fileRef := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference.
+	self assert: ( (logEntry hasStageErrorOn: fileRef) not).
 ]
 
 { #category : #tests }
 LogEntryTest >> testHasStageErrorOnLogStream [
 	"comment stating purpose of message"
-	| logStream logWithStage2 |
-	logStream := ReadLogStream onStream: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference readStream.
+	| fileRef logWithStage2 |
+	fileRef := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference.
 	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 group: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
-	self assert: (logWithStage2 hasStageErrorOn: logStream).
+	self assert: (logWithStage2 hasStageErrorOn: fileRef).
 ]
 
 { #category : #tests }

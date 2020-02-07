@@ -123,7 +123,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			maxDepth:2; 
 			rootsExpanded;
 			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
-			addAction: (GLMGenericAction new action: [ self saveFiles. "self updateReportErrors." composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
@@ -309,8 +309,9 @@ LogFileManager >> report [
 
 { #category : #reading }
 LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
+	"Con el método #updateFailures NO se puede cargar las inconsistencias porque solo el ReadLogStream conoce la posición de lectura actual."
 	(aLogEntry isValidLog) ifTrue:
-	[ (aLogEntry hasStageErrorOn: aStream) 
+	[ (aLogEntry hasStageErrorOn: aStream fileReference) 
 			ifTrue: [failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
 		(self hasTimestampRepeatedInGroup: aLogEntry) 
 			ifTrue: [ failures add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position) ].
@@ -322,6 +323,7 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 { #category : #'to deprecate' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
+	self updateFailures.
 	(failures isEmpty) 
 		ifTrue: [ self removeOlderLogFiles. logStages do: [ :stage | stage saveStage ]. ]
 		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ]. "Reemplazarlo por un mensaje de adevertencia al usuario"
@@ -377,6 +379,13 @@ LogFileManager >> sourceInput: aPathString [
 LogFileManager >> stages [
 	"comment stating purpose of message"
 	^ logStages.
+]
+
+{ #category : #'to deprecate' }
+LogFileManager >> updateFailures [
+	" FALTA TESTEAR"
+	failures removeAll.
+	logStages collect: [ :stage | failures addAll: stage failuresReport ].
 ]
 
 { #category : #'as yet unclassified' }

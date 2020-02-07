@@ -111,6 +111,17 @@ LogEntry >> editor: aString [
 	self editWithLog: newLog.
 ]
 
+{ #category : #'as yet unclassified' }
+LogEntry >> failuresInGroup: aPathString [
+	| failures |
+	failures := OrderedCollection new.
+	(self hasStageErrorOn: aPathString asFileReference)
+		ifTrue: [ failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aPathString asFileReference basename logTimestamp: timestamp) ].
+	(stage > 2)
+		ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aPathString asFileReference basename logTimestamp: timestamp) ].
+	^ failures.
+]
+
 { #category : #accessing }
 LogEntry >> group [
 	"comment stating purpose of message"
@@ -180,9 +191,9 @@ LogEntry >> hasPathStageDifferent [
 ]
 
 { #category : #conversion }
-LogEntry >> hasStageErrorOn: aLogStream [
+LogEntry >> hasStageErrorOn: aFileReference [
 	"comment stating purpose of message"
-	^ (aLogStream fileReference basename beginsWith: ('stage', self stage asString)) not.
+	^ (aFileReference basename beginsWith: ('stage', self stage asString)) not.
 ]
 
 { #category : #accessing }
