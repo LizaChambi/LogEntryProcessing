@@ -123,7 +123,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			maxDepth:2; 
 			rootsExpanded;
 			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
-			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. self refreshFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
@@ -274,6 +274,13 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	^ self logEntries.
 ]
 
+{ #category : #'as yet unclassified' }
+LogFileManager >> refreshFiles [
+	"comment stating purpose of instance-side message"
+	logStages removeAll.
+	self readLogFilesFromFolder: sourceInput.
+]
+
 { #category : #adding }
 LogFileManager >> removeLogEntry: aLogEntry [ 
 	"comment stating purpose of message"
@@ -323,7 +330,6 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 { #category : #'to deprecate' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
-	self updateFailures.
 	(failures isEmpty) 
 		ifTrue: [ self removeOlderLogFiles. logStages do: [ :stage | stage saveStage ]. ]
 		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ]. "Reemplazarlo por un mensaje de adevertencia al usuario"
