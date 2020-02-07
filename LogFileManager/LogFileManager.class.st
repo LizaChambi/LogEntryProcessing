@@ -142,8 +142,20 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			andShow: [ :comp4 | comp4 fastList
 				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ]];
 				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
-				act: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove'.
-				].
+				act: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove';
+				
+				"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
+				" SPAWN EXAMPLE "
+				selectionSpawn: [:listPresentation | |tmpBrowser|
+					tmpBrowser := GLMTabulator new row: #one; initialExtent: 200@100 ;yourself.
+					tmpBrowser transmit to: #one ; 
+						andShow: [:b | b text
+							display: [:input | input asString] ].
+					tmpBrowser startOn: listPresentation selection
+				] entitled: 'Open in new browser'.
+			"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
+			
+			].
 ]
 
 { #category : #'as yet unclassified' }
@@ -285,12 +297,13 @@ LogFileManager >> refreshFiles [
 
 { #category : #adding }
 LogFileManager >> removeLogEntry: aLogEntry [ 
-	"comment stating purpose of message"
+	" FALTA TESTEAR "
 	aLogEntry group removeLogEntry: aLogEntry.
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> removeLogGroup: aLogGroup [ 
+LogFileManager >> removeLogGroup: aLogGroup [
+	" FALTA TESTEAR "
 	logStages do: [ :stage | stage removeLogGroup: aLogGroup ].
 	
 ]
@@ -311,6 +324,7 @@ LogFileManager >> removeOlderLogFiles [
 
 { #category : #removing }
 LogFileManager >> removeStage: aStage [
+	" FALTA TESTEAR "
 	logStages removeAllSuchThat: [ :stage | stage = aStage].
 ]
 
