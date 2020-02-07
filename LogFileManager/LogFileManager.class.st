@@ -111,7 +111,7 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 { #category : #'as yet unclassified' }
 LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	<gtInspectorPresentationOrder: 0>
-	|tabulator data1 |
+	|tabulator |
 	tabulator := composite tabulator.
 	tabulator title: 'Administrator'.
 	tabulator column: [: c | c row: #TreePanel; row:#GroupPanel size:55]; column: #InspectPanel.
@@ -123,10 +123,11 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			maxDepth:2; 
 			rootsExpanded;
 			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
-			addAction: (GLMGenericAction new action: [ self saveFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+			addAction: (GLMGenericAction new action: [ self saveFiles. "self updateReportErrors." composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
-				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle).
+				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
+			selectionAct: [ :tree | self removeLogGroup: tree selection. composite update] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup].
 			].
 		(tabulator transmit) from: #TreePanel; to: #GroupPanel;
 			andShow: [ :comp3 | | data | comp3 text 
@@ -277,6 +278,12 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 LogFileManager >> removeLogEntry: aLogEntry [ 
 	"comment stating purpose of message"
 	aLogEntry group removeLogEntry: aLogEntry.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> removeLogGroup: aLogGroup [ 
+	logStages do: [ :stage | stage removeLogGroup: aLogGroup ].
+	
 ]
 
 { #category : #'as yet unclassified' }

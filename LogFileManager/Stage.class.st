@@ -68,6 +68,11 @@ Stage >> print [
 	^ 'Stage ', stage asString.
 ]
 
+{ #category : #removing }
+Stage >> removeLogGroup: aLogGroup [
+	groups remove: aLogGroup.
+]
+
 { #category : #'as yet unclassified' }
 Stage >> saveStage [
 	"comment stating purpose of instance-side message"
