@@ -13,9 +13,12 @@ Class {
 { #category : #running }
 LogEntryTest >> setUp [
 	"Hooks that subclasses may override to define the fixture of test."
-	|group|
-	group := LogGroup withSource: 'dir/stage0-algo.changes'.
+	|group stage |
+	stage:= Stage new:0.
+	group := LogGroup withSource: 'dir/stage0-algo.changes' stage: stage.
+	stage addGroup: group.
 	logEntry := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:0 group: group.
+	group addLog: logEntry.
 ]
 
 { #category : #tests }
@@ -41,10 +44,11 @@ LogEntryTest >> testConvertChunkToLogEntryWithDot [
 { #category : #tests }
 LogEntryTest >> testConvertChunkToLogEntryWithGroup [
 	"comment stating purpose of message"
-	| path group |
+	| path group stage |
 	path := './stage0-testfile.changes'.
-	group := LogGroup withSource: path.
-	
+	stage := Stage new:0.
+	group := LogGroup withSource: path stage: stage.
+	stage addGroup: group.
 	self assert: (logEntry convertChunkToLogEntry: 'self
 	timestamp: 3721902053120
 	selector: #doAddCorrelationRule:to:
@@ -55,8 +59,18 @@ LogEntryTest >> testConvertChunkToLogEntryWithGroup [
 ]
 
 { #category : #tests }
-LogEntryTest >> testConvertChunkToLogEntryWrong [
+LogEntryTest >> testConvertChunkToLogEntryWithStageFinal [
 	"comment stating purpose of message"
+	self assert: (logEntry convertChunkToLogEntry: 'self
+	timestamp: 3721902053120
+	selector: #doAddCorrelationRule:to:
+	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
+	stage: #Final.') equals: (logEntry timestamp: 0 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #()) stage: #Final).
+]
+
+{ #category : #tests }
+LogEntryTest >> testConvertChunkToLogEntryWrong [
+	"POSIBLES ARREGLOS A ESTE MÉTODOS"
 	self assert: (logEntry convertChunkToLogEntry: 'self
 	timestamp: 3721902053120
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
@@ -66,9 +80,13 @@ LogEntryTest >> testConvertChunkToLogEntryWrong [
 { #category : #tests }
 LogEntryTest >> testEditWithLog [
 	"comment stating purpose of message"
-	| aLogEntry |
-	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: (logEntry stage) group: logEntry group.
-	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: 0 group: logEntry group).
+	| aLogEntry newGroup stage |
+	stage := Stage new:#Final.
+	newGroup := LogGroup withSource: 'path/stageFinal-algo.changes' stage: stage.
+	stage addGroup: newGroup.
+	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup.
+	newGroup addLog: aLogEntry.
+	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup ).
 ]
 
 { #category : #tests }
@@ -120,9 +138,13 @@ LogEntryTest >> testHasNoStageErrorOnLogStream [
 { #category : #tests }
 LogEntryTest >> testHasStageErrorOnLogStream [
 	"comment stating purpose of message"
-	| fileRef logWithStage2 |
+	| fileRef logWithStage2 group stage |
+	stage := Stage new:0.
+	group := LogGroup withSource: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' stage:stage.
+	stage addGroup:group.
 	fileRef := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference.
-	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 group: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
+	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 group: group.
+	group addLog: logWithStage2.
 	self assert: (logWithStage2 hasStageErrorOn: fileRef).
 ]
 
@@ -162,7 +184,7 @@ LogEntryTest >> testParserValidationAssertTimestampNegative [
 { #category : #tests }
 LogEntryTest >> testStringOutput [
 	"comment stating purpose of message"
-	self assert: ((logEntry timestamp: '123' selector: 'doAdd' arguments: '(return same-as)' stage: '0' group: 'path' ) prettyPrint) = 'self
+	self assert: ((logEntry timestamp: '123' selector: 'doAdd' arguments: '(return same-as)' stage: '0' group: 'aGroup' ) prettyPrint) = 'self
 	timestamp: 123
 	selector: #doAdd
 	arguments: (return same-as)

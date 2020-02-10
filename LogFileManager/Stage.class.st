@@ -15,13 +15,18 @@ Stage class >> new: aNumber [
 	
 ]
 
+{ #category : #comparing }
+Stage >> < aStage [
+	^ (aStage isSymbol) or: [(stage isSymbol not) or: [(stage < aStage)] ].
+]
+
 { #category : #'as yet unclassified' }
 Stage >> addGroup: aPath [
 	"comment stating purpose of message"
 	(groups anySatisfy: [ :group | group hasSource: aPath]) 
 		ifTrue: [ ^ self searchGroup: aPath ]
-		ifFalse:[ | newGroup | newGroup := LogGroup withSource: aPath. 
-			groups add: newGroup. 
+		ifFalse:[ | newGroup | newGroup := LogGroup withSource: aPath stage: self. 
+			groups add: newGroup.
 			^ newGroup].
 ]
 
@@ -62,9 +67,9 @@ Stage >> gtInspectorLogsEntries: composite [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> hasStage: aNumber [
+Stage >> hasStage: aNumberOrSymbol [
 	"comment stating purpose of message"
-	^ stage = aNumber.
+	^ stage = aNumberOrSymbol.
 ]
 
 { #category : #'as yet unclassified' }
@@ -105,8 +110,8 @@ Stage >> stage [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> stage: aNumber groups: anArray [
+Stage >> stage: aNumberOrSymbol groups: anArray [
 	"comment stating purpose of message"
-	stage:= aNumber.
+	stage:= aNumberOrSymbol.
 	groups:= anArray.
 ]

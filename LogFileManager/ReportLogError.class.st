@@ -11,9 +11,9 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-ReportLogError class >> description: aString nameFile: aPath line: aNumber [
+ReportLogError class >> description: aString nameFile: aPath line: aNumber logTimestamp: otherNumber [
 	"comment stating purpose of message"
-	^ (self new) description: aString nameFile: aPath line: aNumber.
+	^ (self new) description: aString nameFile: aPath line: aNumber logWithTimestamp: otherNumber.
 ]
 
 { #category : #'as yet unclassified' }
@@ -29,11 +29,12 @@ ReportLogError >> description [
 ]
 
 { #category : #'as yet unclassified' }
-ReportLogError >> description: aString nameFile: aPath line: aNumber [
+ReportLogError >> description: aString nameFile: aPath line: aNumber logWithTimestamp: otherNumber [
 	"comment stating purpose of message"
 	description := aString.
 	nameFile := aPath.
 	line:= aNumber.
+	logWithTimestamp := otherNumber.
 ]
 
 { #category : #'as yet unclassified' }

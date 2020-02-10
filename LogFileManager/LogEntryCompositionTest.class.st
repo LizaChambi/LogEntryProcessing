@@ -1,7 +1,7 @@
 Class {
 	#name : #LogEntryCompositionTest,
 	#superclass : #PP2CompositeNodeTest,
-	#category : #LogFileManager
+	#category : #'LogFileManager-Test'
 }
 
 { #category : #accessing }

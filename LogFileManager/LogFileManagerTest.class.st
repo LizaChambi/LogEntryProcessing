@@ -45,10 +45,27 @@ LogFileManagerTest >> testAddLogWithSource [
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testAddLogWithSourceWithStageFinal [
+	"comment stating purpose of message"
+	logFileManager addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') stage: #Final) withSource: 'path'.
+	self assert: (logFileManager logEntries notEmpty).
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testAddStage [
 	"comment stating purpose of message"
 	logFileManager addStage: 1.
 	self assert: ((logFileManager stages at:1) stage) equals: (1).
+	self assert: ((logFileManager stages at:1) groups isEmpty).
+	self assert: (logFileManager stages size) equals: (1).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testAddStageFinal [
+	"comment stating purpose of message"
+	logFileManager addStage: #Final.
+	self assert: ((logFileManager stages at:1) stage) equals: (#Final).
 	self assert: ((logFileManager stages at:1) groups isEmpty).
 	self assert: (logFileManager stages size) equals: (1).
 	
@@ -85,6 +102,22 @@ LogFileManagerTest >> testFindStageException [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1.
 	self should: [(logFileManager findStage:3) stage ] raise: (Error).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testFindStageFinal [
+	"comment stating purpose of message"
+	logFileManager addStage: 0; addStage: 1; addStage:#Final.
+	self assert: ((logFileManager findStage:#Final) stage ) equals: (#Final).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testFindStageFinalNotFound [
+	"comment stating purpose of message"
+	logFileManager addStage: 0; addStage: 1.
+	self should:[ logFileManager findStage:#Final ] raise: (NotFound).
 	
 ]
 
@@ -497,14 +530,17 @@ LogFileManagerTest >> testSortLogEntriesByTimestamp [
 { #category : #tests }
 LogFileManagerTest >> testStages [
 	"comment stating purpose of message"
-	logFileManager addStage: 1.
-	logFileManager addStage: 2.
 	logFileManager addStage: 0.
+	logFileManager addStage: 1.
+	logFileManager addStage: #Final.
 	self assert: (logFileManager stages size ) equals: (3).
+	self assert: ((logFileManager stages at:1) stage ) equals: (0).
+	self assert: ((logFileManager stages at:2) stage ) equals: (1).
+	self assert: ((logFileManager stages at:3) stage ) equals: (#Final).
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testUpdatesFailureWithStateInvalid [
+LogFileManagerTest >> testUpdatesFailureWithStageInvalid [
 	"comment stating purpose of message"
 	| logStream logE |
 	logE := log0 stage: 5.
@@ -520,7 +556,7 @@ LogFileManagerTest >> testUpdatesFailureWithStateInvalid [
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testUpdatesFailuresWithNameAndStateNotMatching [
+LogFileManagerTest >> testUpdatesFailuresWithNameAndStageNotMatching [
 	| logStream |
 	logStream := ReadLogStream onStream: path2 asFileReference readStream. "Path with name stage 0"
 	logFileManager reportLogErrors: log0 onStream: logStream. "LogEntry with stage 1"
