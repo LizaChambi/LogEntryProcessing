@@ -201,6 +201,37 @@ LogFileManagerTest >> testReadLogsEntriesWithCriteriaTimestamp0 [
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testRemoveLogEntry [
+	"comment stating purpose of message"
+	logFileManager addLog: log0 withSource: 'path1/stage1-algo1.changes'.
+	logFileManager addLog: log8 withSource: 'path2/stage0-algo2.changes'.
+	logFileManager removeLogEntry: (log0).
+	self assert: (logFileManager logEntries size) equals: (1).
+	self assert: ((logFileManager logEntries at:1) timestamp) equals: (log8 timestamp).
+	self assert: ((logFileManager logEntries at:1) selector) equals: (log8 selector).
+	self assert: ((logFileManager logEntries at:1) arguments) equals: (log8 arguments).
+	self assert: ((logFileManager logEntries at:1) stage) equals: (log8 stage).
+	self assert: ((logFileManager logEntries at:1) source) equals: ('path2/stage0-algo2.changes').
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testRemoveLogGroup [
+	| group1 result |
+	result := OrderedCollection new.
+	logFileManager addLog: log0 withSource: 'path1/stage1-algo1.changes'.
+	logFileManager addLog: log8 withSource: 'path2/stage0-algo2.changes'.
+	group1 := (logFileManager stages at:1 ) groups at:1.
+	
+	logFileManager removeLogGroup: group1.
+	
+	logFileManager stages do: [ :stage | result addAll: stage groups ].
+	self assert: (result size) equals: (1).
+	self assert: ((result at:1) source) equals: ('path2/stage0-algo2.changes').
+	self assert: ((result at:1) logEntries size) equals: (1).
+	self assert: (((result at:1) logEntries at:1) timestamp) equals: (8).
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testReportLogState [
 	"comment stating purpose of message"
 	| logStream |

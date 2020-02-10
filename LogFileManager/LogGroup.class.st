@@ -26,6 +26,11 @@ LogGroup >> addNewLogEntry [
 ]
 
 { #category : #'as yet unclassified' }
+LogGroup >> childrens [
+	^ OrderedCollection new.
+]
+
+{ #category : #'as yet unclassified' }
 LogGroup >> failuresReport [
 	| failures |
 	" FALTA TESTEAR"
@@ -33,11 +38,6 @@ LogGroup >> failuresReport [
 	failures addAll: (self logsWithRepeatedTimestamp do: [ :log | ReportLogError description: 'Timestamp repeated' nameFile: source fileReference basename logTimestamp: log timestamp ] ).
 	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: source)].
 	^ failures.
-]
-
-{ #category : #'as yet unclassified' }
-LogGroup >> groups [
-	^ OrderedCollection new.
 ]
 
 { #category : #'as yet unclassified' }

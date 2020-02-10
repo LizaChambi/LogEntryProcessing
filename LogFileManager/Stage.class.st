@@ -34,6 +34,12 @@ Stage >> addLog: aLogEntry withSource: aPath [
 ]
 
 { #category : #'as yet unclassified' }
+Stage >> childrens [
+	"comment stating purpose of message"
+	^ groups.
+]
+
+{ #category : #'as yet unclassified' }
 Stage >> failuresReport [
 	| failures |
 	failures := OrderedCollection new.

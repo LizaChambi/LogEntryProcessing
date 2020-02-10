@@ -43,6 +43,12 @@ LogFileManager >> addStage: aNumber [.
 	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
 ]
 
+{ #category : #accessing }
+LogFileManager >> childrens [
+	"comment stating purpose of message"
+	^ self stages sort: [:stage1 :stage2 | stage1 stage < stage2 stage].
+]
+
 { #category : #adding }
 LogFileManager >> existStage: aNumber [
 	"comment stating purpose of message"
@@ -60,12 +66,6 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 LogFileManager >> findStage: aNumber [
 	"comment stating purpose of message"
 	^ logStages detect: [ :stage | stage hasStage: aNumber ]. 
-]
-
-{ #category : #accessing }
-LogFileManager >> groups [
-	"comment stating purpose of message"
-	^ self stages sort: [:stage1 :stage2 | stage1 stage < stage2 stage].
 ]
 
 { #category : #'as yet unclassified' }
@@ -118,7 +118,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 	(tabulator transmit) to: #TreePanel;
 		andShow: [ :comp2 | comp2 fastTreeTable 
 			display: [:each | {each}];
-			children: [ :x | x groups];
+			children: [ :x | x childrens];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			maxDepth:2; 
 			allExpanded;
@@ -303,13 +303,11 @@ LogFileManager >> refreshFiles [
 
 { #category : #adding }
 LogFileManager >> removeLogEntry: aLogEntry [ 
-	" FALTA TESTEAR "
 	aLogEntry group removeLogEntry: aLogEntry.
 ]
 
 { #category : #'as yet unclassified' }
 LogFileManager >> removeLogGroup: aLogGroup [
-	" FALTA TESTEAR "
 	logStages do: [ :stage | stage removeLogGroup: aLogGroup ].
 	
 ]

@@ -243,7 +243,6 @@ LogEntry >> properties [
 { #category : #accessing }
 LogEntry >> propertiesAsociation [
 	| props |
-	"props := self class allInstVarNames select: [ :prop | prop ~= #source]."
 	props := self class allInstVarNames.
 	^ props collect: [:prop | (prop -> [:nameProp | self instVarNamed: nameProp]) ].
 
