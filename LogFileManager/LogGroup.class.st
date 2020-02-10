@@ -33,9 +33,8 @@ LogGroup >> childrens [
 { #category : #'as yet unclassified' }
 LogGroup >> failuresReport [
 	| failures |
-	" FALTA TESTEAR"
 	failures := OrderedCollection new.
-	failures addAll: (self logsWithRepeatedTimestamp do: [ :log | ReportLogError description: 'Timestamp repeated' nameFile: source fileReference basename logTimestamp: log timestamp ] ).
+	failures addAll: (self logsWithRepeatedTimestamp collect: [ :log | ReportLogError description: 'Timestamp repeated.' nameFile: source asFileReference basename logTimestamp: log timestamp ] ).
 	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: source)].
 	^ failures.
 ]
