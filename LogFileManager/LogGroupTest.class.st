@@ -30,13 +30,31 @@ LogGroupTest >> tearDown [
 ]
 
 { #category : #tests }
+LogGroupTest >> testLogsWithRepeatedTimestamp [
+	| log1 log2 |
+	log1 := LogEntry timestamp: 0 selector: #method1 arguments: #() stage: 0 group: group.
+	log2 := LogEntry timestamp: 0 selector: #method2: arguments: #(true) stage: 0 group: group.
+	group addLog: log1; addLog: log2.
+	self assert: (group logsWithRepeatedTimestamp size) equals: (2).
+]
+
+{ #category : #tests }
+LogGroupTest >> testLogsWithRepeatedTimestampWithoutRepeated [
+	| log1 log2 |
+	log1 := LogEntry timestamp: 0 selector: #method1 arguments: #() stage: 0 group: group.
+	log2 := LogEntry timestamp: 573746 selector: #method2: arguments: #(true) stage: 0 group: group.
+	group addLog: log1; addLog: log2.
+	self assert: (group logsWithRepeatedTimestamp size) equals: (0).
+]
+
+{ #category : #tests }
 LogGroupTest >> testSaveGroup [
 	| log1 log2 |
-	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: saveFolder.
-	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: saveFolder.
+	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: group.
+	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: group.
 	group addLog: log1; addLog: log2.
 	group saveGroup.
-	self assert: (self readFile: saveFolder) equals: ('self
+	self assert: (self readFile: group source) equals: ('self
 	timestamp: 28
 	selector: #method2:
 	arguments: #(true)

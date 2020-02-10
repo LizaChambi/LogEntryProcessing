@@ -86,7 +86,7 @@ LogFileManager >> gtInspectorTreeLogFiles2: composite [
 	(tabulator transmit) to:#Tree;
 		andShow: [ :cp | cp fastTreeTable
 			display: [:each | {each}];
-			children: [ :x | x groups];
+			children: [ :x | x childrens];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] 
 				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
@@ -176,7 +176,7 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 		"andShow: [ :cp | cp fastTreeTable"
 		andShow: [ :cp | cp pager show: [ :algo | algo fastTreeTable  
 			display: [:each | {each}];
-			children: [ :x | x groups];
+			children: [ :x | x childrens];
 			column: 'Stages' evaluated: [:each | each print ] width: 1000;
 			selectionAct: [:tree | (tree selection class = Stage) ifTrue: [ tree selection addNewGroup. composite update] ] 
 				icon: GLMUIThemeExtraIcons glamorousAdd entitled: 'Add group';
@@ -197,9 +197,15 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 ]
 
 { #category : #reading }
+LogFileManager >> hasTimestampRepeated: aLogEntry inGroup: aSource [
+	"Read a log file and add them as LogEntry files to the log entries"
+	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group source = aSource] ].
+]
+
+{ #category : #reading }
 LogFileManager >> hasTimestampRepeatedInGroup: aLogEntry [
 	"Read a log file and add them as LogEntry files to the log entries"
-	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group = aLogEntry group ] ].
+	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group source = aLogEntry group source] ].
 ]
 
 { #category : #initialization }
@@ -328,7 +334,6 @@ LogFileManager >> removeOlderLogFiles [
 
 { #category : #removing }
 LogFileManager >> removeStage: aStage [
-	" FALTA TESTEAR "
 	logStages removeAllSuchThat: [ :stage | stage = aStage].
 ]
 
@@ -344,7 +349,7 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 	(aLogEntry isValidLog) ifTrue:
 	[ (aLogEntry hasStageErrorOn: aStream fileReference) 
 			ifTrue: [failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position)].
-		(self hasTimestampRepeatedInGroup: aLogEntry) 
+		(self hasTimestampRepeated: aLogEntry inGroup: aStream fileReference fullName) 
 			ifTrue: [ failures add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position) ].
 		(aLogEntry stage > 2) 
 			ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position) ].
@@ -413,7 +418,6 @@ LogFileManager >> stages [
 
 { #category : #'to deprecate' }
 LogFileManager >> updateFailures [
-	" FALTA TESTEAR"
 	failures removeAll.
 	logStages collect: [ :stage | failures addAll: stage failuresReport ].
 ]

@@ -60,11 +60,8 @@ LogGroup >> logEntries [
 
 { #category : #'as yet unclassified' }
 LogGroup >> logsWithRepeatedTimestamp [
-	| result |
-	" FALTA TESTEAR "
-	result := OrderedCollection new.
-	logsEntries collect: [ :log | (logsEntries count: [ :otherLog | otherLog timestamp = log timestamp]) > 1].
-	^ result
+	^ logsEntries select: [ :log | (logsEntries count: [ :otherLog | otherLog timestamp = log timestamp]) > 1].
+
 ]
 
 { #category : #'as yet unclassified' }
