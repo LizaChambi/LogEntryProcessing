@@ -86,6 +86,30 @@ LogGroupTest >> testLogsWithRepeatedTimestampWithoutRepeated [
 ]
 
 { #category : #tests }
+LogGroupTest >> testRemoveLogEntry [
+	| log1 |
+	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: group.
+	group addLog: log1.
+	
+	group removeLogEntry: log1.
+	
+	self assert: (group logEntries size) equals: (0).
+]
+
+{ #category : #tests }
+LogGroupTest >> testRemoveLogEntryNonExistent [
+	| log1 log2 |
+	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: group.
+	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: group.
+	group addLog: log1.
+	
+	group removeLogEntry: log2.
+	
+	self assert: (group logEntries size) equals: (1).
+	self assert: (group logEntries at:1) equals: (log1).
+]
+
+{ #category : #tests }
 LogGroupTest >> testSaveGroup [
 	| log1 log2 |
 	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: group.

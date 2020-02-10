@@ -79,8 +79,7 @@ LogGroup >> probableStage [
 
 { #category : #removing }
 LogGroup >> removeLogEntry: aLogEntry [
-	" FALTA TESTEAR"
-	logsEntries remove: aLogEntry.
+	logsEntries removeAllSuchThat: [ :log | log = aLogEntry].
 ]
 
 { #category : #'as yet unclassified' }
