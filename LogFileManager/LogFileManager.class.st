@@ -147,15 +147,21 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 				"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
 				" SPAWN EXAMPLE "
 				selectionSpawn: [:listPresentation | |tmpBrowser|
-					tmpBrowser := GLMTabulator new row: #one; initialExtent: 200@100 ;yourself.
+					tmpBrowser := GLMTabulator new row: #one; initialExtent: 400@200 ; title: 'Error:' ;yourself.
 					tmpBrowser transmit to: #one ; 
 						andShow: [:b | b text
-							display: [:input | input asString] ].
+							format: [ :x | ('Error message' asText) 
+								makeColor: Color blue from: 2 to: 4; 
+								makeColor: Color red from: 4 to: 5; "notice overlap"
+								addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 36)) from: 1 to: 1; 
+								"ignored addAttibute:() when font family cannot be found"
+								yourself]
+						].
 					tmpBrowser startOn: listPresentation selection
-				] entitled: 'Open in new browser'.
+				] entitled: 'Open browser'.
 			"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
 			
-			].
+			]. 
 ]
 
 { #category : #'as yet unclassified' }
