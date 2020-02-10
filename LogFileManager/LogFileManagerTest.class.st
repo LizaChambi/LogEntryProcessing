@@ -45,10 +45,27 @@ LogFileManagerTest >> testAddLogWithSource [
 ]
 
 { #category : #tests }
+LogFileManagerTest >> testAddLogWithSourceWithStageFinal [
+	"comment stating purpose of message"
+	logFileManager addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') stage: #Final) withSource: 'path'.
+	self assert: (logFileManager logEntries notEmpty).
+]
+
+{ #category : #tests }
 LogFileManagerTest >> testAddStage [
 	"comment stating purpose of message"
 	logFileManager addStage: 1.
 	self assert: ((logFileManager stages at:1) stage) equals: (1).
+	self assert: ((logFileManager stages at:1) groups isEmpty).
+	self assert: (logFileManager stages size) equals: (1).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testAddStageFinal [
+	"comment stating purpose of message"
+	logFileManager addStage: #Final.
+	self assert: ((logFileManager stages at:1) stage) equals: (#Final).
 	self assert: ((logFileManager stages at:1) groups isEmpty).
 	self assert: (logFileManager stages size) equals: (1).
 	
@@ -85,6 +102,22 @@ LogFileManagerTest >> testFindStageException [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1.
 	self should: [(logFileManager findStage:3) stage ] raise: (Error).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testFindStageFinal [
+	"comment stating purpose of message"
+	logFileManager addStage: 0; addStage: 1; addStage:#Final.
+	self assert: ((logFileManager findStage:#Final) stage ) equals: (#Final).
+	
+]
+
+{ #category : #tests }
+LogFileManagerTest >> testFindStageFinalNotFound [
+	"comment stating purpose of message"
+	logFileManager addStage: 0; addStage: 1.
+	self should:[ logFileManager findStage:#Final ] raise: (NotFound).
 	
 ]
 
