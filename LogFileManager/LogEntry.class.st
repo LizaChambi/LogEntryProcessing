@@ -74,9 +74,10 @@ LogEntry >> editWithLog: aLogEntry [
 	self
 		assert: [ aLogEntry isValidLog ]
 		description: 'Invalid log entered: The log is composed with ''self timestamp: aNumber selector: aMethod arguments: anArray'''.
+	
 	self
-		assert: [ aLogEntry stage asNumber >= 0 ]
-		description: 'Invalid stage value: ''stage: (aNumber >= 0)'''.
+		assert: [ (aLogEntry stage = #Final) or: [ aLogEntry stage asNumber >= 0] ]
+		description: 'Invalid stage value: ''stage: (aNumber >= 0)'' or #Final'.
 	self
 		assert: [ aLogEntry hasPathStageDifferent not ]
 		description: 'File name do not matching with stage: File name must have prefix ''stage'' with number stage (Example, ''stage1-...'')'.

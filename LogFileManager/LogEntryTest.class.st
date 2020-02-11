@@ -16,6 +16,7 @@ LogEntryTest >> setUp [
 	|group|
 	group := LogGroup withSource: 'dir/stage0-algo.changes'.
 	logEntry := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:0 group: group.
+	group addLog: logEntry.
 ]
 
 { #category : #tests }
@@ -55,8 +56,18 @@ LogEntryTest >> testConvertChunkToLogEntryWithGroup [
 ]
 
 { #category : #tests }
-LogEntryTest >> testConvertChunkToLogEntryWrong [
+LogEntryTest >> testConvertChunkToLogEntryWithStageFinal [
 	"comment stating purpose of message"
+	self assert: (logEntry convertChunkToLogEntry: 'self
+	timestamp: 3721902053120
+	selector: #doAddCorrelationRule:to:
+	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
+	stage: #Final.') equals: (logEntry timestamp: 0 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #()) stage: #Final).
+]
+
+{ #category : #tests }
+LogEntryTest >> testConvertChunkToLogEntryWrong [
+	"POSIBLES ARREGLOS A ESTE MÉTODOS"
 	self assert: (logEntry convertChunkToLogEntry: 'self
 	timestamp: 3721902053120
 	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
@@ -66,9 +77,11 @@ LogEntryTest >> testConvertChunkToLogEntryWrong [
 { #category : #tests }
 LogEntryTest >> testEditWithLog [
 	"comment stating purpose of message"
-	| aLogEntry |
-	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: (logEntry stage) group: logEntry group.
-	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: 0 group: logEntry group).
+	| aLogEntry newGroup |
+	newGroup := LogGroup withSource: 'path/stageFinal-algo.changes'.
+	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup.
+	newGroup addLog: aLogEntry.
+	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup ).
 ]
 
 { #category : #tests }
