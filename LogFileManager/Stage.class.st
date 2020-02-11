@@ -20,8 +20,8 @@ Stage >> addGroup: aPath [
 	"comment stating purpose of message"
 	(groups anySatisfy: [ :group | group hasSource: aPath]) 
 		ifTrue: [ ^ self searchGroup: aPath ]
-		ifFalse:[ | newGroup | newGroup := LogGroup withSource: aPath. 
-			groups add: newGroup. 
+		ifFalse:[ | newGroup | newGroup := LogGroup withSource: aPath stage: self. 
+			groups add: newGroup.
 			^ newGroup].
 ]
 

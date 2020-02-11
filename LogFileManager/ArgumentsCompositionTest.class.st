@@ -1,7 +1,7 @@
 Class {
 	#name : #ArgumentsCompositionTest,
 	#superclass : #PP2CompositeNodeTest,
-	#category : #LogFileManager
+	#category : #'LogFileManager-Test'
 }
 
 { #category : #accessing }
@@ -25,7 +25,7 @@ ArgumentsCompositionTest >> testPPArgumentsWithSelfError [
 { #category : #tests }
 ArgumentsCompositionTest >> testPPArgumentsWithString [
 	"comment stating purpose of instance-side message"
-	self parse: '#(''VaS_Ext class'')' rule: #ppArguments.
+	self parse: '#(''VaS_Ext class '')' rule: #ppArguments.
 ]
 
 { #category : #tests }

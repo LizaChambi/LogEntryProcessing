@@ -3,15 +3,16 @@ Class {
 	#superclass : #Object,
 	#instVars : [
 		'source',
-		'logsEntries'
+		'logsEntries',
+		'stage'
 	],
 	#category : #LogFileManager
 }
 
 { #category : #'as yet unclassified' }
-LogGroup class >> withSource: aPath [
+LogGroup class >> withSource: aPath stage:aStage [
 	"comment stating purpose of message"
-	^(self new) source: aPath logs: OrderedCollection new.
+	^(self new) source: aPath logs: OrderedCollection new stage:aStage.
 ]
 
 { #category : #'as yet unclassified' }
@@ -22,7 +23,8 @@ LogGroup >> addLog: aLogEntry [
 
 { #category : #adding }
 LogGroup >> addNewLogEntry [
-	self addLog: (LogEntry timestamp: 0 selector: #method: arguments: #(arguments ) stage: (self probableStage) group: self).
+	"CAMBIAR IMPLEMENTACION DEL STAGE DEL LOG ENTRY"
+	self addLog: (LogEntry timestamp: 0 selector: #method: arguments: #(arguments ) stage: (stage stage) group: self). "EL STAGE DEBE SER EL OBJETO ENTERO, NO SU VALOR"
 ]
 
 { #category : #'as yet unclassified' }
@@ -68,15 +70,6 @@ LogGroup >> print [
 	^ source asFileReference basename.
 ]
 
-{ #category : #adding }
-LogGroup >> probableStage [
-	| probableStages |
-	probableStages := (logsEntries collect: [ :log | log stage ]) removeDuplicates.
-	(probableStages size = 1)
-		ifTrue: [ ^ probableStages at:1 ]
-		ifFalse: [ ^ (probableStages do: [ :stage | stage -> (logsEntries count: [:log | log stage = stage] ) ]) maxValue: [:assoc | assoc value] ].
-]
-
 { #category : #removing }
 LogGroup >> removeLogEntry: aLogEntry [
 	logsEntries removeAllSuchThat: [ :log | log = aLogEntry].
@@ -102,10 +95,21 @@ LogGroup >> source [
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> source: aPath logs: anArray [
+LogGroup >> source: aPath logs: anArray stage: aStage [
 	"comment stating purpose of message"
 	source:= aPath.
 	logsEntries:= anArray.
+	stage := aStage.
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> stage [
+	^ stage.
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> stage: aStage [
+	stage := aStage
 ]
 
 { #category : #writing }
