@@ -19,7 +19,7 @@ LogEntry class >> chunk: aChunk [
 { #category : #'as yet unclassified' }
 LogEntry class >> readLog: logStream [
 	| logString |
-	logString := self new convertChunkToLogEntry: (logStream next) withGroup: (LogGroup withSource:(logStream fileReference fullName)).
+	logString := self new convertChunkToLogEntry: (logStream next).
 	^ logString.
 ]
 
