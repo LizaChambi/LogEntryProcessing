@@ -142,8 +142,8 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			andShow: [ :comp4 | comp4 fastList
 				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ]];
 				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
-				act: [ :list | self removeLogEntry: list selection. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove';
-				
+				act: [ :list | list selection remove. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove';
+				act: [ :list | "Abrir una ventana para editar el grupo" ] icon: GLMUIThemeExtraIcons glamorousBrowse entitled: 'Change file';
 				"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
 				" SPAWN EXAMPLE "
 				selectionSpawn: [:listPresentation | |tmpBrowser|

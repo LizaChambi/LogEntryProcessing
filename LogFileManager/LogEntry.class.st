@@ -249,6 +249,12 @@ LogEntry >> propertiesAsociation [
 
 ]
 
+{ #category : #conversion }
+LogEntry >> remove [
+	"comment stating purpose of message"
+	group removeLogEntry: self.
+]
+
 { #category : #accessing }
 LogEntry >> selector [
 	"comment stating purpose of message"
