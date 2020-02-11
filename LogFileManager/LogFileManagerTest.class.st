@@ -530,14 +530,17 @@ LogFileManagerTest >> testSortLogEntriesByTimestamp [
 { #category : #tests }
 LogFileManagerTest >> testStages [
 	"comment stating purpose of message"
-	logFileManager addStage: 1.
-	logFileManager addStage: 2.
 	logFileManager addStage: 0.
+	logFileManager addStage: 1.
+	logFileManager addStage: #Final.
 	self assert: (logFileManager stages size ) equals: (3).
+	self assert: ((logFileManager stages at:1) stage ) equals: (0).
+	self assert: ((logFileManager stages at:2) stage ) equals: (1).
+	self assert: ((logFileManager stages at:3) stage ) equals: (#Final).
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testUpdatesFailureWithStateInvalid [
+LogFileManagerTest >> testUpdatesFailureWithStageInvalid [
 	"comment stating purpose of message"
 	| logStream logE |
 	logE := log0 stage: 5.
@@ -553,7 +556,7 @@ LogFileManagerTest >> testUpdatesFailureWithStateInvalid [
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testUpdatesFailuresWithNameAndStateNotMatching [
+LogFileManagerTest >> testUpdatesFailuresWithNameAndStageNotMatching [
 	| logStream |
 	logStream := ReadLogStream onStream: path2 asFileReference readStream. "Path with name stage 0"
 	logFileManager reportLogErrors: log0 onStream: logStream. "LogEntry with stage 1"

@@ -133,9 +133,11 @@ LogEntryTest >> testHasNoStageErrorOnLogStream [
 { #category : #tests }
 LogEntryTest >> testHasStageErrorOnLogStream [
 	"comment stating purpose of message"
-	| fileRef logWithStage2 |
+	| fileRef logWithStage2 group |
+	group := LogGroup withSource: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
 	fileRef := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference.
-	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 group: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
+	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 group: group.
+	group addLog: logWithStage2.
 	self assert: (logWithStage2 hasStageErrorOn: fileRef).
 ]
 
@@ -175,7 +177,7 @@ LogEntryTest >> testParserValidationAssertTimestampNegative [
 { #category : #tests }
 LogEntryTest >> testStringOutput [
 	"comment stating purpose of message"
-	self assert: ((logEntry timestamp: '123' selector: 'doAdd' arguments: '(return same-as)' stage: '0' group: 'path' ) prettyPrint) = 'self
+	self assert: ((logEntry timestamp: '123' selector: 'doAdd' arguments: '(return same-as)' stage: '0' group: 'aGroup' ) prettyPrint) = 'self
 	timestamp: 123
 	selector: #doAdd
 	arguments: (return same-as)

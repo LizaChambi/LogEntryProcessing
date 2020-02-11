@@ -62,9 +62,9 @@ Stage >> gtInspectorLogsEntries: composite [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> hasStage: aNumber [
+Stage >> hasStage: aNumberOrSymbol [
 	"comment stating purpose of message"
-	^ stage = aNumber.
+	^ stage = aNumberOrSymbol.
 ]
 
 { #category : #'as yet unclassified' }
@@ -105,8 +105,8 @@ Stage >> stage [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> stage: aNumber groups: anArray [
+Stage >> stage: aNumberOrSymbol groups: anArray [
 	"comment stating purpose of message"
-	stage:= aNumber.
+	stage:= aNumberOrSymbol.
 	groups:= anArray.
 ]
