@@ -46,7 +46,7 @@ LogFileManager >> addStage: aNumber [.
 { #category : #accessing }
 LogFileManager >> childrens [
 	"comment stating purpose of message"
-	^ self stages sort: [:stage1 :stage2 | stage1 stage < stage2 stage].
+	^ self stages sort: [:stage1 :stage2 | stage1 < stage2].
 ]
 
 { #category : #'as yet unclassified' }
@@ -60,6 +60,20 @@ LogFileManager >> editFileGroup: aLogEntry to: pathString [
 				self removeLogEntry: aLogEntry. "Remove log entry with old group"
 				self addLog: newLogEntry withSource: pathString ] ] "Add/create a log entry with his properties and new path"
 		
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> editStage: aLogEntry to: aString [
+	| newLog |
+	newLog := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aString group: aLogEntry group.
+	(aString trim = 'Final') 
+		ifTrue: ( newLog stage asSymbol ) 
+		ifFalse: [ [ (aString trim asNumber >=0) ifTrue: [newLog stage asNumber]] on: Error do: [ self error: 'Invalid stage value: ''stage: (aNumber >= 0)'' or #Final' ]].
+	(aLogEntry stage = newLog stage) ifFalse: [ 
+							self removeLogEntry: aLogEntry. 
+							self addLog: newLog withSource: newLog group source].
+		
+	
 ]
 
 { #category : #adding }
@@ -302,8 +316,25 @@ LogFileManager >> openEditFileOn: itemSelection from: aComposite [
 				yourself];
 			withGhostText: 'Input a group path...';
 			addAction: (GLMGenericAction new 
-				action: [:textInput | [self editFileGroup: itemSelection to: textInput text asString. aComposite update] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ]]; 
+				action: [:textInput | [self editFileGroup: itemSelection to: textInput text asString. aComposite update] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ('Error: ', ex messageText, Character cr asString, ' >> The source file must have the format: ''stage', itemSelection stage asString, '-aNameFile.changes''')]]; 
 				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change file'; showTitle)].
+	tmpBrowser startOn: itemSelection.
+	tmpBrowser open.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> openEditStageOn: itemSelection from: aComposite [
+	|tmpBrowser|
+	tmpBrowser := GLMTabulator new row: #inputPath; initialExtent: 400@200 ; title: 'Change stage' ;yourself.
+	tmpBrowser transmit to: #inputPath ;
+		andShow: [:b | b text
+			display: [ ('' asText) 
+				addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 10));
+				yourself];
+			withGhostText: 'Input a stage...';
+			addAction: (GLMGenericAction new 
+				action: [:textInput | "[" self editStage: itemSelection to: textInput text asString. aComposite update "] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ]" ]; 
+				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change stage'; showTitle)].
 	tmpBrowser startOn: itemSelection.
 	tmpBrowser open.
 ]
@@ -314,7 +345,7 @@ LogFileManager >> openErrorBrowserOn: itemSelection withMessage: errorString [
 	tmpBrowser := GLMTabulator new row: #message; initialExtent: 400@200 ; title: 'Edition error' ;yourself.
 	tmpBrowser transmit to: #message ; 
 		andShow: [:b | b morph
-			display: [ ( ('Error: ', errorString, Character cr asString, ' >> The source file must have the format: ''stage', itemSelection stage asString, '-aNameFile.changes') asText) 
+			display: [ ( errorString asText) 
 				addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 10));
 				yourself].
 		].

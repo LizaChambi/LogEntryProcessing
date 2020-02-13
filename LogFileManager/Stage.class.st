@@ -15,6 +15,11 @@ Stage class >> new: aNumber [
 	
 ]
 
+{ #category : #comparing }
+Stage >> < aStage [
+	^ (aStage isSymbol) or: [(stage isSymbol not) or: [(stage < aStage)] ].
+]
+
 { #category : #'as yet unclassified' }
 Stage >> addGroup: aPath [
 	"comment stating purpose of message"
