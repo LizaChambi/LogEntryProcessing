@@ -143,7 +143,25 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ]];
 				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
 				act: [ :list | list selection remove. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove';
-				act: [ :list | "Abrir una ventana para editar el grupo" ] icon: GLMUIThemeExtraIcons glamorousBrowse entitled: 'Change file';
+				act: [ :list | list selection openEditBrowser: composite.] icon: GLMUIThemeExtraIcons glamorousEdit entitled: 'Change Stage';
+				act: [ :list | |tmpBrowser|
+							tmpBrowser := GLMTabulator new row: #one; initialExtent: 400@200 ; title: 'Error:' ;yourself.
+							tmpBrowser transmit to: #one ; 
+								andShow: [:b | b text
+									format: [ :x | ('Error message' asText) 
+										makeColor: Color blue from: 2 to: 4; 
+										makeColor: Color red from: 4 to: 5; "notice overlap"
+										addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 36)) from: 1 to: 1; 
+										"ignored addAttibute:() when font family cannot be found"
+										yourself 
+									]
+								].
+							tmpBrowser startOn: list selection.
+							tmpBrowser open.
+					] icon: GLMUIThemeExtraIcons glamorousBrowse entitled: 'Change file';
+				
+				
+				
 				"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
 				" SPAWN EXAMPLE "
 				selectionSpawn: [:listPresentation | |tmpBrowser|
