@@ -49,6 +49,19 @@ LogFileManager >> childrens [
 	^ self stages sort: [:stage1 :stage2 | stage1 stage < stage2 stage].
 ]
 
+{ #category : #'as yet unclassified' }
+LogFileManager >> editFileGroup: aLogEntry to: pathString [
+	| newLogEntry| 
+	newLogEntry := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage.
+	(aLogEntry hasStageErrorOn: pathString asFileReference)
+		ifTrue: [ self error: 'Log stage does not match the file name.' ]
+		ifFalse:[ (aLogEntry source = pathString trim) 
+			ifFalse: [ 
+				self removeLogEntry: aLogEntry. "Remove log entry with old group"
+				self addLog: newLogEntry withSource: pathString ] ] "Add/create a log entry with his properties and new path"
+		
+]
+
 { #category : #adding }
 LogFileManager >> existStage: aNumber [
 	"comment stating purpose of message"
@@ -143,22 +156,20 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ]];
 				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
 				act: [ :list | list selection remove. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove';
-				act: [ :list | list selection openEditBrowser: composite.] icon: GLMUIThemeExtraIcons glamorousEdit entitled: 'Change Stage';
+				act: [ :list | self openEditStageOn: list selection from: composite.] icon: GLMUIThemeExtraIcons glamorousEdit entitled: 'Change Stage';
+				act: [ :list | self openEditFileOn: list selection from:composite ] icon: GLMUIThemeExtraIcons glamorousBrowse entitled: 'Change file';
 				act: [ :list | |tmpBrowser|
 							tmpBrowser := GLMTabulator new row: #one; initialExtent: 400@200 ; title: 'Error:' ;yourself.
 							tmpBrowser transmit to: #one ; 
-								andShow: [:b | b text
-									format: [ :x | ('Error message' asText) 
-										makeColor: Color blue from: 2 to: 4; 
-										makeColor: Color red from: 4 to: 5; "notice overlap"
-										addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 36)) from: 1 to: 1; 
-										"ignored addAttibute:() when font family cannot be found"
-										yourself 
-									]
+								andShow: [:b | b morph
+									display: [ ('Error message' asText) 
+								addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 10));
+								"ignored addAttibute:() when font family cannot be found"
+								yourself ].
 								].
 							tmpBrowser startOn: list selection.
 							tmpBrowser open.
-					] icon: GLMUIThemeExtraIcons glamorousBrowse entitled: 'Change file';
+					] icon: GLMUIThemeExtraIcons glamorousCancel entitled: 'Error Message';
 				
 				
 				
@@ -278,6 +289,37 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 LogFileManager >> nextStage [
 	"comment stating purpose of message"
 	^(logStages collect: [ :stage | stage stage ]) max + 1. 
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> openEditFileOn: itemSelection from: aComposite [
+	|tmpBrowser|
+	tmpBrowser := GLMTabulator new row: #inputPath; initialExtent: 400@200 ; title: 'Change file' ;yourself.
+	tmpBrowser transmit to: #inputPath ; 
+		andShow: [:b | b text
+			display: [ ('' asText) 
+				addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 10));
+				yourself];
+			withGhostText: 'Input a group path...';
+			addAction: (GLMGenericAction new 
+				action: [:textInput | [self editFileGroup: itemSelection to: textInput text asString. aComposite update] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ]]; 
+				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change file'; showTitle)].
+	tmpBrowser startOn: itemSelection.
+	tmpBrowser open.
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> openErrorBrowserOn: itemSelection withMessage: errorString [
+	|tmpBrowser|
+	tmpBrowser := GLMTabulator new row: #message; initialExtent: 400@200 ; title: 'Edition error' ;yourself.
+	tmpBrowser transmit to: #message ; 
+		andShow: [:b | b morph
+			display: [ ( ('Error: ', errorString, Character cr asString, ' >> The source file must have the format: ''stage', itemSelection stage asString, '-aNameFile.changes') asText) 
+				addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 10));
+				yourself].
+		].
+	tmpBrowser startOn: itemSelection.
+	tmpBrowser open.
 ]
 
 { #category : #adding }
