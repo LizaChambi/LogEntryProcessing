@@ -99,7 +99,7 @@ LogFileManagerTest >> testExceptionAddLogNil [
 LogFileManagerTest >> testFindStage [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1.
-	self assert: ((logFileManager findStage:0) level ) equals: (0).
+	self assert: ((logFileManager searchStageLevel:0) level ) equals: (0).
 	
 ]
 
@@ -107,7 +107,7 @@ LogFileManagerTest >> testFindStage [
 LogFileManagerTest >> testFindStageException [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1.
-	self should: [(logFileManager findStage:3) stage ] raise: (Error).
+	self should: [(logFileManager searchStageLevel:3) stage ] raise: (Error).
 	
 ]
 
@@ -115,7 +115,7 @@ LogFileManagerTest >> testFindStageException [
 LogFileManagerTest >> testFindStageFinal [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1; addStage:#Final.
-	self assert: ((logFileManager findStage:#Final) level ) equals: (#Final).
+	self assert: ((logFileManager searchStageLevel:#Final) level ) equals: (#Final).
 	
 ]
 
@@ -123,7 +123,7 @@ LogFileManagerTest >> testFindStageFinal [
 LogFileManagerTest >> testFindStageFinalNotFound [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1.
-	self should:[ logFileManager findStage:#Final ] raise: (NotFound).
+	self should:[ logFileManager searchStageLevel:#Final ] raise: (NotFound).
 	
 ]
 
@@ -165,8 +165,7 @@ self
 { #category : #tests }
 LogFileManagerTest >> testMergeOrderedALogFileFromPathWithCriteria [
 	"comment stating purpose of message"
-	logFileManager mergeOrderedLogFilesFrom: pathFolder withName: 'sortedLogFiles' 
-	matchingACriteria: [:log | log timestamp < 10 ].
+	logFileManager mergeOrderedLogFilesFrom: pathFolder withName: 'sortedLogFiles' matchingACriteria: [:log | log timestamp < 10 ].
 
 	self assert: (self readFile: 'sortedLogFiles') equals: 'self
 	timestamp: 0
@@ -222,18 +221,20 @@ LogFileManagerTest >> testReadLogEntries [
 	"comment stating purpose of message"
 	|entryManager|
 	entryManager := LogFileManager new.
-	self assert: ((entryManager readLogsEntries: (ReadLogStream onStream: path1 asFileReference readStream ) ) size) equals: 3.
+	self assert: ((entryManager readLogsEntries: (ReadLogStream onStream: path1 asFileReference readStream ) ) size) equals: (3).
 ]
 
 { #category : #tests }
 LogFileManagerTest >> testReadLogFilesFromFolder [
 	"comment stating purpose of message"
+	| stages|
 	logFileManager := LogFileManager readLogFilesFromFolder: pathFolder.
 	self assert: (logFileManager logEntries size) equals: (3).
-	self assert: (logFileManager stages size) equals: (1).
-	self assert: ((logFileManager stages at:1) groups size) equals: (2).
-	self assert: (((logFileManager stages at:1) groups at:1) logEntries size) equals: (3).
-	self assert: (((logFileManager stages at:1) groups at:2) logEntries isEmpty).
+	stages := logFileManager stages.
+	self assert: ( stages size) equals: (2).
+	self assert: ( (stages at:1) groups size) equals: (2).
+	self assert: ( ((stages at:1) groups at:1) logEntries size) equals: (0).
+	self assert: ( ((stages at:1) groups at:2) logEntries size) equals: (2).
 	
 ]
 

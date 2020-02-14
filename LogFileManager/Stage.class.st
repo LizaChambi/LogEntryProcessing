@@ -18,8 +18,10 @@ Stage class >> new: aNumber [
 { #category : #comparing }
 Stage >> < aStage [
 	( level = #Final) ifTrue: [ ^ false ]
-		ifFalse: [ (aStage level = #Final) ifTrue: [ ^ true ] 
-					ifFalse: [ ^(level < aStage level) ] ].
+		ifFalse: [ (aStage level = #Final) 
+						ifTrue: [ ^ true ] 
+						ifFalse: [ ^(level < aStage level )] 
+					].
 ]
 
 { #category : #'as yet unclassified' }

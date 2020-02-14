@@ -32,7 +32,10 @@ ReadLogStream >> isEmptyChunk: aChunk [
 
 { #category : #initalize }
 ReadLogStream >> isEmptyFile [
-	^ stream contents trim isEmpty.
+	| result |
+	result:= stream contents trim isEmpty.
+	stream position:0.
+	^ result.
 ]
 
 { #category : #initalize }

@@ -27,8 +27,9 @@ LogFileManager >> addLog: aLogEntry withSource: aPath [
 	(aLogEntry isValidLog)
 		ifTrue: [ 
 			"logEntries add: aLogEntry."
+			"(aLogEntry stage = 'Final') ifTrue: [ aLogEntry stage: #Final ] ifFalse:[aLogEntry stage: aLogEntry stage digitValue ]."
 			self addStage: aLogEntry stage.
-			(self findStage: aLogEntry stage) addLog: aLogEntry withSource: aPath.]
+			(self searchStageLevel: aLogEntry stage) addLog: aLogEntry withSource: aPath.]
 ]
 
 { #category : #adding }
@@ -38,9 +39,9 @@ LogFileManager >> addNewStage [
 ]
 
 { #category : #adding }
-LogFileManager >> addStage: aNumber [.
+LogFileManager >> addStage: aLevel [.
 	"comment stating purpose of message"
-	(self existStage: aNumber) ifFalse: [ stages add: (Stage new:aNumber) ].
+	(self existStage: aLevel) ifFalse: [ stages add: (Stage new: aLevel) ].
 ]
 
 { #category : #accessing }
@@ -86,12 +87,6 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 	"comment stating purpose of message"
 	^ ((inputDirectory asFileReference) children) select: [ :each | each basename endsWith: '.changes' ].
 
-]
-
-{ #category : #adding }
-LogFileManager >> findStage: aNumber [
-	"comment stating purpose of message"
-	^ stages detect: [ :stage | stage hasStage: aNumber ]. 
 ]
 
 { #category : #'as yet unclassified' }
@@ -276,6 +271,7 @@ LogFileManager >> logsWithStage: aStage [
 LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOutput [
 	"comment stating purpose of message"
 	| filesToRead |
+	sourceInput := inputDirectory.
 	filesToRead := self filesToReadFromFolder: inputDirectory.
 	filesToRead do: [ :file | self readLogsEntries: (self logStream: file)].
 	self writeFiles: (self sortLogEntriesByTimestamp: self logEntries ) withName: fileNameOutput.
@@ -285,6 +281,7 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOutput matchingACriteria: aBlock [
 	"comment stating purpose of message"
 	| filesToRead |
+	sourceInput := inputDirectory.
 	filesToRead := self filesToReadFromFolder: inputDirectory.
 	filesToRead do: [ :file | self readLogsEntries: (self logStream: file) withCriteria: aBlock].
 	self writeFiles: (self sortLogEntriesByTimestamp: self logEntries) withName: fileNameOutput.
@@ -296,7 +293,7 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 { #category : #adding }
 LogFileManager >> nextStage [
 	"comment stating purpose of message"
-	^(stages collect: [ :stage | stage stage ]) max + 1. 
+	^(stages collect: [ :stage | stage level ]) max + 1. 
 ]
 
 { #category : #'as yet unclassified' }
@@ -353,6 +350,19 @@ LogFileManager >> print [
 	^ self asString.
 ]
 
+{ #category : #'as yet unclassified' }
+LogFileManager >> readEmptyFile: aFileReference [
+	"comment stating purpose of instance-side message"
+	| level levelPosition |
+	levelPosition := 6.
+	(aFileReference basename beginsWith: ('stageFinal')) ifTrue: [ level:=#Final ].
+	(aFileReference basename beginsWith: ('stage')) ifTrue: [ level:= (aFileReference basename at:levelPosition) digitValue ].
+	
+	[ self addStage: level. 
+	(self searchStageLevel: level) addGroup: aFileReference] on: Error do: [ failures add: (ReportLogError description: 'The file name does not have the stage reference.' nameFile: aFileReference basename) ].
+	
+]
+
 { #category : #'read/write usage' }
 LogFileManager >> readLogFilesFromFolder: inputDirectory [
 	"comment stating purpose of message"
@@ -366,24 +376,30 @@ LogFileManager >> readLogFilesFromFolder: inputDirectory [
 LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| createdLog |
-	"( logStream isEmptyFile) ifTrue: [ self addGroup: logStream fileReference fullName]." "DESCOMENTAR CUANDO SE IMPLEMENTE LOS GROUPS CON STAGES"
-	[ logStream atEnd] whileFalse: [
-		createdLog := LogEntry readLog: logStream.
-		self reportLogErrors: createdLog onStream: logStream.
-		self addLog: createdLog withSource: logStream fileReference fullName].
-	^ self logEntries.
+	( logStream isEmptyFile) 
+		ifTrue: [self readEmptyFile: logStream fileReference ]
+		ifFalse: [ [ logStream atEnd] whileFalse: [
+				createdLog := LogEntry readLog: logStream.
+				self reportLogErrors: createdLog onStream: logStream.
+				self addLog: createdLog withSource: logStream fileReference fullName
+				].
+				^ self logEntries.
+		]
 ]
 
 { #category : #reading }
 LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| logCreated |
-	[ logStream atEnd ] whileFalse: [
-		logCreated := LogEntry readLog: logStream.
-		self reportLogErrors: logCreated onStream: logStream.
-		(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference fullName].
-	].
-	^ self logEntries.
+	( logStream isEmptyFile) 
+		ifTrue: [self readEmptyFile: logStream fileReference ]
+		ifFalse: [ [ logStream atEnd ] whileFalse: 
+			[ logCreated := LogEntry readLog: logStream.
+				self reportLogErrors: logCreated onStream: logStream.
+				(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference fullName]].
+			^ self logEntries.
+		]
+	
 ]
 
 { #category : #'as yet unclassified' }
@@ -400,7 +416,7 @@ LogFileManager >> removeLogEntry: aLogEntry [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> removeLogGroup: aLogGroup [
-	stages do: [ :stage | stage removeLogGroup: aLogGroup ].
+	aLogGroup stage removeLogGroup: aLogGroup.
 	
 ]
 
@@ -459,6 +475,12 @@ LogFileManager >> saveLogsWithSourceFile: aFile [
 	
 	
 	
+]
+
+{ #category : #adding }
+LogFileManager >> searchStageLevel: aLevel [
+	"comment stating purpose of message"
+	^ stages detect: [ :stage | stage hasStage: aLevel ]. 
 ]
 
 { #category : #reading }

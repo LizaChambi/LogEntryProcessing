@@ -41,7 +41,6 @@ LogGroupTest >> testFailuresReportWithAllFailures [
 	failures := group failuresReport.
 	
 	self assert: (failures size) equals: (4).
-	
 	self assert: ((failures at:1) description) equals: ('Timestamp repeated.').
 	self assert: ((failures at:1) nameFile) equals: (group source asFileReference basename).
 	self assert: ((failures at:1) logWithTimestamp) equals: (34).

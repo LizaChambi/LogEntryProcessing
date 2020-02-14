@@ -2,7 +2,8 @@ Class {
 	#name : #ReadLogStreamTest,
 	#superclass : #TestCase,
 	#instVars : [
-		'stream'
+		'stream',
+		'streamEmpty'
 	],
 	#category : #'LogFileManager-Test'
 }
@@ -24,6 +25,19 @@ timestamp: 3721562979643
 selector: #doAssignType:to:
 arguments: #(#Integer #''MoPsMasterAbstractAdminPage>>imageDateStringFor:#BE55D2C84A296007B7A03C9BC686594E@12'' )
 stage: 0.' readStream.
+	streamEmpty := ReadLogStream onStream: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/resources/stage0-010-VastStubsCreation.changes' asFileReference readStream.
+]
+
+{ #category : #tests }
+ReadLogStreamTest >> testIsEmptyFile [
+	"comment stating purpose of message"
+	self assert: (streamEmpty isEmptyFile)
+]
+
+{ #category : #tests }
+ReadLogStreamTest >> testIsEmptyFileFalse [
+	"comment stating purpose of message"
+	self assert: (stream isEmptyFile not)
 ]
 
 { #category : #tests }
