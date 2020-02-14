@@ -2,8 +2,8 @@ Class {
 	#name : #Stage,
 	#superclass : #Object,
 	#instVars : [
-		'stage',
-		'groups'
+		'groups',
+		'level'
 	],
 	#category : #LogFileManager
 }
@@ -17,24 +17,29 @@ Stage class >> new: aNumber [
 
 { #category : #comparing }
 Stage >> < aStage [
-	^ (aStage isSymbol) or: [(stage isSymbol not) or: [(stage < aStage)] ].
+	( level = #Final) ifTrue: [ ^ false ]
+		ifFalse: [ (aStage level = #Final) 
+						ifTrue: [ ^ true ] 
+						ifFalse: [ ^level < aStage level ] 
+					].
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> addGroup: aPath [
-	"comment stating purpose of message"
-	(groups anySatisfy: [ :group | group hasSource: aPath]) 
-		ifTrue: [ ^ self searchGroup: aPath ]
-		ifFalse:[ | newGroup | newGroup := LogGroup withSource: aPath stage: self. 
-			groups add: newGroup.
-			^ newGroup].
+Stage >> addGroup: aName [
+	"aName := aBasename readStream upTo:$-; upTo:$.." "Read the name" "Se puede hacer con un parser"
+	(aName isEmpty) ifTrue: [ self error: 'Could not create a LogGroup without name' ].
+	
+	^ groups detect: [ :group | group hasName: aName] 
+		ifNone: [ |newGroup| newGroup := LogGroup withName: aName stage: self. 
+			groups add: newGroup. 
+			^ newGroup ].
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> addLog: aLogEntry withSource: aPath [
-	"comment stating purpose of message"
+Stage >> addLog: aLogEntry withSource: aFileName [
+	"comment stating purpose of message. validaciones"
 	| group |
-	group := self addGroup: aPath.
+	group := self addGroup: (aFileName asFileReference base readStream upTo:$-; upToEnd). "Se puede hacer con un parser"
 	group addLog: (aLogEntry group: group).
 ]
 
@@ -67,9 +72,21 @@ Stage >> gtInspectorLogsEntries: composite [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> hasStage: aNumberOrSymbol [
+Stage >> hasGroupWithName: aGroupName [ 
 	"comment stating purpose of message"
-	^ stage = aNumberOrSymbol.
+	^ groups anySatisfy: [:group | group hasName: aGroupName ].
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> hasLevel: aNumberOrSymbol [
+	"comment stating purpose of message"
+	^ level = aNumberOrSymbol.
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> level [
+	"comment stating purpose of message"
+	^ level.
 ]
 
 { #category : #'as yet unclassified' }
@@ -84,7 +101,7 @@ Stage >> logEntries [
 { #category : #'as yet unclassified' }
 Stage >> print [
 	"comment stating purpose of message"
-	^ 'Stage ', stage asString.
+	^ 'Stage ', level asString.
 ]
 
 { #category : #removing }
@@ -93,25 +110,24 @@ Stage >> removeLogGroup: aLogGroup [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> saveStage [
+Stage >> saveStageOnFolder: aPathFolder [
 	"comment stating purpose of instance-side message"
-	groups do: [ :group | group saveGroup ].
+	groups do: [ :group | group saveGroupOnFolder: aPathFolder ].
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> searchGroup: aPath [
-	^ groups detect: [ :group | group hasSource: aPath].
-]
-
-{ #category : #'as yet unclassified' }
-Stage >> stage [
-	"comment stating purpose of message"
-	^ stage.
+Stage >> searchGroup: aName [
+	^ groups detect: [ :group | group hasName: aName].
 ]
 
 { #category : #'as yet unclassified' }
 Stage >> stage: aNumberOrSymbol groups: anArray [
 	"comment stating purpose of message"
-	stage:= aNumberOrSymbol.
+	level:= aNumberOrSymbol.
 	groups:= anArray.
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> stageNamePrefix [
+	^ 'stage', level asString
 ]
