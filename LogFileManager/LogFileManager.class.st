@@ -63,12 +63,11 @@ LogFileManager >> editFileGroup: aLogEntry to: pathString [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> editStage: aLogEntry to: aString [
-	| newLog |
-	newLog := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aString group: aLogEntry group.
-	(aString trim = 'Final') 
-		ifTrue: ( newLog stage asSymbol ) 
-		ifFalse: [ [ (aString trim asNumber >=0) ifTrue: [newLog stage asNumber]] on: Error do: [ self error: 'Invalid stage value: ''stage: (aNumber >= 0)'' or #Final' ]].
+LogFileManager >> editStage: aLogEntry to: aLevelString [
+	| newLog newlevelStage |
+	" Validate level stage"
+	[ (aLevelString trim = 'Final') ifTrue: [ newlevelStage := aLevelString asSymbol ] ifFalse: [ newlevelStage := aLevelString asNumber ] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
+	newLog := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: newlevelStage group: aLogEntry group.
 	(aLogEntry stage = newLog stage) ifFalse: [ 
 							self removeLogEntry: aLogEntry. 
 							self addLog: newLog withSource: newLog group source].
@@ -245,17 +244,12 @@ LogFileManager >> hasTimestampRepeated: aLogEntry inGroup: aSource [
 	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group source = aSource] ].
 ]
 
-{ #category : #reading }
-LogFileManager >> hasTimestampRepeatedInGroup: aLogEntry [
-	"Read a log file and add them as LogEntry files to the log entries"
-	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group source = aLogEntry group source] ].
-]
-
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
 	stages := OrderedCollection new.
 	failures  := OrderedCollection new.
+	sourceInput :=''.
 ]
 
 { #category : #accessing }
@@ -333,7 +327,7 @@ LogFileManager >> openEditStageOn: itemSelection from: aComposite [
 				yourself];
 			withGhostText: 'Input a stage...';
 			addAction: (GLMGenericAction new 
-				action: [:textInput | "[" self editStage: itemSelection to: textInput text asString. aComposite update "] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ]" ]; 
+				action: [:textInput | [ self editStage: itemSelection to: textInput text asString. aComposite update ] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change stage'; showTitle)].
 	tmpBrowser startOn: itemSelection.
 	tmpBrowser open.
