@@ -46,7 +46,7 @@ LogFileManager >> addStage: aNumber [.
 { #category : #accessing }
 LogFileManager >> childrens [
 	"comment stating purpose of message"
-	^ self stages sort: [:stage1 :stage2 | stage1 < stage2].
+	^ self sortStages.
 ]
 
 { #category : #'as yet unclassified' }
@@ -485,6 +485,12 @@ LogFileManager >> sortLogEntriesByTimestamp: logs [
 LogFileManager >> sortLogsByStage [
 	"comment stating purpose of message"
 	^ self stages collect: [:num | self logsWithStage: num ].
+]
+
+{ #category : #sorting }
+LogFileManager >> sortStages [
+	"comment stating purpose of instance-side message"
+	^ self stages sort: [ :stage1 :stage2 | stage1 < stage2 ].
 ]
 
 { #category : #'as yet unclassified' }

@@ -17,7 +17,9 @@ Stage class >> new: aNumber [
 
 { #category : #comparing }
 Stage >> < aStage [
-	^ (aStage isSymbol) or: [(stage isSymbol not) or: [(stage < aStage)] ].
+	( stage = #Final) ifTrue: [ ^ false ]
+		ifFalse: [ (aStage stage = #Final) ifTrue: [ ^ true ] 
+					ifFalse: [ ^(stage < aStage stage) ] ].
 ]
 
 { #category : #'as yet unclassified' }

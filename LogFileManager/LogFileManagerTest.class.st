@@ -73,13 +73,17 @@ LogFileManagerTest >> testAddStageFinal [
 
 { #category : #tests }
 LogFileManagerTest >> testChildrens [
+	| childrens |
 	"comment stating purpose of message"
 	logFileManager addStage: 1.
+	logFileManager addStage: #Final.
 	logFileManager addStage: 2.
 	logFileManager addStage: 0.
-	self assert: ((logFileManager childrens at:1) stage) equals: (0).
-	self assert: ((logFileManager childrens at:2) stage) equals: (1).
-	self assert: ((logFileManager childrens at:3) stage) equals: (2).
+	childrens := logFileManager childrens.
+	self assert: ((childrens at:1) stage) equals: (0).
+	self assert: ((childrens at:2) stage) equals: (1).
+	self assert: ((childrens at:3) stage) equals: (2).
+	self assert: ((childrens at:4) stage) equals: (#Final).
 ]
 
 { #category : #tests }
