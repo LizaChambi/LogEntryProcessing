@@ -31,6 +31,11 @@ ReadLogStream >> isEmptyChunk: aChunk [
 ]
 
 { #category : #initalize }
+ReadLogStream >> isEmptyFile [
+	^ stream contents trim isEmpty.
+]
+
+{ #category : #initalize }
 ReadLogStream >> next [
 	"comment stating purpose of message"
 	| chunk finalized |

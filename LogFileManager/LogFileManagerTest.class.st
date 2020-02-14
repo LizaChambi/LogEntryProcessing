@@ -9,7 +9,8 @@ Class {
 		'path1',
 		'path2',
 		'path3',
-		'pathFolder'
+		'pathFolder',
+		'pathWithEmptyFiles'
 	],
 	#classInstVars : [
 		'text',
@@ -35,6 +36,7 @@ LogFileManagerTest >> setUp [
 	path2 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes'.
 	path3 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfileCr.changes'.
 	pathFolder := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/resources'.
+	
 ]
 
 { #category : #tests }
@@ -228,6 +230,11 @@ LogFileManagerTest >> testReadLogFilesFromFolder [
 	"comment stating purpose of message"
 	logFileManager := LogFileManager readLogFilesFromFolder: pathFolder.
 	self assert: (logFileManager logEntries size) equals: (3).
+	self assert: (logFileManager stages size) equals: (1).
+	self assert: ((logFileManager stages at:1) groups size) equals: (2).
+	self assert: (((logFileManager stages at:1) groups at:1) logEntries size) equals: (3).
+	self assert: (((logFileManager stages at:1) groups at:2) logEntries isEmpty).
+	
 ]
 
 { #category : #tests }

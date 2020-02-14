@@ -149,7 +149,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			maxDepth:2; 
 			allExpanded;
 			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
-			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. self refreshFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. "self refreshFiles." composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
@@ -310,7 +310,7 @@ LogFileManager >> openEditFileOn: itemSelection from: aComposite [
 				yourself];
 			withGhostText: 'Input a group path...';
 			addAction: (GLMGenericAction new 
-				action: [:textInput | [self editFileGroup: itemSelection to: textInput text asString. aComposite update] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ('Error: ', ex messageText, Character cr asString, ' >> The source file must have the format: ''stage', itemSelection stage asString, '-aNameFile.changes''')]]; 
+				action: [:textInput | [self editFileGroup: itemSelection to: textInput text asString. self updateFailures. aComposite update] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ('Error: ', ex messageText, Character cr asString, ' >> The source file must have the format: ''stage', itemSelection stage asString, '-aNameFile.changes''')]]; 
 				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change file'; showTitle)].
 	tmpBrowser startOn: itemSelection.
 	tmpBrowser open.
@@ -327,7 +327,7 @@ LogFileManager >> openEditStageOn: itemSelection from: aComposite [
 				yourself];
 			withGhostText: 'Input a stage...';
 			addAction: (GLMGenericAction new 
-				action: [:textInput | [ self editStage: itemSelection to: textInput text asString. aComposite update ] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ] ]; 
+				action: [:textInput | [ self editStage: itemSelection to: textInput text asString. self updateFailures. aComposite update ] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change stage'; showTitle)].
 	tmpBrowser startOn: itemSelection.
 	tmpBrowser open.
@@ -365,11 +365,12 @@ LogFileManager >> readLogFilesFromFolder: inputDirectory [
 { #category : #reading }
 LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
-	| logCreated |
+	| createdLog |
+	"( logStream isEmptyFile) ifTrue: [ self addGroup: logStream fileReference fullName]." "DESCOMENTAR CUANDO SE IMPLEMENTE LOS GROUPS CON STAGES"
 	[ logStream atEnd] whileFalse: [
-		logCreated := LogEntry readLog: logStream.
-		self reportLogErrors: logCreated onStream: logStream.
-		self addLog: logCreated withSource: logStream fileReference fullName].
+		createdLog := LogEntry readLog: logStream.
+		self reportLogErrors: createdLog onStream: logStream.
+		self addLog: createdLog withSource: logStream fileReference fullName].
 	^ self logEntries.
 ]
 
