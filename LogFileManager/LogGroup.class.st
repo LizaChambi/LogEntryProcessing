@@ -77,7 +77,7 @@ LogGroup >> removeLogEntry: aLogEntry [
 
 { #category : #'as yet unclassified' }
 LogGroup >> saveGroup [
-	(logsEntries isEmpty) ifTrue: [ source asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: '' ]].
+	(logsEntries isEmpty) ifTrue: [ source asFileReference ensureDelete; writeStream].
 	self writeLogsEntries: self sortLogEntriesByTimestamp.
 ]
 
