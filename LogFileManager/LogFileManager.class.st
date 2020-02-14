@@ -2,9 +2,9 @@ Class {
 	#name : #LogFileManager,
 	#superclass : #Object,
 	#instVars : [
-		'logStages',
 		'sourceInput',
-		'failures'
+		'failures',
+		'stages'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -40,7 +40,7 @@ LogFileManager >> addNewStage [
 { #category : #adding }
 LogFileManager >> addStage: aNumber [.
 	"comment stating purpose of message"
-	(self existStage: aNumber) ifFalse: [ logStages add: (Stage new:aNumber) ].
+	(self existStage: aNumber) ifFalse: [ stages add: (Stage new:aNumber) ].
 ]
 
 { #category : #accessing }
@@ -79,7 +79,7 @@ LogFileManager >> editStage: aLogEntry to: aString [
 { #category : #adding }
 LogFileManager >> existStage: aNumber [
 	"comment stating purpose of message"
-	^ logStages anySatisfy: [ :stage | stage stage = aNumber ].
+	^ stages anySatisfy: [ :stage | stage level = aNumber ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -92,7 +92,7 @@ LogFileManager >> filesToReadFromFolder: inputDirectory [
 { #category : #adding }
 LogFileManager >> findStage: aNumber [
 	"comment stating purpose of message"
-	^ logStages detect: [ :stage | stage hasStage: aNumber ]. 
+	^ stages detect: [ :stage | stage hasStage: aNumber ]. 
 ]
 
 { #category : #'as yet unclassified' }
@@ -254,7 +254,7 @@ LogFileManager >> hasTimestampRepeatedInGroup: aLogEntry [
 { #category : #initialization }
 LogFileManager >> initialize [
 	"comment stating purpose of message"
-	logStages := OrderedCollection new.
+	stages := OrderedCollection new.
 	failures  := OrderedCollection new.
 ]
 
@@ -263,7 +263,7 @@ LogFileManager >> logEntries [
 	"comment stating purpose of message"
 	| logs |
 	logs := OrderedCollection new.
-	logStages do: [ :stage | logs addAll: stage logEntries ].
+	stages do: [ :stage | logs addAll: stage logEntries ].
 	^ logs.
 ]
 
@@ -302,7 +302,7 @@ LogFileManager >> mergeOrderedLogFilesFrom: inputDirectory withName: fileNameOut
 { #category : #adding }
 LogFileManager >> nextStage [
 	"comment stating purpose of message"
-	^(logStages collect: [ :stage | stage stage ]) max + 1. 
+	^(stages collect: [ :stage | stage stage ]) max + 1. 
 ]
 
 { #category : #'as yet unclassified' }
@@ -394,7 +394,7 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 { #category : #'as yet unclassified' }
 LogFileManager >> refreshFiles [
 	"comment stating purpose of instance-side message"
-	logStages removeAll.
+	stages removeAll.
 	self readLogFilesFromFolder: sourceInput.
 ]
 
@@ -405,7 +405,7 @@ LogFileManager >> removeLogEntry: aLogEntry [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> removeLogGroup: aLogGroup [
-	logStages do: [ :stage | stage removeLogGroup: aLogGroup ].
+	stages do: [ :stage | stage removeLogGroup: aLogGroup ].
 	
 ]
 
@@ -425,7 +425,7 @@ LogFileManager >> removeOlderLogFiles [
 
 { #category : #removing }
 LogFileManager >> removeStage: aStage [
-	logStages removeAllSuchThat: [ :stage | stage = aStage].
+	stages removeAllSuchThat: [ :stage | stage = aStage].
 ]
 
 { #category : #accessing }
@@ -451,7 +451,7 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
 	(failures isEmpty) 
-		ifTrue: [ self removeOlderLogFiles. logStages do: [ :stage | stage saveStage ]. ]
+		ifTrue: [ self removeOlderLogFiles. stages do: [ :stage | stage saveStage ]. ]
 		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ]. "Reemplazarlo por un mensaje de advertencia al usuario"
 ]
 
@@ -490,7 +490,7 @@ LogFileManager >> sortLogsByStage [
 { #category : #sorting }
 LogFileManager >> sortStages [
 	"comment stating purpose of instance-side message"
-	^ self stages sort: [ :stage1 :stage2 | stage1 < stage2 ].
+	^ stages sort: [ :stage1 :stage2 | stage1 < stage2 ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -510,13 +510,13 @@ LogFileManager >> sourceInput: aPathString [
 { #category : #accessing }
 LogFileManager >> stages [
 	"comment stating purpose of message"
-	^ logStages.
+	^ stages.
 ]
 
 { #category : #'to deprecate' }
 LogFileManager >> updateFailures [
 	failures removeAll.
-	logStages collect: [ :stage | failures addAll: stage failuresReport ].
+	stages collect: [ :stage | failures addAll: stage failuresReport ].
 ]
 
 { #category : #'as yet unclassified' }

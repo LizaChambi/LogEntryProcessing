@@ -2,8 +2,8 @@ Class {
 	#name : #Stage,
 	#superclass : #Object,
 	#instVars : [
-		'stage',
-		'groups'
+		'groups',
+		'level'
 	],
 	#category : #LogFileManager
 }
@@ -17,9 +17,9 @@ Stage class >> new: aNumber [
 
 { #category : #comparing }
 Stage >> < aStage [
-	( stage = #Final) ifTrue: [ ^ false ]
-		ifFalse: [ (aStage stage = #Final) ifTrue: [ ^ true ] 
-					ifFalse: [ ^(stage < aStage stage) ] ].
+	( level = #Final) ifTrue: [ ^ false ]
+		ifFalse: [ (aStage level = #Final) ifTrue: [ ^ true ] 
+					ifFalse: [ ^(level < aStage level) ] ].
 ]
 
 { #category : #'as yet unclassified' }
@@ -71,7 +71,13 @@ Stage >> gtInspectorLogsEntries: composite [
 { #category : #'as yet unclassified' }
 Stage >> hasStage: aNumberOrSymbol [
 	"comment stating purpose of message"
-	^ stage = aNumberOrSymbol.
+	^ level = aNumberOrSymbol.
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> level [
+	"comment stating purpose of message"
+	^ level.
 ]
 
 { #category : #'as yet unclassified' }
@@ -86,7 +92,7 @@ Stage >> logEntries [
 { #category : #'as yet unclassified' }
 Stage >> print [
 	"comment stating purpose of message"
-	^ 'Stage ', stage asString.
+	^ 'Stage ', level asString.
 ]
 
 { #category : #removing }
@@ -106,14 +112,8 @@ Stage >> searchGroup: aPath [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> stage [
-	"comment stating purpose of message"
-	^ stage.
-]
-
-{ #category : #'as yet unclassified' }
 Stage >> stage: aNumberOrSymbol groups: anArray [
 	"comment stating purpose of message"
-	stage:= aNumberOrSymbol.
+	level:= aNumberOrSymbol.
 	groups:= anArray.
 ]

@@ -40,7 +40,7 @@ LogFileManagerTest >> setUp [
 { #category : #tests }
 LogFileManagerTest >> testAddLogWithSource [
 	"comment stating purpose of message"
-	logFileManager addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') stage: 0) withSource: 'path'.
+	logFileManager addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') stage: '0') withSource: 'path'.
 	self assert: (logFileManager logEntries notEmpty).
 ]
 
@@ -55,7 +55,7 @@ LogFileManagerTest >> testAddLogWithSourceWithStageFinal [
 LogFileManagerTest >> testAddStage [
 	"comment stating purpose of message"
 	logFileManager addStage: 1.
-	self assert: ((logFileManager stages at:1) stage) equals: (1).
+	self assert: ((logFileManager stages at:1) level) equals: (1).
 	self assert: ((logFileManager stages at:1) groups isEmpty).
 	self assert: (logFileManager stages size) equals: (1).
 	
@@ -65,7 +65,7 @@ LogFileManagerTest >> testAddStage [
 LogFileManagerTest >> testAddStageFinal [
 	"comment stating purpose of message"
 	logFileManager addStage: #Final.
-	self assert: ((logFileManager stages at:1) stage) equals: (#Final).
+	self assert: ((logFileManager stages at:1) level) equals: (#Final).
 	self assert: ((logFileManager stages at:1) groups isEmpty).
 	self assert: (logFileManager stages size) equals: (1).
 	
@@ -80,10 +80,10 @@ LogFileManagerTest >> testChildrens [
 	logFileManager addStage: 2.
 	logFileManager addStage: 0.
 	childrens := logFileManager childrens.
-	self assert: ((childrens at:1) stage) equals: (0).
-	self assert: ((childrens at:2) stage) equals: (1).
-	self assert: ((childrens at:3) stage) equals: (2).
-	self assert: ((childrens at:4) stage) equals: (#Final).
+	self assert: ((childrens at:1) level) equals: (0).
+	self assert: ((childrens at:2) level) equals: (1).
+	self assert: ((childrens at:3) level) equals: (2).
+	self assert: ((childrens at:4) level) equals: (#Final).
 ]
 
 { #category : #tests }
@@ -97,7 +97,7 @@ LogFileManagerTest >> testExceptionAddLogNil [
 LogFileManagerTest >> testFindStage [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1.
-	self assert: ((logFileManager findStage:0) stage ) equals: (0).
+	self assert: ((logFileManager findStage:0) level ) equals: (0).
 	
 ]
 
@@ -113,7 +113,7 @@ LogFileManagerTest >> testFindStageException [
 LogFileManagerTest >> testFindStageFinal [
 	"comment stating purpose of message"
 	logFileManager addStage: 0; addStage: 1; addStage:#Final.
-	self assert: ((logFileManager findStage:#Final) stage ) equals: (#Final).
+	self assert: ((logFileManager findStage:#Final) level ) equals: (#Final).
 	
 ]
 
@@ -278,7 +278,7 @@ LogFileManagerTest >> testRemoveStage [
 	logFileManager removeStage: aStage.
 	
 	self assert: (logFileManager stages size) equals: (1).
-	self assert: ((logFileManager stages at:1) stage) equals: (0).
+	self assert: ((logFileManager stages at:1) level) equals: (0).
 ]
 
 { #category : #tests }
@@ -538,9 +538,9 @@ LogFileManagerTest >> testStages [
 	logFileManager addStage: 1.
 	logFileManager addStage: #Final.
 	self assert: (logFileManager stages size ) equals: (3).
-	self assert: ((logFileManager stages at:1) stage ) equals: (0).
-	self assert: ((logFileManager stages at:2) stage ) equals: (1).
-	self assert: ((logFileManager stages at:3) stage ) equals: (#Final).
+	self assert: ((logFileManager stages at:1) level ) equals: (0).
+	self assert: ((logFileManager stages at:2) level ) equals: (1).
+	self assert: ((logFileManager stages at:3) level ) equals: (#Final).
 ]
 
 { #category : #tests }

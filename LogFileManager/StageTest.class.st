@@ -43,7 +43,7 @@ StageTest >> testAddLogWithSource [
 	| log1 |
 	log1 := LogEntry timestamp: 0303456 selector: #()  arguments: #(ninguno:) stage: 0 group: 'path'.
 	stage addLog: log1 withSource: 'path'.
-	self assert: (stage stage) equals:(0).
+	self assert: (stage level) equals:(0).
 	self assert: (stage groups first source) equals:('path').
 	self assert: (stage groups first logEntries first) equals:(log1).
 
