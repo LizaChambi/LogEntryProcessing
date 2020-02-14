@@ -24,7 +24,7 @@ LogGroup >> addLog: aLogEntry [
 { #category : #adding }
 LogGroup >> addNewLogEntry [
 	"CAMBIAR IMPLEMENTACION DEL STAGE DEL LOG ENTRY"
-	self addLog: (LogEntry timestamp: 0 selector: #method: arguments: #(arguments ) stage: (stage stage) group: self). "EL STAGE DEBE SER EL OBJETO ENTERO, NO SU VALOR"
+	self addLog: (LogEntry timestamp: 0 selector: #method: arguments: #(arguments ) stage: (stage level) group: self). "EL STAGE DEBE SER EL OBJETO ENTERO, NO SU VALOR"
 ]
 
 { #category : #'as yet unclassified' }
@@ -77,6 +77,7 @@ LogGroup >> removeLogEntry: aLogEntry [
 
 { #category : #'as yet unclassified' }
 LogGroup >> saveGroup [
+	(logsEntries isEmpty) ifTrue: [ source asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: '' ]].
 	self writeLogsEntries: self sortLogEntriesByTimestamp.
 ]
 

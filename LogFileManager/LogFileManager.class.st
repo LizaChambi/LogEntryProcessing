@@ -144,11 +144,10 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			maxDepth:2; 
 			allExpanded;
 			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
-			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. "self refreshFiles." composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. self refreshFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup) ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
-				"El selectionAct sí funciona en las estructuras de aŕbol"
 			selectionAct: [ :tree | self removeLogGroup: (tree selection). composite update ] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup];
 			selectionAct: [ :tree | self removeStage: (tree selection). composite update ] entitled: 'Remove stage' enabledWhen: [ :presentation | presentation selection class = Stage]
 			].
@@ -378,12 +377,11 @@ LogFileManager >> readLogsEntries: logStream [
 	| createdLog |
 	( logStream isEmptyFile) 
 		ifTrue: [self readEmptyFile: logStream fileReference ]
-		ifFalse: [ [ logStream atEnd] whileFalse: [
-				createdLog := LogEntry readLog: logStream.
+		ifFalse: [ [ logStream atEnd] whileFalse: 
+			[	createdLog := LogEntry readLog: logStream.
 				self reportLogErrors: createdLog onStream: logStream.
-				self addLog: createdLog withSource: logStream fileReference fullName
-				].
-				^ self logEntries.
+				self addLog: createdLog withSource: logStream fileReference fullName].
+			^ self logEntries.
 		]
 ]
 
@@ -436,7 +434,7 @@ LogFileManager >> removeOlderLogFiles [
 
 { #category : #removing }
 LogFileManager >> removeStage: aStage [
-	stages removeAllSuchThat: [ :stage | stage = aStage].
+	stages removeAllSuchThat: [ :stage | stage hasStage: aStage level].
 ]
 
 { #category : #accessing }
@@ -463,7 +461,7 @@ LogFileManager >> saveFiles [
 	"comment stating purpose of message"
 	(failures isEmpty) 
 		ifTrue: [ self removeOlderLogFiles. stages do: [ :stage | stage saveStage ]. ]
-		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ]. "Reemplazarlo por un mensaje de advertencia al usuario"
+		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ].
 ]
 
 { #category : #'as yet unclassified' }
