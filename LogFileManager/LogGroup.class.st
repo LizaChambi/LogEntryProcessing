@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'source',
 		'logsEntries',
-		'stage'
+		'stage',
+		'name'
 	],
 	#category : #LogFileManager
 }
@@ -65,6 +66,16 @@ LogGroup >> logsWithRepeatedTimestamp [
 
 ]
 
+{ #category : #setter }
+LogGroup >> name [
+	^ name
+]
+
+{ #category : #setter }
+LogGroup >> name: aString [ 
+	name := aString
+]
+
 { #category : #'as yet unclassified' }
 LogGroup >> print [
 	^ source asFileReference basename.
@@ -101,6 +112,12 @@ LogGroup >> source: aPath logs: anArray stage: aStage [
 	source:= aPath.
 	logsEntries:= anArray.
 	stage := aStage.
+]
+
+{ #category : #'as yet unclassified' }
+LogGroup >> sourceFile: pathFolder [
+	"comment stating purpose of instance-side message"
+	^ pathFolder, '/', stage stageNameSuffix, '-', name, '.changes'.
 ]
 
 { #category : #'as yet unclassified' }

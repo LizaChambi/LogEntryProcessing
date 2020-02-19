@@ -119,3 +119,8 @@ Stage >> stage: aNumberOrSymbol groups: anArray [
 	level:= aNumberOrSymbol.
 	groups:= anArray.
 ]
+
+{ #category : #'as yet unclassified' }
+Stage >> stageNameSuffix [
+	^ 'stage', level asString
+]

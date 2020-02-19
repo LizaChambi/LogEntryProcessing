@@ -143,6 +143,12 @@ LogGroupTest >> testSortLogEntriesByTimestamp [
 ]
 
 { #category : #tests }
+LogGroupTest >> testSourceFile [
+	group name:'nameGroup'.
+	self assert: (group sourceFile:'files/Operations') equals: ('files/Operations/stage0-nameGroup.changes').
+]
+
+{ #category : #tests }
 LogGroupTest >> testWriteLogsEntries [
 	| log1 |
 	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: saveFolder.
