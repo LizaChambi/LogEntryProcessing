@@ -60,6 +60,11 @@ LogGroup >> hasFileName: aBasename [
 ]
 
 { #category : #'as yet unclassified' }
+LogGroup >> hasName: aName [
+	^ name = aName.
+]
+
+{ #category : #'as yet unclassified' }
 LogGroup >> logEntries [
 	^ logsEntries.
 ]

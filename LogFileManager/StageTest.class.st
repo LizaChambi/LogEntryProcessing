@@ -21,25 +21,27 @@ StageTest >> setUp [
 { #category : #tests }
 StageTest >> testAddGroup [
 	"comment stating purpose of message"
-	stage addGroup: 'path'.
+	stage addGroup: 'aGroupName'.
 	self assert: (stage groups size) equals:(1).
-	self assert: (stage groups first source) equals:('path').
+	self assert: (stage groups first name) equals:('aGroupName').
 ]
 
 { #category : #tests }
 StageTest >> testAddGroupExist [
 	"comment stating purpose of message"
-	stage addGroup: 'path1'.
-	stage addGroup: 'path2'.
-	stage addGroup: 'path1'.
+	stage addGroup: 'groupName1'.
+	stage addGroup: 'groupName2'.
+	stage addGroup: 'groupName1'.
 	self assert: (stage groups size) equals:(2).
-	self assert: (stage groups first source) equals:('path1').
-	self assert: (stage groups second source) equals:('path2').
+	self assert: (stage groups first name) equals:('groupName1').
+	self assert: (stage groups second name) equals:('groupName2').
 ]
 
 { #category : #tests }
 StageTest >> testAddLogWithSource [
 	"comment stating purpose of message"
+	
+	" ARREGLAR ESTE TEST CON LAS NUEVAS MODIFICACIONES "
 	| log1 |
 	log1 := LogEntry timestamp: 0303456 selector: #()  arguments: #(ninguno:) stage: 0 group: 'path'.
 	stage addLog: log1 withSource: 'path'.

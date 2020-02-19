@@ -25,11 +25,12 @@ Stage >> < aStage [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> addGroup: aPath [
-	"comment stating purpose of message"
-	(groups anySatisfy: [ :group | group hasFileName: aPath]) 
-		ifTrue: [ ^ self searchGroup: aPath ]
-		ifFalse:[ | newGroup | newGroup := LogGroup withName: aPath stage: self. 
+Stage >> addGroup: aName [
+	"ESTE METODO HACE DOBLE BUSQUEDA"
+	"aName := aBasename readStream upTo:$-; upTo:$.." "Read the name" "Se puede hacer con un parser"
+	(groups anySatisfy: [ :group | group hasName: aName])
+		ifTrue: [ ^ self searchGroup: aName ]
+		ifFalse:[ | newGroup | newGroup := LogGroup withName: aName stage: self. 
 			groups add: newGroup.
 			^ newGroup].
 ]
@@ -38,7 +39,7 @@ Stage >> addGroup: aPath [
 Stage >> addLog: aLogEntry withSource: aPath [
 	"comment stating purpose of message"
 	| group |
-	group := self addGroup: aPath.
+	group := self addGroup: aPath asFileReference basename.
 	group addLog: (aLogEntry group: group).
 ]
 
@@ -109,8 +110,14 @@ Stage >> saveStage [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> searchGroup: aPath [
-	^ groups detect: [ :group | group hasFileName: aPath].
+Stage >> saveStage: aPathFolder [
+	"comment stating purpose of instance-side message"
+	groups do: [ :group | group saveGroupOnFolder: aPathFolder ].
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> searchGroup: aName [
+	^ groups detect: [ :group | group hasName: aName].
 ]
 
 { #category : #'as yet unclassified' }
