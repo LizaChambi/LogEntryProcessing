@@ -37,7 +37,7 @@ LogGroup >> failuresReport [
 	| failures |
 	failures := OrderedCollection new.
 	failures addAll: (self logsWithRepeatedTimestamp collect: [ :log | ReportLogError description: 'Timestamp repeated.' nameFile: self fileName logTimestamp: log timestamp ] ).
-	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: name)].
+	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: self fileName)].
 	^ failures.
 ]
 
@@ -140,5 +140,5 @@ LogGroup >> writeLogsEntries: aCollection onFolder: aPathFolder [
 	"Write a file with the log entries with the given name"
 	| text |	
 	text := String streamContents: [:t | aCollection do: [:log | t nextPutAll: log prettyPrint]].
-	(self sourceFile: aPathFolder) ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: text ].
+	(self sourceFile: aPathFolder) asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: text ].
 ]

@@ -18,17 +18,17 @@ LogGroupTest >> readFile: aPath [
 
 { #category : #running }
 LogGroupTest >> setUp [
-	saveFolder := './testFolder/stage0-testFile.changes'.
-	saveFolder asFileReference parent fullName asFileReference ensureCreateDirectory.
+	saveFolder := './testFolder'.
+	saveFolder asFileReference ensureCreateDirectory.
 	stage := Stage new:0.
-	group  := LogGroup withName: saveFolder stage: stage.
+	group  := LogGroup withName: 'groupName' stage: stage.
 
 ]
 
 { #category : #running }
 LogGroupTest >> tearDown [
 	"comment stating purpose of message"
-	saveFolder asFileReference parent fullName asFileReference ensureDeleteAll.
+	saveFolder asFileReference ensureDeleteAll.
 ]
 
 { #category : #tests }
@@ -42,19 +42,19 @@ LogGroupTest >> testFailuresReportWithAllFailures [
 	
 	self assert: (failures size) equals: (4).
 	self assert: ((failures at:1) description) equals: ('Timestamp repeated.').
-	self assert: ((failures at:1) nameFile) equals: (group source asFileReference basename).
+	self assert: ((failures at:1) nameFile) equals: (group fileName).
 	self assert: ((failures at:1) logWithTimestamp) equals: (34).
 	
 	self assert: ((failures at:2) description) equals: ('Timestamp repeated.').
-	self assert: ((failures at:2) nameFile) equals: (group source asFileReference basename).
+	self assert: ((failures at:2) nameFile) equals: (group fileName).
 	self assert: ((failures at:2) logWithTimestamp) equals: (34).
 	
 	self assert: ((failures at:3) description) equals: ('Log stage does not match the file name.').
-	self assert: ((failures at:3) nameFile) equals: (group source asFileReference basename).
+	self assert: ((failures at:3) nameFile) equals: (group fileName).
 	self assert: ((failures at:3) logWithTimestamp) equals: (34).
 	
 	self assert: ((failures at:4) description) equals: ('Stage invalid.'). 
-	self assert: ((failures at:4) nameFile) equals: (group source asFileReference basename).
+	self assert: ((failures at:4) nameFile) equals: (group fileName).
 	self assert: ((failures at:4) logWithTimestamp) equals: (34).
 ]
 
@@ -116,8 +116,8 @@ LogGroupTest >> testSaveGroup [
 	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: group.
 	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: group.
 	group addLog: log1; addLog: log2.
-	group saveGroup.
-	self assert: (self readFile: group source) equals: ('self
+	group saveGroupOnFolder: saveFolder.
+	self assert: (self readFile: (group sourceFile: saveFolder)) equals: ('self
 	timestamp: 28
 	selector: #method2:
 	arguments: #(true)
@@ -133,8 +133,8 @@ self
 { #category : #tests }
 LogGroupTest >> testSortLogEntriesByTimestamp [
 	| log1 log2 sortedCollection |
-	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: saveFolder.
-	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: saveFolder.
+	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: group .
+	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: group.
 	group addLog: log1; addLog: log2.
 	sortedCollection := group sortLogEntriesByTimestamp.
 	self assert: (sortedCollection at:1) equals: (log2).
@@ -149,12 +149,12 @@ LogGroupTest >> testSourceFile [
 ]
 
 { #category : #tests }
-LogGroupTest >> testWriteLogsEntries [
+LogGroupTest >> testWriteLogsEntriesOnFolder [
 	| log1 |
-	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: saveFolder.
+	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: group.
 	group addLog: log1.
-	group writeLogsEntries: group logEntries.
-	self assert: (self readFile: saveFolder) equals: ('self
+	group writeLogsEntries: group logEntries onFolder: saveFolder.
+	self assert: (self readFile: (group sourceFile: saveFolder)) equals: ('self
 	timestamp: 34
 	selector: #method1
 	arguments: #()
