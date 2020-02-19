@@ -27,9 +27,9 @@ Stage >> < aStage [
 { #category : #'as yet unclassified' }
 Stage >> addGroup: aPath [
 	"comment stating purpose of message"
-	(groups anySatisfy: [ :group | group hasSource: aPath]) 
+	(groups anySatisfy: [ :group | group hasFileName: aPath]) 
 		ifTrue: [ ^ self searchGroup: aPath ]
-		ifFalse:[ | newGroup | newGroup := LogGroup withSource: aPath stage: self. 
+		ifFalse:[ | newGroup | newGroup := LogGroup withName: aPath stage: self. 
 			groups add: newGroup.
 			^ newGroup].
 ]
@@ -110,7 +110,7 @@ Stage >> saveStage [
 
 { #category : #'as yet unclassified' }
 Stage >> searchGroup: aPath [
-	^ groups detect: [ :group | group hasSource: aPath].
+	^ groups detect: [ :group | group hasFileName: aPath].
 ]
 
 { #category : #'as yet unclassified' }
@@ -121,6 +121,6 @@ Stage >> stage: aNumberOrSymbol groups: anArray [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> stageNameSuffix [
+Stage >> stageNamePrefix [
 	^ 'stage', level asString
 ]

@@ -2,7 +2,6 @@ Class {
 	#name : #LogGroup,
 	#superclass : #Object,
 	#instVars : [
-		'source',
 		'logsEntries',
 		'stage',
 		'name'
@@ -11,9 +10,9 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-LogGroup class >> withSource: aPath stage:aStage [
+LogGroup class >> withName: aName stage:aStage [
 	"comment stating purpose of message"
-	^(self new) source: aPath logs: OrderedCollection new stage:aStage.
+	^(self new) name: aName logs: OrderedCollection new stage:aStage.
 ]
 
 { #category : #'as yet unclassified' }
@@ -37,9 +36,14 @@ LogGroup >> childrens [
 LogGroup >> failuresReport [
 	| failures |
 	failures := OrderedCollection new.
-	failures addAll: (self logsWithRepeatedTimestamp collect: [ :log | ReportLogError description: 'Timestamp repeated.' nameFile: source asFileReference basename logTimestamp: log timestamp ] ).
-	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: source)].
+	failures addAll: (self logsWithRepeatedTimestamp collect: [ :log | ReportLogError description: 'Timestamp repeated.' nameFile: self fileName logTimestamp: log timestamp ] ).
+	logsEntries do: [ :logE | failures addAll: (logE failuresInGroup: name)].
 	^ failures.
+]
+
+{ #category : #accessing }
+LogGroup >> fileName [
+	^ (stage stageNamePrefix, '-', name, '.changes')
 ]
 
 { #category : #'as yet unclassified' }
@@ -51,8 +55,8 @@ LogGroup >> gtInspectorLogsEntries: composite [
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> hasSource: aPath [
-	^ (source = aPath).
+LogGroup >> hasFileName: aBasename [
+	^ (self fileName = aBasename).
 ]
 
 { #category : #'as yet unclassified' }
@@ -77,8 +81,16 @@ LogGroup >> name: aString [
 ]
 
 { #category : #'as yet unclassified' }
+LogGroup >> name: aName logs: anArray stage: aStage [
+	"comment stating purpose of message"
+	name:= aName.
+	logsEntries:= anArray.
+	stage := aStage.
+]
+
+{ #category : #'as yet unclassified' }
 LogGroup >> print [
-	^ source asFileReference basename.
+	^ name.
 ]
 
 { #category : #removing }
@@ -87,9 +99,10 @@ LogGroup >> removeLogEntry: aLogEntry [
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> saveGroup [
-	(logsEntries isEmpty) ifTrue: [ source asFileReference ensureDelete; writeStream].
-	self writeLogsEntries: self sortLogEntriesByTimestamp.
+LogGroup >> saveGroupOnFolder: aPathFolder [
+	(logsEntries isEmpty) 
+		ifTrue: [ self writeEmptyGroup: aPathFolder ]
+		ifFalse: [self writeLogsEntries: self sortLogEntriesByTimestamp onFolder: aPathFolder ]
 ]
 
 { #category : #sorting }
@@ -102,22 +115,9 @@ LogGroup >> sortLogEntriesByTimestamp [
 ]
 
 { #category : #'as yet unclassified' }
-LogGroup >> source [
-	^ source.
-]
-
-{ #category : #'as yet unclassified' }
-LogGroup >> source: aPath logs: anArray stage: aStage [
-	"comment stating purpose of message"
-	source:= aPath.
-	logsEntries:= anArray.
-	stage := aStage.
-]
-
-{ #category : #'as yet unclassified' }
 LogGroup >> sourceFile: pathFolder [
 	"comment stating purpose of instance-side message"
-	^ pathFolder, '/', stage stageNameSuffix, '-', name, '.changes'.
+	^ (pathFolder, '/', self fileName)
 ]
 
 { #category : #'as yet unclassified' }
@@ -130,10 +130,15 @@ LogGroup >> stage: aStage [
 	stage := aStage
 ]
 
+{ #category : #'as yet unclassified' }
+LogGroup >> writeEmptyGroup: aPathFolder [
+	(self sourceFile: aPathFolder) ensureDelete;writeStream.
+]
+
 { #category : #writing }
-LogGroup >> writeLogsEntries: aCollection [
+LogGroup >> writeLogsEntries: aCollection onFolder: aPathFolder [
 	"Write a file with the log entries with the given name"
 	| text |	
 	text := String streamContents: [:t | aCollection do: [:log | t nextPutAll: log prettyPrint]].
-	source asFileReference ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: text ].
+	(self sourceFile: aPathFolder) ensureDelete; writeStreamDo: [ :stream | stream nextPutAll: text ].
 ]

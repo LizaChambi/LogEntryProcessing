@@ -21,7 +21,7 @@ LogGroupTest >> setUp [
 	saveFolder := './testFolder/stage0-testFile.changes'.
 	saveFolder asFileReference parent fullName asFileReference ensureCreateDirectory.
 	stage := Stage new:0.
-	group  := LogGroup withSource: saveFolder stage: stage.
+	group  := LogGroup withName: saveFolder stage: stage.
 
 ]
 
