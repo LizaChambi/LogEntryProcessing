@@ -40,13 +40,12 @@ StageTest >> testAddGroupExist [
 { #category : #tests }
 StageTest >> testAddLogWithSource [
 	"comment stating purpose of message"
-	
-	" ARREGLAR ESTE TEST CON LAS NUEVAS MODIFICACIONES "
-	| log1 |
-	log1 := LogEntry timestamp: 0303456 selector: #()  arguments: #(ninguno:) stage: 0 group: 'path'.
-	stage addLog: log1 withSource: 'path'.
+	| log1 group |
+	log1 := LogEntry timestamp: 0303456 selector: #method: arguments: #(arg ) stage: 0.
+	stage addLog: log1 withSource: 'stage0-groupName.changes'.
 	self assert: (stage level) equals:(0).
-	self assert: (stage groups first source) equals:('path').
+	self assert: (stage groups size) equals:(1).
+	self assert: (stage groups first name) equals:('groupName').
 	self assert: (stage groups first logEntries first) equals:(log1).
 
 ]
@@ -55,13 +54,14 @@ StageTest >> testAddLogWithSource [
 StageTest >> testLogEntries [
 	"comment stating purpose of message"
 	| log1 log2 log3 |
-	log1 := LogEntry timestamp: 030 selector: #() arguments: #() stage: 0 group: 'path1'.
-	log2 := LogEntry timestamp: 03034 selector: #() arguments: #() stage: 1 group: 'path2'.
-	log3 := LogEntry timestamp: 0303456 selector: #() arguments: #() stage: 1 group: 'path2'.
 	
-	stage addLog: log1 withSource: 'path1'.
-	stage addLog: log2 withSource: 'path2'.
-	stage addLog: log3 withSource: 'path2'.
+	log1 := LogEntry timestamp: 030 selector: #() arguments: #() stage: 0.
+	log2 := LogEntry timestamp: 03034 selector: #() arguments: #() stage: 1.
+	log3 := LogEntry timestamp: 0303456 selector: #() arguments: #() stage: 1.
+	
+	stage addLog: log1 withSource: 'stage0-fileName1.changes'.
+	stage addLog: log2 withSource: 'stage1-fileName2.changes'.
+	stage addLog: log3 withSource: 'stage1-fileName2.changes'.
 	
 	self assert: (stage logEntries size) equals: (3).
 	self assert: (stage logEntries includes:log1).
@@ -77,28 +77,28 @@ StageTest >> testPrint [
 
 { #category : #tests }
 StageTest >> testSaveStage [
-	"comment stating purpose of message"
-	| log1 log2 log3 sourceFolder |
-	sourceFolder := './testFolder/'.
+	| log1 log2 log3 sourceFolder stage1 |
+	stage1 := Stage new:1.
+	sourceFolder := './testFolder'.
 	sourceFolder asFileReference ensureCreateDirectory.
 
-	log1 := LogEntry timestamp: 0 selector: #method arguments: #() stage: 0 group: (sourceFolder, 'stage0-testFile1.changes').
-	log2 := LogEntry timestamp: 56 selector: #method: arguments: #(false) stage: 1 group: (sourceFolder, 'stage1-testFile2.changes').
-	log3 := LogEntry timestamp: 34 selector: #method:and: arguments: #(1 nil) stage: 1 group: (sourceFolder, 'stage1-testFile2.changes').
+	log1 := LogEntry timestamp: 0 selector: #method arguments: #() stage: 1.
+	log2 := LogEntry timestamp: 56 selector: #method: arguments: #(false) stage: 1.
+	log3 := LogEntry timestamp: 34 selector: #method:and: arguments: #(1 nil) stage: 1.
 	
-	stage addLog: log1 withSource: (sourceFolder, 'stage0-testFile1.changes').
-	stage addLog: log2 withSource: (sourceFolder, 'stage1-testFile2.changes').
-	stage addLog: log3 withSource: (sourceFolder, 'stage1-testFile2.changes').
+	stage1 addLog: log1 withSource: ('stage1-testFile1.changes').
+	stage1 addLog: log2 withSource: ('stage1-testFile2.changes').
+	stage1 addLog: log3 withSource: ('stage1-testFile2.changes').
 	
-	stage saveStage.
+	stage1 saveStageOnFolder: sourceFolder.
 	
-	self assert: (self readFile: (sourceFolder, 'stage0-testFile1.changes')) equals: ('self
+	self assert: (self readFile: (sourceFolder, '/stage1-testFile1.changes')) equals: ('self
 	timestamp: 0
 	selector: #method
 	arguments: #()
-	stage: 0.
+	stage: 1.
 ').
-	self assert: (self readFile: (sourceFolder, 'stage1-testFile2.changes')) equals: ('self
+	self assert: (self readFile: (sourceFolder, '/stage1-testFile2.changes')) equals: ('self
 	timestamp: 34
 	selector: #method:and:
 	arguments: #(1 nil)

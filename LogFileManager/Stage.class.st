@@ -36,10 +36,10 @@ Stage >> addGroup: aName [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> addLog: aLogEntry withSource: aPath [
-	"comment stating purpose of message"
+Stage >> addLog: aLogEntry withSource: aFileName [
+	"comment stating purpose of message. validaciones"
 	| group |
-	group := self addGroup: aPath asFileReference basename.
+	group := self addGroup: (aFileName readStream upTo:$-; upTo:$.)."Se puede hacer con un parser"
 	group addLog: (aLogEntry group: group).
 ]
 
@@ -110,7 +110,7 @@ Stage >> saveStage [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> saveStage: aPathFolder [
+Stage >> saveStageOnFolder: aPathFolder [
 	"comment stating purpose of instance-side message"
 	groups do: [ :group | group saveGroupOnFolder: aPathFolder ].
 ]
