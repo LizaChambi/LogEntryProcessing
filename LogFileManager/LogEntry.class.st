@@ -78,9 +78,10 @@ LogEntry >> editWithLog: aLogEntry [
 	self
 		assert: [ (aLogEntry stage = #Final) or: [ aLogEntry stage asNumber >= 0] ]
 		description: 'Invalid stage value: ''stage: (aNumber >= 0)'' or #Final'.
+"	NO SE PUEDE HACER ACA AL MENOS QUE EL LOG ENTRY CONOZCA EL PATH DONDE SE LEYO
 	self
 		assert: [ aLogEntry hasPathStageDifferent not ]
-		description: 'File name do not matching with stage: File name must have prefix ''stage'' with number stage (Example, ''stage1-...'')'.
+		description: 'File name do not matching with stage: File name must have prefix ''stage'' with number stage (Example, ''stage1-...'')'."
 
 	self
 		timestamp: aLogEntry timestamp asNumber
@@ -124,6 +125,12 @@ LogEntry >> failuresInGroup: aPathString [
 ]
 
 { #category : #accessing }
+LogEntry >> fileName [
+	"comment stating purpose of message"
+	^ (group fileName).
+]
+
+{ #category : #accessing }
 LogEntry >> group [
 	"comment stating purpose of message"
 	^ group.
@@ -133,6 +140,12 @@ LogEntry >> group [
 LogEntry >> group: aLogGroup [
 	"comment stating purpose of message"
 	group:= aLogGroup.
+]
+
+{ #category : #accessing }
+LogEntry >> groupName [
+	"comment stating purpose of message"
+	^ (group name).
 ]
 
 { #category : #accessing }
@@ -188,7 +201,8 @@ LogEntry >> hasCriteria: aBlock [
 { #category : #accessing }
 LogEntry >> hasPathStageDifferent [
 	"comment stating purpose of message"
-	^ (self source asFileReference basename beginsWith: ('stage', stage asString)) not.
+	^ (self stage hasLevel: self stage) not
+	"^ (self source asFileReference basename beginsWith: ('stage', stage asString)) not."
 ]
 
 { #category : #conversion }
@@ -259,12 +273,6 @@ LogEntry >> remove [
 LogEntry >> selector [
 	"comment stating purpose of message"
 	^ selector
-]
-
-{ #category : #accessing }
-LogEntry >> source [
-	"comment stating purpose of message"
-	^ (group source).
 ]
 
 { #category : #accessing }

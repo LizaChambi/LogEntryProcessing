@@ -22,8 +22,32 @@ LogFileManager class >> readLogFilesFromFolder: aPath [
 ]
 
 { #category : #adding }
-LogFileManager >> addLog: aLogEntry withSource: aPath [
+LogFileManager >> addGroupWithName: aGroupName onStage: anNumberOrSymbol [
+	"comment stating purpose of instance-side message"
+	| searchStage |
+	searchStage :=	stages detect: [ :stage | stage hasGroupWithName:aGroupName ] ifNone: [ stages detect: [:stage2 | stage2 hasLevel: anNumberOrSymbol] ].
+	^ searchStage addGroup: aGroupName.
+]
+
+{ #category : #adding }
+LogFileManager >> addLog: aLogEntry fromFile: aFileName [
 	"comment stating purpose of message"
+	(aLogEntry isValidLog)
+		ifTrue: [ 
+			"logEntries add: aLogEntry."
+			"(aLogEntry stage = 'Final') ifTrue: [ aLogEntry stage: #Final ] ifFalse:[aLogEntry stage: aLogEntry stage digitValue ]."
+			(self addStage: aLogEntry stage) addLog: aLogEntry withSource: aFileName.
+			
+			
+		"	self addStage: aLogEntry stage.
+			(self searchStageLevel: aLogEntry stage) addLog: aLogEntry withSource: aPath.
+			"
+			]
+]
+
+{ #category : #adding }
+LogFileManager >> addLog: aLogEntry withSource: aPath [
+	"comment stating purpose of message. Seria mejor los reportes y validaciones aqui"
 	(aLogEntry isValidLog)
 		ifTrue: [ 
 			"logEntries add: aLogEntry."
@@ -41,7 +65,9 @@ LogFileManager >> addNewStage [
 { #category : #adding }
 LogFileManager >> addStage: aLevel [.
 	"comment stating purpose of message"
-	(self existStage: aLevel) ifFalse: [ stages add: (Stage new: aLevel) ].
+	^ stages detect: [ :stage | stage level = aLevel] ifNone: [ stages add: (Stage new: aLevel) ].
+	
+	"(self existStage: aLevel) ifFalse: [ stages add: (Stage new: aLevel) ]."
 ]
 
 { #category : #accessing }
@@ -51,15 +77,20 @@ LogFileManager >> childrens [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> editFileGroup: aLogEntry to: pathString [
-	| newLogEntry| 
+LogFileManager >> editLogEntryGroup: aLogEntry to: aGroupName [
+	| newLogEntry | 
 	newLogEntry := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage.
-	(aLogEntry hasStageErrorOn: pathString asFileReference)
+	self removeLogEntry: aLogEntry.
+	(self addGroupWithName: aGroupName onStage: newLogEntry stage) addLog: newLogEntry.
+"	self addLog: newLogEntry fromFile: aGroupName ]"
+	
+"	(aLogEntry hasStageErrorOn: aGroupName asFileReference)
 		ifTrue: [ self error: 'Log stage does not match the file name.' ]
-		ifFalse:[ (aLogEntry source = pathString trim) 
+		ifFalse:[ (aLogEntry source = aGroupName trim) 
 			ifFalse: [ 
-				self removeLogEntry: aLogEntry. "Remove log entry with old group"
-				self addLog: newLogEntry withSource: pathString ] ] "Add/create a log entry with his properties and new path"
+				self removeLogEntry: aLogEntry. Remove log entry with old group
+				self addLog: newLogEntry withSource: aGroupName ] 
+			] " "Add/create a log entry with his properties and new path"
 		
 ]
 
@@ -233,9 +264,9 @@ LogFileManager >> gtInspectorTreeLogFiles: composite [
 ]
 
 { #category : #reading }
-LogFileManager >> hasTimestampRepeated: aLogEntry inGroup: aSource [
-	"Read a log file and add them as LogEntry files to the log entries"
-	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group source = aSource] ].
+LogFileManager >> hasTimestampRepeated: aLogEntry inGroup: aGroupName [
+	"Read a log file and add them as LogEntry files to the log entries. (aLogEntry aun no tiene group)" 
+	^ self logEntries anySatisfy: [ :log | (log timestamp = aLogEntry timestamp) and: [ log group name = aGroupName] ].
 ]
 
 { #category : #initialization }
@@ -306,7 +337,7 @@ LogFileManager >> openEditFileOn: itemSelection from: aComposite [
 				yourself];
 			withGhostText: 'Input a group path...';
 			addAction: (GLMGenericAction new 
-				action: [:textInput | [self editFileGroup: itemSelection to: textInput text asString. self updateFailures. aComposite update] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ('Error: ', ex messageText, Character cr asString, ' >> The source file must have the format: ''stage', itemSelection stage asString, '-aNameFile.changes''')]]; 
+				action: [:textInput | [self editLogEntryGroup: itemSelection to: textInput text asString. self updateFailures. aComposite update] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ('Error: ', ex messageText, Character cr asString, ' >> The source file must have the format: ''stage', itemSelection stage asString, '-aNameFile.changes''')]]; 
 				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change file'; showTitle)].
 	tmpBrowser startOn: itemSelection.
 	tmpBrowser open.
@@ -350,15 +381,15 @@ LogFileManager >> print [
 ]
 
 { #category : #'as yet unclassified' }
-LogFileManager >> readEmptyFile: aFileReference [
+LogFileManager >> readEmptyFile: aFileName [
 	"comment stating purpose of instance-side message"
 	| level levelPosition |
 	levelPosition := 6.
-	(aFileReference basename beginsWith: ('stageFinal')) ifTrue: [ level:=#Final ].
-	(aFileReference basename beginsWith: ('stage')) ifTrue: [ level:= (aFileReference basename at:levelPosition) digitValue ].
+	(aFileName beginsWith: ('stageFinal')) ifTrue: [ level:=#Final ].
+	(aFileName beginsWith: ('stage')) ifTrue: [ level:= (aFileName at:levelPosition) digitValue ].
 	
 	[ self addStage: level. 
-	(self searchStageLevel: level) addGroup: aFileReference] on: Error do: [ failures add: (ReportLogError description: 'The file name does not have the stage reference.' nameFile: aFileReference basename) ].
+	(self searchStageLevel: level) addGroup: aFileName] on: Error do: [ failures add: (ReportLogError description: 'The file name does not have the stage reference.' nameFile: aFileName) ].
 	
 ]
 
@@ -376,11 +407,11 @@ LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| createdLog |
 	( logStream isEmptyFile) 
-		ifTrue: [self readEmptyFile: logStream fileReference ]
+		ifTrue: [self readEmptyFile: logStream fileReference basename]
 		ifFalse: [ [ logStream atEnd] whileFalse: 
 			[	createdLog := LogEntry readLog: logStream.
 				self reportLogErrors: createdLog onStream: logStream.
-				self addLog: createdLog withSource: logStream fileReference fullName].
+				self addLog: createdLog withSource: logStream fileReference basename].
 			^ self logEntries.
 		]
 ]
@@ -390,11 +421,11 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| logCreated |
 	( logStream isEmptyFile) 
-		ifTrue: [self readEmptyFile: logStream fileReference ]
+		ifTrue: [self readEmptyFile: logStream fileReference basename ]
 		ifFalse: [ [ logStream atEnd ] whileFalse: 
 			[ logCreated := LogEntry readLog: logStream.
 				self reportLogErrors: logCreated onStream: logStream.
-				(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference fullName]].
+				(logCreated hasCriteria: aBlock) ifTrue: [ self addLog: logCreated withSource: logStream fileReference basename]].
 			^ self logEntries.
 		]
 	
@@ -434,7 +465,7 @@ LogFileManager >> removeOlderLogFiles [
 
 { #category : #removing }
 LogFileManager >> removeStage: aStage [
-	stages removeAllSuchThat: [ :stage | stage hasStage: aStage level].
+	stages removeAllSuchThat: [ :stage | stage hasLevel: aStage level].
 ]
 
 { #category : #accessing }
@@ -449,7 +480,7 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 	(aLogEntry isValidLog) ifTrue:
 	[ (aLogEntry hasStageErrorOn: aStream fileReference) 
 			ifTrue: [failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position logTimestamp: aLogEntry timestamp)].
-		(self hasTimestampRepeated: aLogEntry inGroup: aStream fileReference fullName) 
+		(self hasTimestampRepeated: aLogEntry inGroup: (aStream fileReference base readStream upTo:$-; upToEnd)) 
 			ifTrue: [ failures add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position logTimestamp: aLogEntry timestamp) ].
 		(aLogEntry stage > 2) 
 			ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position logTimestamp: aLogEntry timestamp) ].
@@ -460,7 +491,7 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
 	(failures isEmpty) 
-		ifTrue: [ self removeOlderLogFiles. stages do: [ :stage | stage saveStage ]. ]
+		ifTrue: [ self removeOlderLogFiles. stages do: [ :stage | stage saveStageOnFolder: sourceInput ]. ]
 		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ].
 ]
 
@@ -478,7 +509,7 @@ LogFileManager >> saveLogsWithSourceFile: aFile [
 { #category : #adding }
 LogFileManager >> searchStageLevel: aLevel [
 	"comment stating purpose of message"
-	^ stages detect: [ :stage | stage hasStage: aLevel ]. 
+	^ stages detect: [ :stage | stage hasLevel: aLevel ]. 
 ]
 
 { #category : #reading }

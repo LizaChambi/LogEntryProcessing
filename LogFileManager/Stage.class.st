@@ -39,7 +39,7 @@ Stage >> addGroup: aName [
 Stage >> addLog: aLogEntry withSource: aFileName [
 	"comment stating purpose of message. validaciones"
 	| group |
-	group := self addGroup: (aFileName readStream upTo:$-; upTo:$.)."Se puede hacer con un parser"
+	group := self addGroup: (aFileName asFileReference base readStream upTo:$-; upToEnd). "Se puede hacer con un parser"
 	group addLog: (aLogEntry group: group).
 ]
 
@@ -72,7 +72,13 @@ Stage >> gtInspectorLogsEntries: composite [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> hasStage: aNumberOrSymbol [
+Stage >> hasGroupWithName: aGroupName [ 
+	"comment stating purpose of message"
+	^ groups anySatisfy: [:group | group hasName: aGroupName ].
+]
+
+{ #category : #'as yet unclassified' }
+Stage >> hasLevel: aNumberOrSymbol [
 	"comment stating purpose of message"
 	^ level = aNumberOrSymbol.
 ]
