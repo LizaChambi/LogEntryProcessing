@@ -78,18 +78,19 @@ LogEntry >> editWithLog: aLogEntry [
 	self
 		assert: [ (aLogEntry stage = #Final) or: [ aLogEntry stage asNumber >= 0] ]
 		description: 'Invalid stage value: ''stage: (aNumber >= 0)'' or #Final'.
-"	NO SE PUEDE HACER ACA AL MENOS QUE EL LOG ENTRY CONOZCA EL PATH DONDE SE LEYO
 	self
 		assert: [ aLogEntry hasPathStageDifferent not ]
-		description: 'File name do not matching with stage: File name must have prefix ''stage'' with number stage (Example, ''stage1-...'')'."
+		description: 'File name do not matching with stage: File name must have prefix ''stage'' with number stage (Example, ''stage1-...'')'.
 
-	self
+	group removeLogEntry: self.
+	aLogEntry group addLog: self.
+	
+	^ self
 		timestamp: aLogEntry timestamp asNumber
 		selector: aLogEntry selector
 		arguments: aLogEntry arguments
 		stage: aLogEntry stage
 		group: aLogEntry group.
-	^ self
 ]
 
 { #category : #conversion }
@@ -201,7 +202,7 @@ LogEntry >> hasCriteria: aBlock [
 { #category : #accessing }
 LogEntry >> hasPathStageDifferent [
 	"comment stating purpose of message"
-	^ (self stage hasLevel: self stage) not
+	^ (self group stage hasLevel: self stage) not.
 	"^ (self source asFileReference basename beginsWith: ('stage', stage asString)) not."
 ]
 

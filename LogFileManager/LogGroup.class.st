@@ -137,7 +137,7 @@ LogGroup >> stage: aStage [
 
 { #category : #'as yet unclassified' }
 LogGroup >> writeEmptyGroup: aPathFolder [
-	(self sourceFile: aPathFolder) ensureDelete;writeStream.
+	(self sourceFile: aPathFolder) asFileReference ensureDelete;writeStream.
 ]
 
 { #category : #writing }

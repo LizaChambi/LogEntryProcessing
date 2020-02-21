@@ -61,20 +61,6 @@ LogFileManagerTest >> testAddLogFromFileWithStageFinal [
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testAddLogWithSource [
-	"comment stating purpose of message"
-	logFileManager addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') stage: 0) withSource: 'path'.
-	self assert: (logFileManager logEntries notEmpty).
-]
-
-{ #category : #tests }
-LogFileManagerTest >> testAddLogWithSourceWithStageFinal [
-	"comment stating purpose of message"
-	logFileManager addLog: (LogEntry timestamp: 123456 selector: #doAssignType:to: arguments: #(#Integer #'MoProgramStarter>>sleep:$1') stage: #Final) withSource: 'path'.
-	self assert: (logFileManager logEntries notEmpty).
-]
-
-{ #category : #tests }
 LogFileManagerTest >> testAddRepeatStage [
 	"comment stating purpose of message"
 	logFileManager addStage: 1.
@@ -382,9 +368,10 @@ LogFileManagerTest >> testSaveFilesEdited [
 	logFileManager saveFiles.
 	
 	l1 editWithLog: (LogEntry timestamp: 250 selector: #doAddPackageNamed: arguments: #('SmtGeneratedMethodsCallingDNU') stage: 0 group: l1 group).
-	l4 editWithLog: (LogEntry timestamp: 99999999999 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 group: l4 group).
+	l4 editWithLog: (LogEntry timestamp: 99999999999 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 group: l1 group).
 	
 	logFileManager saveFiles.
+	
 	self assert: (self readFile: path1) equals:('self
 	timestamp: 201
 	selector: #doSetPackageNamed:asInMigrationSet:
@@ -467,14 +454,14 @@ LogFileManagerTest >> testSaveFilesEditedWithError [
 	l1 := LogEntry timestamp: 200 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtGeneratedMethodsCallingDNU' nil #() ) stage: 0.
 	l2 := LogEntry timestamp: 201 selector: #doSetPackageNamed:asInMigrationSet: arguments: #(#SmtGeneratedMethodsCallingDNU #true ) stage: 0.
 	l3 := LogEntry timestamp: 40 selector: #doAddPackageNamed:in:prereqs: arguments: #(#SmtGeneratedPools nil #() ) stage: 1.
-	l4 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0.	
+	l4 := LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 1.	
 	logFileManager addLog: l1 fromFile: path1; 
 	addLog: l2 fromFile: path1; 
 	addLog: l3 fromFile: path2; addLog: l4 fromFile: path1.
 	
 	logFileManager saveFiles.
 	
-	self should: [l4 editWithLog: (LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 1 group: l4 group)] raise: Error.
+	self should: [l4 editWithLog: (LogEntry timestamp: 3753599495956 selector: #doAssignType:to: arguments: #(#String #'NeoJSONTest>>testMaps|BA|1|string' ) stage: 0 group: l4 group)] raise: Error.
 	logFileManager sourceInput asFileReference ensureDeleteAll.
 ]
 

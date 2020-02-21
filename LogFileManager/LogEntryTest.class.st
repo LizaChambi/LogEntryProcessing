@@ -85,8 +85,8 @@ LogEntryTest >> testEditWithLog [
 	newGroup := LogGroup withName: 'path/stageFinal-algo.changes' stage: stage.
 	stage addGroup: newGroup.
 	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup.
-	newGroup addLog: aLogEntry.
-	self assert: (logEntry editWithLog: aLogEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup ).
+	logEntry editWithLog: aLogEntry.
+	self assert: (logEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup ).
 ]
 
 { #category : #tests }

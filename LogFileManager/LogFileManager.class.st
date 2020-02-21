@@ -451,11 +451,9 @@ LogFileManager >> removeLogGroup: aLogGroup [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> removeOlderLogFiles [
-	"Borrar los archivos que perdieron referencia"
 	| filesToRemove |
-	"filesToRemove := (((logStages at:1) groups at:1) source asFileReference parent fullName) asFileReference." "Tomo la referencia de la carpeta"
-	filesToRemove := sourceInput asFileReference children select: [ :each | each basename endsWith: '.changes' ]. "Filtro los archivos que tengo que eliminar de la carpeta"
-	filesToRemove do: [:file | file delete]. "Eliminar los archivos enlistados"
+	filesToRemove := sourceInput asFileReference children select: [ :each | each basename endsWith: '.changes' ].
+	filesToRemove do: [:file | file delete]. 
 	
 
 	
