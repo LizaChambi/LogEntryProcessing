@@ -30,7 +30,7 @@ LogFileManager >> addGroupWithName: aGroupName onStage: anNumberOrSymbol [
 ]
 
 { #category : #adding }
-LogFileManager >> addLog: aLogEntry fromFile: aFileName [
+LogFileManager >> addLog: aLogEntry withSource: aFileName [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
 		ifTrue: [ 
@@ -38,22 +38,9 @@ LogFileManager >> addLog: aLogEntry fromFile: aFileName [
 			"(aLogEntry stage = 'Final') ifTrue: [ aLogEntry stage: #Final ] ifFalse:[aLogEntry stage: aLogEntry stage digitValue ]."
 			(self addStage: aLogEntry stage) addLog: aLogEntry withSource: aFileName.
 			
-			
 		"	self addStage: aLogEntry stage.
-			(self searchStageLevel: aLogEntry stage) addLog: aLogEntry withSource: aPath.
-			"
-			]
-]
-
-{ #category : #adding }
-LogFileManager >> addLog: aLogEntry withSource: aPath [
-	"comment stating purpose of message. Seria mejor los reportes y validaciones aqui"
-	(aLogEntry isValidLog)
-		ifTrue: [ 
-			"logEntries add: aLogEntry."
-			"(aLogEntry stage = 'Final') ifTrue: [ aLogEntry stage: #Final ] ifFalse:[aLogEntry stage: aLogEntry stage digitValue ]."
-			self addStage: aLogEntry stage.
-			(self searchStageLevel: aLogEntry stage) addLog: aLogEntry withSource: aPath asFileReference basename.]
+			(self searchStageLevel: aLogEntry stage) addLog: aLogEntry withSource: aPath."
+		]
 ]
 
 { #category : #adding }
@@ -96,17 +83,16 @@ LogFileManager >> editLogEntryGroup: aLogEntry to: aGroupName [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> editStage: aLogEntry to: aLevelString [
-	| newLog newLevelStage |
+	| newLog newLevelStage  groupNameTemp|
 	" Validate level stage"
-	[ (aLevelString trim = 'Final') ifTrue: [ newLevelStage := aLevelString asSymbol ] ifFalse: [ newLevelStage := aLevelString asNumber ] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
-
-	newLog := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: newLevelStage.
-	
-	(aLogEntry stage = newLog stage) ifFalse: [ | groupNameTemp |
+	[ (aLevelString trim = 'Final') ifTrue: [ newLevelStage := aLevelString asSymbol ] ifFalse: [ newLevelStage := aLevelString asNumber] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
+	"newLog := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: newLevelStage."
+	(aLogEntry stage = newLevelStage) ifFalse: [
 							groupNameTemp := aLogEntry group name.
 							"self removeLogEntry: aLogEntry."
 							aLogEntry group removeLogEntry: aLogEntry.
-							self addLog: newLog withSource: (sourceInput, '/stage', newLevelStage asString, groupNameTemp, '.changes' )].
+							aLogEntry stage: aLevelString.
+							self addLog: aLogEntry withSource: ('stage', newLevelStage asString, '-', aLogEntry group name, '.changes' )].
 		
 	
 ]
@@ -182,7 +168,8 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. self refreshFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup or: [tree selection class = LogEntry]) 
-				ifTrue: [ tree selection addNewLogEntry. composite update ] ]; 
+				ifTrue: [ tree selection addNewLogEntry. composite update ] 
+				"ifFalse: [self openErrorBrowserOn: tree selection withMessage: 'Select the Group where the LogEntry will be created.']" ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
 			selectionAct: [ :tree | self removeLogGroup: (tree selection). composite update ] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup];
 			selectionAct: [ :tree | self removeStage: (tree selection). composite update ] entitled: 'Remove stage' enabledWhen: [ :presentation | presentation selection class = Stage]
@@ -358,7 +345,7 @@ LogFileManager >> openEditStageOn: itemSelection from: aComposite [
 				yourself];
 			withGhostText: 'Input a stage...';
 			addAction: (GLMGenericAction new 
-				action: [:textInput | [ self editStage: itemSelection to: textInput text asString. self updateFailures. aComposite update ] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ] ]; 
+				action: [:textInput | "[" self editStage: itemSelection to: textInput text asString. self updateFailures. aComposite update "]" "on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ]" ]; 
 				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change stage'; showTitle)].
 	tmpBrowser startOn: itemSelection.
 	tmpBrowser open.
@@ -484,12 +471,10 @@ LogFileManager >> reportLogErrors: aLogEntry onStream: aStream [
 			ifTrue: [failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aStream fileReference basename line: aStream position logTimestamp: aLogEntry timestamp)].
 		(self hasTimestampRepeated: aLogEntry inGroup: (aStream fileReference base readStream upTo:$-; upToEnd)) 
 			ifTrue: [ failures add: (ReportLogError description: 'Timestamp repeated' nameFile: aStream fileReference basename line: aStream position logTimestamp: aLogEntry timestamp) ].
-		(aLogEntry stage > 2) 
-			ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aStream fileReference basename line: aStream position logTimestamp: aLogEntry timestamp) ].
 	].
 ]
 
-{ #category : #'to deprecate' }
+{ #category : #'read/write usage' }
 LogFileManager >> saveFiles [
 	"comment stating purpose of message"
 	(failures isEmpty) 

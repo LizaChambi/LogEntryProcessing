@@ -125,7 +125,7 @@ LogEntry >> failuresInGroup: aPathString [
 	failures := OrderedCollection new.
 	(self hasStageErrorOn: aPathString asFileReference)
 		ifTrue: [ failures add: (ReportLogError description: 'Log stage does not match the file name.' nameFile: aPathString asFileReference basename logTimestamp: timestamp) ].
-	(stage = #Final or: [stage > 2] )
+	(stage = #Final or: [stage asNumber > 2] )
 		ifTrue: [ failures add: (ReportLogError description: 'Stage invalid.' nameFile: aPathString asFileReference basename logTimestamp: timestamp) ].
 	^ failures.
 ]

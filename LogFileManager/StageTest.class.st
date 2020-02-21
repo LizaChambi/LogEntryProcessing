@@ -40,7 +40,7 @@ StageTest >> testAddGroupExist [
 { #category : #tests }
 StageTest >> testAddLogWithSource [
 	"comment stating purpose of message"
-	| log1 group |
+	| log1 |
 	log1 := LogEntry timestamp: 0303456 selector: #method: arguments: #(arg ) stage: 0.
 	stage addLog: log1 withSource: 'stage0-groupName.changes'.
 	self assert: (stage level) equals:(0).
