@@ -34,8 +34,7 @@ LogFileManager >> addLog: aLogEntry withSource: aFileName [
 	"comment stating purpose of message"
 	(aLogEntry isValidLog)
 		ifTrue: [ 
-			"logEntries add: aLogEntry."
-			"(aLogEntry stage = 'Final') ifTrue: [ aLogEntry stage: #Final ] ifFalse:[aLogEntry stage: aLogEntry stage digitValue ]."
+			self stageParsing: aLogEntry.
 			(self addStage: aLogEntry stage) addLog: aLogEntry withSource: aFileName.
 			
 		"	self addStage: aLogEntry stage.
@@ -527,6 +526,15 @@ LogFileManager >> sourceInput: aPathString [
 	"comment stating purpose of message"
 	sourceInput := aPathString.
 
+]
+
+{ #category : #'as yet unclassified' }
+LogFileManager >> stageParsing: aLogEntry [
+	"comment stating purpose of instance-side message"
+	(aLogEntry stage = 'Final') ifTrue: [ aLogEntry stage: #Final ].
+	(aLogEntry stage isCharacter ) ifTrue: [ aLogEntry stage digitValue ]  
+	" $0 isCharacter => true ".
+	
 ]
 
 { #category : #accessing }

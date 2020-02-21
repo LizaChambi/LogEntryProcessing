@@ -20,7 +20,7 @@ Stage >> < aStage [
 	( level = #Final) ifTrue: [ ^ false ]
 		ifFalse: [ (aStage level = #Final) 
 						ifTrue: [ ^ true ] 
-						ifFalse: [ ^(level < aStage level )] 
+						ifFalse: [ ^level < aStage level ] 
 					].
 ]
 

@@ -41,20 +41,20 @@ LogFileManagerTest >> setUp [
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testAddLogFromFile [
+LogFileManagerTest >> testAddLogFromFileWithStageFinal [
 	"comment stating purpose of message"
 	| aLogEntry |
-	aLogEntry := LogEntry timestamp: '123456' selector: '#doAssignType:to:' arguments: '#(#Integer #''MoProgramStarter>>sleep:$1'')' stage: '0'.
+	aLogEntry := LogEntry timestamp: '123456' selector: '#doAssignType:to:' arguments: '#(#Integer #''MoProgramStarter>>sleep:$1'')' stage: 'Final'.
 	logFileManager addLog: aLogEntry withSource: 'stage0-file.changes'.
 	self assert: (logFileManager logEntries size) equals: (1).
 	self assert: (logFileManager logEntries at:1) equals: (aLogEntry).
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testAddLogFromFileWithStageFinal [
+LogFileManagerTest >> testAddLogWithSource [
 	"comment stating purpose of message"
 	| aLogEntry |
-	aLogEntry := LogEntry timestamp: '123456' selector: '#doAssignType:to:' arguments: '#(#Integer #''MoProgramStarter>>sleep:$1'')' stage: 'Final'.
+	aLogEntry := LogEntry timestamp: 123456 selector: '#doAssignType:to:' arguments: '#(#Integer #''MoProgramStarter>>sleep:$1'')' stage: $0.
 	logFileManager addLog: aLogEntry withSource: 'stage0-file.changes'.
 	self assert: (logFileManager logEntries size) equals: (1).
 	self assert: (logFileManager logEntries at:1) equals: (aLogEntry).
