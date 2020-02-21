@@ -50,6 +50,11 @@ LogEntry >> = aLogEntry [
 	^ (timestamp = aLogEntry timestamp) and: [(arguments = aLogEntry arguments ) and: [(selector = aLogEntry selector) and: [(stage = aLogEntry stage) and: [(self group = aLogEntry group) ]]]].
 ]
 
+{ #category : #adding }
+LogEntry >> addNewLogEntry [
+	group addLog: (LogEntry timestamp: 0 selector: #method: arguments:#(argument ) stage: group level group: group) "LogEntry example"
+]
+
 { #category : #accessing }
 LogEntry >> arguments [
 	"comment stating purpose of message"

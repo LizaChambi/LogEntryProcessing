@@ -23,8 +23,7 @@ LogGroup >> addLog: aLogEntry [
 
 { #category : #adding }
 LogGroup >> addNewLogEntry [
-	"CAMBIAR IMPLEMENTACION DEL STAGE DEL LOG ENTRY"
-	self addLog: (LogEntry timestamp: 0 selector: #method: arguments: #(arguments ) stage: (stage level) group: self). "EL STAGE DEBE SER EL OBJETO ENTERO, NO SU VALOR"
+	self addLog: (LogEntry timestamp: 0 selector: #method: arguments: #(arguments ) stage: self level group: self).
 ]
 
 { #category : #'as yet unclassified' }
@@ -62,6 +61,11 @@ LogGroup >> hasFileName: aBasename [
 { #category : #'as yet unclassified' }
 LogGroup >> hasName: aName [
 	^ name = aName.
+]
+
+{ #category : #accessing }
+LogGroup >> level [
+	^ stage level
 ]
 
 { #category : #'as yet unclassified' }
