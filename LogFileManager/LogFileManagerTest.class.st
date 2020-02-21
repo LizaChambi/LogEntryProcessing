@@ -505,35 +505,6 @@ self
 ]
 
 { #category : #tests }
-LogFileManagerTest >> testSaveLogsWithSourceFile [
-	"comment stating purpose of message"
-	| log1 log2 log3 log4 |
-	path1 := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage1-testfile.changes' asFileReference basename.
-	path2 := '/home/Pharo/stage0-testfile.changes' asFileReference basename.
-	log1 := LogEntry timestamp: 0 selector: #doAddClassNamed:in:superclass: arguments: #('DateTime' #SmtSupportVASTTypingApp 'Array') stage: 1."p1"
-	log2 := LogEntry timestamp: 8 selector: #doAddClassNamed:in: arguments: #('SmtEntireFileReadStream' #SmtSupportVASTTypingApp) stage: 1."p2"
-	log3 := LogEntry timestamp: 25 selector: #doAddCorrelationRule:to: arguments: #('argument1.argument1' 'ByteArray>>do:') stage: 1. "p1"
-	log4 := LogEntry timestamp: 33 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #() ) stage: 1. "p2"
-	logFileManager addLog: log1 fromFile: path1;
-	addLog: log2 fromFile: path2; 
-	addLog: log3 fromFile: path1; 
-	addLog: log4 fromFile: path2.
-	logFileManager saveLogsWithSourceFile: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage1-testfile.changes'.
-	
-	self assert: ( self readFile: path1) equals: 'self
-	timestamp: 0
-	selector: #doAddClassNamed:in:superclass:
-	arguments: #(''DateTime'' #SmtSupportVASTTypingApp ''Array'')
-	stage: 1.
-self
-	timestamp: 25
-	selector: #doAddCorrelationRule:to:
-	arguments: #(''argument1.argument1'' ''ByteArray>>do:'')
-	stage: 1.
-'.
-]
-
-{ #category : #tests }
 LogFileManagerTest >> testSelectWithCriteria [
 	"comment stating purpose of message"
 	|path |

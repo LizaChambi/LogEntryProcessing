@@ -493,17 +493,6 @@ LogFileManager >> saveFiles [
 		ifFalse: [ self error: 'There are bug reports, fix them before saving.' ].
 ]
 
-{ #category : #'as yet unclassified' }
-LogFileManager >> saveLogsWithSourceFile: aFile [
-	"comment stating purpose of message"
-	| logsToSave |
-	logsToSave := self selectWithCriteria: [ :log | log source = aFile  ].
-	self writeFiles: (self sortLogEntriesByTimestamp: logsToSave) withName: aFile .
-	
-	
-	
-]
-
 { #category : #adding }
 LogFileManager >> searchStageLevel: aLevel [
 	"comment stating purpose of message"
