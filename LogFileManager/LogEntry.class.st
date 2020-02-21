@@ -12,11 +12,6 @@ Class {
 }
 
 { #category : #'as yet unclassified' }
-LogEntry class >> chunk: aChunk [
-	^ self new convertChunkToLogEntry: aChunk.
-]
-
-{ #category : #'as yet unclassified' }
 LogEntry class >> readLog: logStream [
 	| logString |
 	logString := self new convertChunkToLogEntry: (logStream next).
@@ -64,13 +59,14 @@ LogEntry >> arguments [
 { #category : #tests }
 LogEntry >> convertChunkToLogEntry: aString [
 	"comment stating purpose of message"
-	^[^(OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate] on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil group: nil]. "ifError: [ ^ LogEntry timestamp: nil selector: nil arguments: nil stage:nil]".
-]
-
-{ #category : #tests }
-LogEntry >> convertChunkToLogEntry: aChunk withGroup: aGroup [
-	"comment stating purpose of message"
-	^ ((self convertChunkToLogEntry: aChunk) group: aGroup).
+	| logEntryCreated |
+	[ logEntryCreated:= (OpalCompiler new) source: aString; context: nil; receiver: (self); evaluate.
+		logEntryCreated timestamp asNumber. 
+		(logEntryCreated stage = 'Final') 
+			ifTrue: [ logEntryCreated stage asSymbol ] 
+			ifFalse: [ logEntryCreated stage asNumber ].
+		^ logEntryCreated ]
+		on: "SyntaxErrorNotification" Error do: [ :ex| ^ LogEntry timestamp: nil selector: nil arguments: nil stage: nil].
 ]
 
 { #category : #editing }
@@ -81,7 +77,7 @@ LogEntry >> editWithLog: aLogEntry [
 		description: 'Invalid log entered: The log is composed with ''self timestamp: aNumber selector: aMethod arguments: anArray'''.
 	
 	self
-		assert: [ (aLogEntry stage = #Final) or: [ aLogEntry stage asNumber >= 0] ]
+		assert: [ (aLogEntry stage = #Final) or: [ aLogEntry stage >= 0] ]
 		description: 'Invalid stage value: ''stage: (aNumber >= 0)'' or #Final'.
 	self
 		assert: [ aLogEntry hasPathStageDifferent not ]
@@ -113,7 +109,7 @@ LogEntry >> editor: aString [
 	"comment stating purpose of message"
 	parsing := LogEntryComposition new parseAndFlatten: aString.
 	self parserValidation: parsing.
-	newLog := LogEntry chunk: aString.
+	newLog := self convertChunkToLogEntry: aString.
 	newLog stage: self stage.
 	newLog group: self group.
 	self editWithLog: newLog.
@@ -224,7 +220,7 @@ LogEntry >> isLogEntry [
 
 { #category : #accessing }
 LogEntry >> isValidLog [
-	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ (self selector notNil) and: [self stage notNil] ]].
+	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ self selector notNil ]].
 ]
 
 { #category : #accessing }
@@ -237,7 +233,7 @@ LogEntry >> parserValidation: aCollection [
 		assert: [ (aCollection at: 5) numArgs = (aCollection at: 7) size ]
 		description: 'Numbers of arguments does not matching with number of arguments the selector'.
 	self 
-		assert: [ (aCollection at: 3) asNumber >= 0  ]
+		assert: [ (aCollection at: 3) >= 0  ]
 		description: 'Invalid timestamp: Timestamp value should be >= 0'.
 	
 ]

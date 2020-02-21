@@ -42,23 +42,6 @@ LogEntryTest >> testConvertChunkToLogEntryWithDot [
 ]
 
 { #category : #tests }
-LogEntryTest >> testConvertChunkToLogEntryWithGroup [
-	"comment stating purpose of message"
-	| path group stage |
-	path := './stage0-testfile.changes'.
-	stage := Stage new:0.
-	group := LogGroup withName: path stage: stage.
-	stage addGroup: group.
-	self assert: (logEntry convertChunkToLogEntry: 'self
-	timestamp: 3721902053120
-	selector: #doAddCorrelationRule:to:
-	arguments: #(''argument1.argument1 same-as #Integer'' ''ByteArray>>do:'' )
-	stage: 0.' withGroup: group) equals: (logEntry timestamp: 0 selector: #doAddPackageNamed:in:prereqs: arguments: #('SmtSupportVASTTypingApp' nil #()) stage: 0 group: group).
-	
-	path asFileReference ensureDelete.
-]
-
-{ #category : #tests }
 LogEntryTest >> testConvertChunkToLogEntryWithStageFinal [
 	"comment stating purpose of message"
 	self assert: (logEntry convertChunkToLogEntry: 'self
