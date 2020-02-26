@@ -347,7 +347,7 @@ LogFileManager >> readEmptyFile: aFileName [
 	(aFileName beginsWith: ('stage')) ifTrue: [ level:= (aFileName at:levelPosition) digitValue ].
 	
 	[ self addStage: level. 
-	(self searchStageLevel: level) addGroup: aFileName] on: Error do: [ failures add: (ReportLogError description: 'The file name does not have the stage reference.' nameFile: aFileName) ].
+	(self searchStageLevel: level) addGroup: (aFileName readStream upTo:$-; upToEnd)] on: Error do: [ failures add: (ReportLogError description: 'The file name does not have the stage reference.' nameFile: aFileName) ].
 	
 ]
 
@@ -365,7 +365,7 @@ LogFileManager >> readLogsEntries: logStream [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| createdLog |
 	( logStream isEmptyFile) 
-		ifTrue: [self readEmptyFile: logStream fileReference basename]
+		ifTrue: [self readEmptyFile: logStream fileReference base]
 		ifFalse: [ [ logStream atEnd] whileFalse: 
 			[	createdLog := LogEntry readLog: logStream.
 				self reportLogErrors: createdLog onStream: logStream.
@@ -379,7 +379,7 @@ LogFileManager >> readLogsEntries: logStream  withCriteria: aBlock [
 	"Read a log file and add them as LogEntry files to the log entries"
 	| logCreated |
 	( logStream isEmptyFile) 
-		ifTrue: [self readEmptyFile: logStream fileReference basename ]
+		ifTrue: [self readEmptyFile: logStream fileReference base ]
 		ifFalse: [ [ logStream atEnd ] whileFalse: 
 			[ logCreated := LogEntry readLog: logStream.
 				self reportLogErrors: logCreated onStream: logStream.
