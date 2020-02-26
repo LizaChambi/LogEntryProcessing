@@ -110,12 +110,6 @@ Stage >> removeLogGroup: aLogGroup [
 ]
 
 { #category : #'as yet unclassified' }
-Stage >> saveStage [
-	"comment stating purpose of instance-side message"
-	groups do: [ :group | group saveGroup ].
-]
-
-{ #category : #'as yet unclassified' }
 Stage >> saveStageOnFolder: aPathFolder [
 	"comment stating purpose of instance-side message"
 	groups do: [ :group | group saveGroupOnFolder: aPathFolder ].

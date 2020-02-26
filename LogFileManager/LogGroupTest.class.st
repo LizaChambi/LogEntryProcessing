@@ -111,7 +111,7 @@ LogGroupTest >> testRemoveLogEntryNonExistent [
 ]
 
 { #category : #tests }
-LogGroupTest >> testSaveGroup [
+LogGroupTest >> testSaveGroupOnFolder [
 	| log1 log2 |
 	log1 := LogEntry timestamp: 34 selector: #method1 arguments: #() stage: 0 group: group.
 	log2 := LogEntry timestamp: 28 selector: #method2: arguments: #(true) stage: 0 group: group.
