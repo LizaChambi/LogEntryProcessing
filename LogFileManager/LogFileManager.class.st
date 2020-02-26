@@ -35,12 +35,7 @@ LogFileManager >> addLog: aLogEntry withSource: aFileName [
 	(aLogEntry isValidLog)
 		ifTrue: [ 
 			self stageParsing: aLogEntry.
-			Transcript show: aLogEntry stage class asString, Character cr asString.
-			"CUANDO SE EDITA DESDE LA INTERFAZ, EL STAGE PASA COMO UN STRING" 
 			(self addStage: aLogEntry stage) addLog: aLogEntry withSource: aFileName.
-			
-		"	self addStage: aLogEntry stage.
-			(self searchStageLevel: aLogEntry stage) addLog: aLogEntry withSource: aPath."
 		]
 ]
 
@@ -166,11 +161,11 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			maxDepth:2; 
 			allExpanded;
 			addAction: (GLMGenericAction new action: [ self addNewStage. composite update ]; icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Stage'; showTitle);
-			addAction: (GLMGenericAction new action: [ self updateFailures. self saveFiles. self refreshFiles. composite update ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
+			addAction: (GLMGenericAction new action: [ [self updateFailures. self saveFiles. self refreshFiles. composite update] on: Error do: [ :ex | self openErrorBrowserOn: composite withMessage: ex messageText ] ]; icon: GLMUIThemeExtraIcons glamorousSave ; title: 'Save changes'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | tree selection inspect]; icon: GLMUIThemeExtraIcons glamorousInspect ; title: 'Inspect It'; showTitle);
 			addAction: (GLMGenericAction new action: [ :tree | (tree selection class = LogGroup or: [tree selection class = LogEntry]) 
 				ifTrue: [ tree selection addNewLogEntry. composite update ] 
-				"ifFalse: [self openErrorBrowserOn: tree selection withMessage: 'Select the Group where the LogEntry will be created.']" ]; 
+				ifFalse: [self openErrorBrowserOn: tree selection withMessage: 'Select the Group where the LogEntry will be created.'] ]; 
 				icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add LogEntry'; showTitle);
 			selectionAct: [ :tree | self removeLogGroup: (tree selection). composite update ] entitled: 'Remove group' enabledWhen: [ :presentation | presentation selection class = LogGroup];
 			selectionAct: [ :tree | self removeStage: (tree selection). composite update ] entitled: 'Remove stage' enabledWhen: [ :presentation | presentation selection class = Stage]
@@ -179,7 +174,9 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 			andShow: [ :comp3 | | data | comp3 text 
 				display: [ :objModel | data := objModel. '' ];
 				withGhostText: 'Input a group path...';
-				addAction: (GLMGenericAction new action: [:textInput | (data class = Stage) ifTrue: [data addGroup: textInput text asString. composite update.] ]; 
+				addAction: (GLMGenericAction new action: [:textInput | ((data class = Stage) or: [ data class = LogGroup ] ) 
+					ifTrue: [ [data addGroup: textInput text asString. composite update] on: Error do: [ :ex | self openErrorBrowserOn: comp3 withMessage: ex messageText ] ] 
+					ifFalse:[ self openErrorBrowserOn: comp3 withMessage: 'Select a Stage to add the new LogGroup.' ]]; 
 					icon: GLMUIThemeExtraIcons glamorousAdd ; title: 'Add Group'; showTitle).
 			].
 		(tabulator transmit) from: #TreePanel; to:#InspectPanel; 
@@ -188,38 +185,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
 				act: [ :list | list selection remove. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove';
 				act: [ :list | self openEditStageOn: list selection from: composite.] icon: GLMUIThemeExtraIcons glamorousEdit entitled: 'Change Stage';
-				act: [ :list | self openEditFileOn: list selection from:composite ] icon: GLMUIThemeExtraIcons glamorousBrowse entitled: 'Change file';
-				act: [ :list | |tmpBrowser|
-							tmpBrowser := GLMTabulator new row: #one; initialExtent: 400@200 ; title: 'Error:' ;yourself.
-							tmpBrowser transmit to: #one ; 
-								andShow: [:b | b morph
-									display: [ ('Error message' asText) 
-								addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 10));
-								"ignored addAttibute:() when font family cannot be found"
-								yourself ].
-								].
-							tmpBrowser startOn: list selection.
-							tmpBrowser open.
-					] icon: GLMUIThemeExtraIcons glamorousCancel entitled: 'Error Message';
-				
-				
-				"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
-				" SPAWN EXAMPLE "
-				selectionSpawn: [:listPresentation | |tmpBrowser|
-					tmpBrowser := GLMTabulator new row: #one; initialExtent: 400@200 ; title: 'Error:' ;yourself.
-					tmpBrowser transmit to: #one ; 
-						andShow: [:b | b text
-							format: [ :x | ('Error message' asText) 
-								makeColor: Color blue from: 2 to: 4; 
-								makeColor: Color red from: 4 to: 5; "notice overlap"
-								addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 36)) from: 1 to: 1; 
-								"ignored addAttibute:() when font family cannot be found"
-								yourself]
-						].
-					tmpBrowser startOn: listPresentation selection
-				] entitled: 'Open browser'.
-			"<*><*><*><*><*><*><*><*><*><*><*><*><*><*><*><*>"
-			
+				act: [ :list | self openEditFileOn: list selection from:composite ] icon: GLMUIThemeExtraIcons glamorousBrowse entitled: 'Change file'
 			]. 
 ]
 
@@ -346,7 +312,7 @@ LogFileManager >> openEditStageOn: itemSelection from: aComposite [
 				yourself];
 			withGhostText: 'Input a stage...';
 			addAction: (GLMGenericAction new 
-				action: [:textInput | "[" self editStage: itemSelection to: textInput text asString. self updateFailures. aComposite update "]" "on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ]" ]; 
+				action: [:textInput | [ self editStage: itemSelection to: textInput text asString. self updateFailures. aComposite update ] on: Error do: [:ex| self openErrorBrowserOn: itemSelection withMessage: ex messageText ] ]; 
 				icon: GLMUIThemeExtraIcons glamorousBrowse ; title: 'Change stage'; showTitle)].
 	tmpBrowser startOn: itemSelection.
 	tmpBrowser open.

@@ -151,9 +151,9 @@ LogEntry >> groupName [
 { #category : #accessing }
 LogEntry >> gtInspectorEditLogEntry: composite [
 	<gtInspectorPresentationOrder: 5>
-	composite  pharoScript 
+	composite pharoScript 
 		title: 'Editor';
-		selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | self editor: text text. composite update];
+		selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | [self editor: text text. composite update] on: Error do: [:ex | self openErrorBrowserOn: composite withMessage: 'Error: ', ex messageText ] ];
 		display: [ :log | log editable ].
 ]
 
@@ -202,7 +202,6 @@ LogEntry >> hasCriteria: aBlock [
 LogEntry >> hasPathStageDifferent [
 	"comment stating purpose of message"
 	^ (self group stage hasLevel: self stage) not.
-	"^ (self source asFileReference basename beginsWith: ('stage', stage asString)) not."
 ]
 
 { #category : #conversion }
@@ -219,6 +218,20 @@ LogEntry >> isLogEntry [
 { #category : #accessing }
 LogEntry >> isValidLog [
 	^ (self timestamp notNil) and: [ (self arguments notNil) and: [ self selector notNil ]].
+]
+
+{ #category : #'as yet unclassified' }
+LogEntry >> openErrorBrowserOn: itemSelection withMessage: errorString [
+	|tmpBrowser|
+	tmpBrowser := GLMTabulator new row: #message; initialExtent: 400@200 ; title: 'Edition error' ;yourself.
+	tmpBrowser transmit to: #message ; 
+		andShow: [:b | b morph
+			display: [ ( errorString asText) 
+				addAttribute: (TextFontReference toFont: (LogicalFont familyName: 'Source Code Pro' pointSize: 10));
+				yourself].
+		].
+	tmpBrowser startOn: itemSelection.
+	tmpBrowser open.
 ]
 
 { #category : #accessing }

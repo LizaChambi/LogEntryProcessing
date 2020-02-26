@@ -15,6 +15,11 @@ LogGroup class >> withName: aName stage:aStage [
 	^(self new) name: aName logs: OrderedCollection new stage:aStage.
 ]
 
+{ #category : #adding }
+LogGroup >> addGroup: aName [
+	stage addGroup: aName.
+]
+
 { #category : #'as yet unclassified' }
 LogGroup >> addLog: aLogEntry [
 	"comment stating purpose of message"
