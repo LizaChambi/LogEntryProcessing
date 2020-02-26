@@ -26,14 +26,13 @@ Stage >> < aStage [
 
 { #category : #'as yet unclassified' }
 Stage >> addGroup: aName [
-	"ESTE METODO HACE DOBLE BUSQUEDA"
 	"aName := aBasename readStream upTo:$-; upTo:$.." "Read the name" "Se puede hacer con un parser"
 	(aName isEmpty) ifTrue: [ self error: 'Could not create a LogGroup without name' ].
-	(groups anySatisfy: [ :group | group hasName: aName])
-		ifTrue: [ ^ self searchGroup: aName ]
-		ifFalse:[ | newGroup | newGroup := LogGroup withName: aName stage: self. 
-			groups add: newGroup.
-			^ newGroup].
+	
+	^ groups detect: [ :group | group hasName: aName] 
+		ifNone: [ |newGroup| newGroup := LogGroup withName: aName stage: self. 
+			groups add: newGroup. 
+			^ newGroup ].
 ]
 
 { #category : #'as yet unclassified' }

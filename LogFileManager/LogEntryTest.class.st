@@ -16,7 +16,7 @@ LogEntryTest >> setUp [
 	|group stage |
 	stage:= Stage new:0.
 	group := LogGroup withName: 'dir/stage0-algo.changes' stage: stage.
-	stage addGroup: group.
+	stage addGroup: 'algo'.
 	logEntry := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:0 group: group.
 	group addLog: logEntry.
 ]
@@ -66,7 +66,7 @@ LogEntryTest >> testEditWithLog [
 	| aLogEntry newGroup stage |
 	stage := Stage new:#Final.
 	newGroup := LogGroup withName: 'path/stageFinal-algo.changes' stage: stage.
-	stage addGroup: newGroup.
+	stage addGroup: 'algo'.
 	aLogEntry := LogEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup.
 	logEntry editWithLog: aLogEntry.
 	self assert: (logEntry) equals: (logEntry timestamp: 0303 selector: #method: arguments: #(arg) stage: #Final group: newGroup ).
@@ -124,7 +124,7 @@ LogEntryTest >> testHasStageErrorOnLogStream [
 	| fileRef logWithStage2 group stage |
 	stage := Stage new:0.
 	group := LogGroup withName: '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' stage:stage.
-	stage addGroup:group.
+	stage addGroup: 'testfile'.
 	fileRef := '/home/liza/Pharo/images/Pharo 7.0 - 64bit (stable)/stage0-testfile.changes' asFileReference.
 	logWithStage2 := LogEntry timestamp: 0 selector: #doAssignType:to: arguments: #(#void 'AbtContainerDetailsColumn>>clearWidgets' ) stage:2 group: group.
 	group addLog: logWithStage2.
