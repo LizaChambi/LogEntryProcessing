@@ -40,7 +40,7 @@ LogGroupTest >> testFailuresReportWithAllFailures [
 	
 	failures := group failuresReport.
 	
-	self assert: (failures size) equals: (4).
+	self assert: (failures size) equals: (3).
 	self assert: ((failures at:1) description) equals: ('Timestamp repeated.').
 	self assert: ((failures at:1) nameFile) equals: (group fileName).
 	self assert: ((failures at:1) logWithTimestamp) equals: (34).
@@ -52,10 +52,6 @@ LogGroupTest >> testFailuresReportWithAllFailures [
 	self assert: ((failures at:3) description) equals: ('Log stage does not match the file name.').
 	self assert: ((failures at:3) nameFile) equals: (group fileName).
 	self assert: ((failures at:3) logWithTimestamp) equals: (34).
-	
-	self assert: ((failures at:4) description) equals: ('Stage invalid.'). 
-	self assert: ((failures at:4) nameFile) equals: (group fileName).
-	self assert: ((failures at:4) logWithTimestamp) equals: (34).
 ]
 
 { #category : #tests }

@@ -84,14 +84,10 @@ LogFileManager >> editLogEntryGroup: aLogEntry to: aGroupName [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> editStage: aLogEntry to: aLevelString [
-	| newLog newLevelStage  groupNameTemp|
+	| newLevelStage  groupNameTemp|
 	"EXTRAER METODO DE CONVERSION Y REUTILIZARLO CON #parserStage"
 [	(aLevelString trim = 'Final') ifTrue: [ newLevelStage := #Final ].
 	(aLevelString isString) ifTrue: [ newLevelStage := aLevelString asNumber ] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
-	
-	
-"	[ (aLevelString trim = 'Final') ifTrue: [ newLevelStage := aLevelString asSymbol ] ifFalse: [ newLevelStage := aLevelString digitValue] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ]."
-	"newLog := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: newLevelStage."
 	
 	(aLogEntry stage = newLevelStage) ifFalse: [
 							groupNameTemp := aLogEntry group name.
@@ -99,7 +95,6 @@ LogFileManager >> editStage: aLogEntry to: aLevelString [
 							aLogEntry group removeLogEntry: aLogEntry.
 							aLogEntry stage: aLevelString.
 							self addLog: aLogEntry withSource: ('stage', newLevelStage asString, '-', aLogEntry group name, '.changes' )].
-		
 	
 ]
 
@@ -538,8 +533,9 @@ LogFileManager >> sourceInput: aPathString [
 { #category : #'as yet unclassified' }
 LogFileManager >> stageParsing: aLogEntry [
 	"comment stating purpose of instance-side message"
-	(aLogEntry stage = 'Final') ifTrue: [ aLogEntry stage: #Final ].
-	(aLogEntry stage isCharacter ) ifTrue: [ aLogEntry stage: aLogEntry stage digitValue ] ifFalse:[ aLogEntry stage: aLogEntry stage asNumber ].
+	(aLogEntry stage = #Final) ifTrue:[ ^ aLogEntry ].
+	(aLogEntry stage == 'Final') ifTrue: [ ^ aLogEntry stage: #Final ].
+	(aLogEntry stage isCharacter ) ifTrue: [ ^ aLogEntry stage: aLogEntry stage digitValue ] ifFalse:[ ^ aLogEntry stage: aLogEntry stage asNumber ].
 	" $0 isCharacter => true ".
 	
 ]
