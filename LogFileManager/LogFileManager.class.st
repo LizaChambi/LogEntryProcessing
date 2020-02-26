@@ -35,6 +35,8 @@ LogFileManager >> addLog: aLogEntry withSource: aFileName [
 	(aLogEntry isValidLog)
 		ifTrue: [ 
 			self stageParsing: aLogEntry.
+			Transcript show: aLogEntry stage class asString, Character cr asString.
+			"CUANDO SE EDITA DESDE LA INTERFAZ, EL STAGE PASA COMO UN STRING" 
 			(self addStage: aLogEntry stage) addLog: aLogEntry withSource: aFileName.
 			
 		"	self addStage: aLogEntry stage.
@@ -83,9 +85,14 @@ LogFileManager >> editLogEntryGroup: aLogEntry to: aGroupName [
 { #category : #'as yet unclassified' }
 LogFileManager >> editStage: aLogEntry to: aLevelString [
 	| newLog newLevelStage  groupNameTemp|
-	" Validate level stage"
-	[ (aLevelString trim = 'Final') ifTrue: [ newLevelStage := aLevelString asSymbol ] ifFalse: [ newLevelStage := aLevelString asNumber] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
+	"EXTRAER METODO DE CONVERSION Y REUTILIZARLO CON #parserStage"
+[	(aLevelString trim = 'Final') ifTrue: [ newLevelStage := #Final ].
+	(aLevelString isString) ifTrue: [ newLevelStage := aLevelString asNumber ] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
+	
+	
+"	[ (aLevelString trim = 'Final') ifTrue: [ newLevelStage := aLevelString asSymbol ] ifFalse: [ newLevelStage := aLevelString digitValue] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ]."
 	"newLog := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: newLevelStage."
+	
 	(aLogEntry stage = newLevelStage) ifFalse: [
 							groupNameTemp := aLogEntry group name.
 							"self removeLogEntry: aLogEntry."
@@ -532,7 +539,7 @@ LogFileManager >> sourceInput: aPathString [
 LogFileManager >> stageParsing: aLogEntry [
 	"comment stating purpose of instance-side message"
 	(aLogEntry stage = 'Final') ifTrue: [ aLogEntry stage: #Final ].
-	(aLogEntry stage isCharacter ) ifTrue: [ aLogEntry stage digitValue ]  
+	(aLogEntry stage isCharacter ) ifTrue: [ aLogEntry stage: aLogEntry stage digitValue ] ifFalse:[ aLogEntry stage: aLogEntry stage asNumber ].
 	" $0 isCharacter => true ".
 	
 ]
