@@ -93,6 +93,23 @@ LogFileManager >> editStage: aLogEntry to: aLevelString [
 	
 ]
 
+{ #category : #'as yet unclassified' }
+LogFileManager >> editStage: aLevelString withGroup: aName on: aLogEntry [
+	| newLevelStage groupNameTemp |
+		"ES CASI EL MISMO CODIGO DE #editStage:to: QUE VA A REEMPLAZARLO A LA HORA DE EDITAR EL STAGE" 
+	groupNameTemp := aName.
+	[	(aLevelString trim = 'Final') ifTrue: [ newLevelStage := #Final ].
+	(aLevelString isString) ifTrue: [ newLevelStage := aLevelString asNumber ] ] on: 
+		Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
+	
+	(aLogEntry stage = newLevelStage) "Si el stage ingresado es diferente al que tenia, empiezo la edicion..."
+		ifFalse: [ (aName isEmpty) ifTrue: [ groupNameTemp := aLogEntry group name]. "Si no se ingresó un grupo entonces se usa el que ya tenia definido el log."
+							aLogEntry group removeLogEntry: aLogEntry.
+							aLogEntry stage: aLevelString.
+							self addLog: aLogEntry withSource: ('stage', newLevelStage asString, '-', groupNameTemp, '.changes' )
+					].
+]
+
 { #category : #adding }
 LogFileManager >> existStage: aNumber [
 	"comment stating purpose of message"
@@ -184,7 +201,7 @@ LogFileManager >> gtInspectorTreeLogFiles3: composite [
 				display: [ :each | each logEntries sort: [:log1 :log2 | log1 <= log2. ]];
 				act: [ :list | list selection inspect ] icon: GLMUIThemeExtraIcons glamorousInspect entitled: 'Inspect';
 				act: [ :list | list selection remove. composite update ] icon: GLMUIThemeExtraIcons glamorousTrash entitled: 'Remove';
-				act: [ :list | self openEditStageOn: list selection from: composite.] icon: GLMUIThemeExtraIcons glamorousEdit entitled: 'Change Stage';
+				act: [ :list | self openEditStageOn: list selection from: composite] icon: GLMUIThemeExtraIcons glamorousEdit entitled: 'Change Stage';
 				act: [ :list | self openEditFileOn: list selection from:composite ] icon: GLMUIThemeExtraIcons glamorousBrowse entitled: 'Change file'
 			]. 
 ]
@@ -340,14 +357,13 @@ LogFileManager >> print [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> readEmptyFile: aFileName [
-	"comment stating purpose of instance-side message"
 	| level levelPosition |
 	levelPosition := 6.
 	(aFileName beginsWith: ('stageFinal')) ifTrue: [ level:=#Final ].
 	(aFileName beginsWith: ('stage')) ifTrue: [ level:= (aFileName at:levelPosition) digitValue ].
 	
-	[ self addStage: level. 
-	(self searchStageLevel: level) addGroup: (aFileName readStream upTo:$-; upToEnd)] on: Error do: [ failures add: (ReportLogError description: 'The file name does not have the stage reference.' nameFile: aFileName) ].
+	[ self addStage: level. (self searchStageLevel: level) addGroup: (aFileName readStream upTo:$-; upToEnd)] on: 
+		Error do: [ failures add: (ReportLogError description: 'The file name does not have the stage reference.' nameFile: aFileName) ].
 	
 ]
 
