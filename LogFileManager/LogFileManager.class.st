@@ -80,9 +80,10 @@ LogFileManager >> editLogEntryGroup: aLogEntry to: aGroupName [
 { #category : #'as yet unclassified' }
 LogFileManager >> editStage: aLogEntry to: aLevelString [
 	| newLevelStage  groupNameTemp|
-	"EXTRAER METODO DE CONVERSION Y REUTILIZARLO CON #parserStage"
-[	(aLevelString trim = 'Final') ifTrue: [ newLevelStage := #Final ].
-	(aLevelString isString) ifTrue: [ newLevelStage := aLevelString asNumber ] ] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
+	[	(aLevelString trim = 'Final') 
+			ifTrue: [ newLevelStage := #Final ] 
+			ifFalse: [(aLevelString isString) ifTrue: [ newLevelStage := aLevelString asNumber ] ]
+	] on: Error do:[ self error: 'Invalid stage value:', Character cr asString, 'The values can be ''(aNumber >= 0)'' or ''Final''' ].
 	
 	(aLogEntry stage = newLevelStage) ifFalse: [
 							groupNameTemp := aLogEntry group name.
