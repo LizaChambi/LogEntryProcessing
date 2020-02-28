@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'sourceInput',
 		'failures',
-		'stages'
+		'stages',
+		'file'
 	],
 	#classInstVars : [
 		'filesToRead',
@@ -61,10 +62,20 @@ LogFileManager >> childrens [
 
 { #category : #'as yet unclassified' }
 LogFileManager >> editLogEntryGroup: aLogEntry to: aGroupName [
-	| newLogEntry | 
+	| selectedStage |
+	
+	selectedStage := aLogEntry group stage.
+	self removeLogEntry: aLogEntry.
+	selectedStage addLog: aLogEntry withSource: selectedStage stageNamePrefix,'-', aGroupName,'.changes' . 
+	
+
+"	| newLogEntry | 
 	newLogEntry := LogEntry timestamp: aLogEntry timestamp selector: aLogEntry selector arguments: aLogEntry arguments stage: aLogEntry stage.
 	self removeLogEntry: aLogEntry.
-	(self addGroupWithName: aGroupName onStage: newLogEntry stage) addLog: newLogEntry.
+	(self addGroupWithName: aGroupName onStage: newLogEntry stage) addLog: newLogEntry."
+	
+	
+	
 "	self addLog: newLogEntry fromFile: aGroupName ]"
 	
 "	(aLogEntry hasStageErrorOn: aGroupName asFileReference)

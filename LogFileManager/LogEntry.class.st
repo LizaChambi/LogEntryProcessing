@@ -153,7 +153,7 @@ LogEntry >> gtInspectorEditLogEntry: composite [
 	<gtInspectorPresentationOrder: 5>
 	composite pharoScript 
 		title: 'Editor';
-		selectionPopulate: #selection on: $s entitled: 'Save log' with: [:text | [self editor: text text. composite update] on: Error do: [:ex | self openErrorBrowserOn: composite withMessage: 'Error: ', ex messageText ] ];
+		selectionAct: [:text | [self editor: text text. composite update] on: Error do: [:ex | self openErrorBrowserOn: composite withMessage: 'Error: ', ex messageText ]] on: $s entitled: 'Save log';
 		display: [ :log | log editable ].
 ]
 
@@ -252,11 +252,13 @@ LogEntry >> parserValidation: aCollection [
 { #category : #conversion }
 LogEntry >> prettyPrint [
 	"comment stating purpose of message"
+	|stageToPrint|
+	(stage isNumber) ifTrue: [stageToPrint := stage asString] ifFalse:[ stageToPrint := '#',stage asString].
 	^ 'self
 	timestamp: ', timestamp asString,'
 	selector: ', '#', selector asString, '
 	arguments: ', arguments asString, '
-	stage: ', stage asString, '.
+	stage: ', stageToPrint, '.
 '.
 ]
 
